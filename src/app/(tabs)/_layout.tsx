@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { User } from "lucide-react-native";
+import { Compass, User } from "lucide-react-native";
 import React from "react";
 
 export default function TabLayout() {
@@ -17,15 +17,15 @@ export default function TabLayout() {
         tabBarInactiveTintColor: "#999",
       }}
     >
-      {/* <Tabs.Screen
-        name="index"
+      <Tabs.Screen
+        name="discover"
         options={{
           title: "Discover",
           tabBarIcon: ({ color, size }) => (
             <Compass color={color} size={size} />
           ),
         }}
-      /> */}
+      />
 
       <Tabs.Screen
         name="profile"
