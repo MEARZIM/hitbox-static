@@ -10,28 +10,63 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
+        background: {
+          DEFAULT: "var(--background)",
+          10: "#08060b1a", // 10% opacity
+          20: "#08060b33", // 20% opacity
+          40: "#08060b66", // 40% opacity
+          60: "#08060b99", // 60% opacity
+          80: "#08060bcc", // 80% opacity
+          90: "#08060be6", // 90% opacity
+        },
         foreground: "var(--foreground)",
+
+        // --- CARD OPACITY STEPS ---
         card: {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
+          10: "#110e161a",
+          20: "#110e1633",
+          40: "#110e1666",
+          80: "#110e16cc",
         },
+
+        // --- PRIMARY BRAND OPACITY STEPS ---
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
+          10: "#6d28d91a",
+          20: "#6d28d933",
+          40: "#6d28d966",
+          80: "#6d28d9cc",
         },
+
+        // --- SECONDARY SURFACE OPACITY STEPS ---
         secondary: {
           DEFAULT: "var(--secondary)",
           foreground: "var(--secondary-foreground)",
+          10: "#19171e1a",
+          20: "#19171e33",
+          40: "#19171e66",
+          80: "#19171ecc",
         },
+
+        // --- MUTED UTILITY OPACITY STEPS ---
         muted: {
           DEFAULT: "var(--muted)",
           foreground: "var(--muted-foreground)",
+          10: "#201e251a",
+          20: "#201e2533",
+          40: "#201e2566",
+          80: "#201e25cc",
         },
+
         accent: {
           DEFAULT: "var(--accent)",
           foreground: "var(--accent-foreground)",
         },
+        border: "var(--border)",
+        input: "var(--input)",
       },
       keyframes: {
         'accordion-down': {
