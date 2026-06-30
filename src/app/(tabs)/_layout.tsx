@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { User } from "lucide-react-native";
+import { Handbag, User } from "lucide-react-native";
 import React from "react";
 
 export default function TabLayout() {
@@ -26,6 +26,17 @@ export default function TabLayout() {
           ),
         }}
       /> */}
+
+
+      <Tabs.Screen
+        name="marketplace"
+        options={{
+          title: "Marketplace",
+          tabBarIcon: ({ color, size }) => (
+            <Handbag color={color} size={size} />
+          ),
+        }}
+      />
 
       <Tabs.Screen
         name="profile"
