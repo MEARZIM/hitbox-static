@@ -4,11 +4,10 @@ import {
 import React, { useState } from "react";
 import {
     FlatList,
-    ImageBackground,
     ScrollView,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,6 +16,7 @@ import MainSearchBar from "@/components/mainsearch";
 import ReleaseCard from "../../../features/discover/components/ReleaseCard";
 import TrendingCard from "../../../features/discover/components/TrendingCard";
 import CategoriesSection from "../components/CategoriesSection";
+import HeroBanner from "../components/HeroBanner";
 import CreatorsCard from "../components/SingleCreatorCard";
 import { creatorsData } from "../data/creatorsData";
 import { releaseData } from "../data/releaseData";
@@ -59,56 +59,10 @@ export default function DiscoverScreen() {
                     <CategoriesSection />
                 </View>
 
-                {/* <HeroBanner /> */}
-
-                <ImageBackground
-                    source={{
-                        uri: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200",
-                    }}
-                    resizeMode="cover"
-                    imageStyle={{ borderRadius: 20 }}
-                    className="mt-5 h-52 overflow-hidden rounded-xl mx-4"
-                >
-                    {/* Dark Overlay */}
-                    <View className="flex-1 rounded-xl bg-black/40 p-5 justify-between">
-                        {/* Badge */}
-                        <View className="self-start rounded-md bg-violet-600 px-3 py-1">
-                            <Text className="text-[10px] font-bold tracking-wider text-white">
-                                FEATURED
-                            </Text>
-                        </View>
-
-                        {/* Content */}
-                        <View>
-                            <Text className="text-2xl font-bold text-white">
-                                Warped Tour 2026
-                            </Text>
-
-                            <Text className="mt-2 text-sm text-gray-200">
-                                Relive the moments. Own the legacy.
-                            </Text>
+                {/* HERO SECTION */}
+                <HeroBanner />
 
 
-                            <View className="min-w-[85px] max-w-[40%] mt-6 items-end justify-center shrink-0">
-                                <TouchableOpacity
-                                    activeOpacity={0.8}
-                                    className="bg-primary px-3 py-2 rounded-xl shadow-sm shadow-primary/30 w-full items-center justify-center"
-                                >
-                                    <Text className="text-white font-bold text-xs" numberOfLines={1}>
-                                        Explore Collection
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        {/* Pagination Dots */}
-                        <View className="flex-row justify-center">
-                            <View className="mx-1 h-2 w-6 rounded-full bg-primary" />
-                            <View className="mx-1 h-2 w-2 rounded-full bg-gray-500" />
-                            <View className="mx-1 h-2 w-2 rounded-full bg-gray-500" />
-                        </View>
-                    </View>
-                </ImageBackground>
                 <View className="mt-8 flex-row items-center justify-between mx-4">
                     <Text className="text-2xl font-bold text-white">
                         Trending Now
