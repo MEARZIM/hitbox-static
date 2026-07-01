@@ -1,9 +1,9 @@
+import MainHeader from '@/components/mainHeader';
 import {
     Bell,
     ChevronRight,
     HelpCircle,
     Lock,
-    Settings,
     ShieldAlert,
     User,
     Wallet
@@ -26,20 +26,7 @@ export default function ProfileScreen() {
             contentContainerStyle={{ paddingTop: insets.top }}
         >
             {/* HEADER BAR */}
-            <View className="flex-row justify-between items-center px-4 pb-4">
-                <Text className="text-foreground text-3xl font-bold tracking-tight">Profile</Text>
-                <View className="flex-row gap-4">
-                    <TouchableOpacity className="p-2 bg-secondary rounded-full">
-                        <Settings size={22} color="#ffffff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity className="p-2 bg-secondary rounded-full relative">
-                        <Bell size={22} color="#ffffff" />
-                        <View className="absolute top-1 right-1 bg-primary w-4 h-4 rounded-full items-center justify-center">
-                            <Text className="text-[10px] text-white font-bold">3</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            <MainHeader title='Profile' classname='px-4 py-2'/>
 
             {/* USER HERO SECTION */}
             <UserHeroSection />

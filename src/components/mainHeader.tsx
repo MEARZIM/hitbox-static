@@ -1,6 +1,7 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { cn } from "@/lib/utils";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface MainHeaderProps {
   title: string;
@@ -8,6 +9,7 @@ interface MainHeaderProps {
   notificationCount?: number | null;
   onNotificationPress?: (() => void) | null;
   onFilterPress?: (() => void) | null;
+  classname?: string
 }
 
 const MainHeader: React.FC<MainHeaderProps> = ({
@@ -16,9 +18,10 @@ const MainHeader: React.FC<MainHeaderProps> = ({
   notificationCount = 0,
   onNotificationPress,
   onFilterPress,
+  classname
 }) => {
   return (
-    <View className="flex-row items-start justify-between">
+    <View className={cn(`flex-row items-start justify-between`, classname)}>
       {/* Left */}
       <View className="flex-1 pr-4">
         <Text className="text-3xl font-bold text-white">
