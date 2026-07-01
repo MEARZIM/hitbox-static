@@ -1,6 +1,6 @@
 import React from "react";
 import { ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import MainHeader from "@/components/mainHeader";
 import CategoriesSection from "../components/CategoriesSection";
@@ -12,16 +12,11 @@ import ViewAllCollectionsButton from "../components/ViewAllCollection";
 import MyCollectionData from "../data/MyCollection";
 
 export default function CollectionScreen() {
-  const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background">
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom + 24,
-        }}
       >
         {/* Header */}
         <MainHeader
@@ -30,6 +25,7 @@ export default function CollectionScreen() {
           notificationCount={3}
           onNotificationPress={() => console.log("Notifications")}
           onFilterPress={() => console.log("Filter")}
+          classname="mx-4 py-2"
         />
 
         {/* Collection Progress */}
@@ -59,6 +55,6 @@ export default function CollectionScreen() {
           <RecentlyAddedSection />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
