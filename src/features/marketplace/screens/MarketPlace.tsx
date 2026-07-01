@@ -1,9 +1,10 @@
-import MainHeader from '@/components/mainHeader';
-import MainSearchBar from '@/components/mainsearch';
 import { CreditCard, LayoutGrid, Shirt, Ticket, ToyBrick } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import MainHeader from '@/components/mainHeader';
+import MainSearchBar from '@/components/mainsearch';
 import CategorySection from '../components/CategorySection';
 import ListingsSection from '../components/ListingsSection';
 import LiveAuctionSection from '../components/LiveAuctionsSection';
@@ -13,11 +14,11 @@ import PromoBannerSection from '../components/PromoBannerSection';
 
 // --- Mock Data ---
 const CATEGORIES = [
-  { id: 'all', icon: LayoutGrid, label: 'All Items' },
-  { id: 'cards', icon: CreditCard, label: 'Cards' },
-  { id: 'figures', icon: ToyBrick, label: 'Figures' },
-  { id: 'apparel', icon: Shirt, label: 'Apparel' },
-  { id: 'tickets', icon: Ticket, label: 'Tickets' },
+    { id: 'all', icon: LayoutGrid, label: 'All Items' },
+    { id: 'cards', icon: CreditCard, label: 'Cards' },
+    { id: 'figures', icon: ToyBrick, label: 'Figures' },
+    { id: 'apparel', icon: Shirt, label: 'Apparel' },
+    { id: 'tickets', icon: Ticket, label: 'Tickets' },
 ];
 
 const FEATURED_LISTINGS = [
@@ -75,40 +76,37 @@ const LIVE_AUCTIONS = [
 ];
 
 const MarketPlaceScreen = () => {
-    const insets = useSafeAreaInsets();
 
     return (
-        <ScrollView
-            className="bg-background flex-1"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-                paddingTop: insets.top,
-                paddingBottom: insets.bottom + 24
-            }}
-        >
-            {/* --- HEADER --- */}
-            <MainHeader
-                title='Marketplace'
-                subtitle={" Buy, sell and trade with collectors worldwide."}
-                classname='px-4 py-2'
-            />
+        <SafeAreaView className="flex-1 bg-background">
+            <ScrollView
+                className="bg-background flex-1"
+                showsVerticalScrollIndicator={false}
+            >
+                {/* --- HEADER --- */}
+                <MainHeader
+                    title='Marketplace'
+                    subtitle={" Buy, sell and trade with collectors worldwide."}
+                    classname='px-4 py-2'
+                />
 
-            {/* --- SEARCH BAR --- */}
-            <MainSearchBar />
+                {/* --- SEARCH BAR --- */}
+                <MainSearchBar />
 
-            {/* --- PROMO BANNER --- */}
-            <PromoBannerSection />
+                {/* --- PROMO BANNER --- */}
+                <PromoBannerSection />
 
-            {/* --- CATEGORIES --- */}
-            <CategorySection CATEGORIES={CATEGORIES} />
+                {/* --- CATEGORIES --- */}
+                <CategorySection CATEGORIES={CATEGORIES} />
 
-            {/* --- FEATURED LISTINGS --- */}
-            <ListingsSection FEATURED_LISTINGS={FEATURED_LISTINGS} />
+                {/* --- FEATURED LISTINGS --- */}
+                <ListingsSection FEATURED_LISTINGS={FEATURED_LISTINGS} />
 
-            {/* --- LIVE AUCTIONS --- */}
-            <LiveAuctionSection LIVE_AUCTIONS={LIVE_AUCTIONS} />
+                {/* --- LIVE AUCTIONS --- */}
+                <LiveAuctionSection LIVE_AUCTIONS={LIVE_AUCTIONS} />
 
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
