@@ -6,6 +6,7 @@ import { Text, View } from 'react-native'
 import { AppleSvg } from '@/components/icons/AppleIcon'
 import { FacebookSvg } from '@/components/icons/FacebookIcon'
 import { GoogleSvg } from '@/components/icons/GoogleIcon'
+import { router } from 'expo-router'
 import { AnimatedButton } from './AnimatedButton'
 
 export default function Step2ActionCtx() {
@@ -17,7 +18,7 @@ export default function Step2ActionCtx() {
 
             {/* Google Button */}
             <AnimatedButton
-                onPress={() => console.log('Google Press')}
+                onPress={() => router.push('/(auth)/register/step3')}
                 className="flex-row items-center bg-foreground h-12 rounded-2xl px-4"
             >
                 <MotiView

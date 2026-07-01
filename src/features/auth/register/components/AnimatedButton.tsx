@@ -21,6 +21,7 @@ export const AnimatedButton = ({
       onPress={onPress}
       onPressIn={() => animationState.transitionTo('pressed')}
       onPressOut={() => animationState.transitionTo('from')}
+      style={{ width: '100%' }}
     >
       <MotiView
         state={animationState}
