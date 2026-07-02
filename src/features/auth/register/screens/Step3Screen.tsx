@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
-import { MotiView, useAnimationState } from 'moti';
 import React from 'react';
-import { ImageBackground, Pressable, ScrollView, View } from 'react-native';
+import { ImageBackground, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Step3ActionCtx from '../components/Step3ActionCtx';
@@ -10,37 +9,6 @@ import Step3Header from '../components/Step3Header';
 import Step3ProductCard from '../components/Step3ProductCard';
 import StepProgressHeader from '../components/StepProgressHeader';
 
-const PremiumButton = ({
-  children,
-  onPress,
-  className = ""
-}: {
-  children: React.ReactNode;
-  onPress?: () => void;
-  className?: string;
-}) => {
-  const pressState = useAnimationState({
-    from: { scale: 1 },
-    pressed: { scale: 0.96 },
-  });
-
-  return (
-    <Pressable
-      onPress={onPress}
-      onPressIn={() => pressState.transitionTo('pressed')}
-      onPressOut={() => pressState.transitionTo('from')}
-      style={{ width: '100%' }}
-    >
-      <MotiView
-        state={pressState}
-        transition={{ type: 'timing', duration: 100 }}
-        className={className}
-      >
-        {children}
-      </MotiView>
-    </Pressable>
-  );
-};
 
 export default function Step3Screen() {
   return (
