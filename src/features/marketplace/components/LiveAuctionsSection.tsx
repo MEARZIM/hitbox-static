@@ -9,7 +9,7 @@ interface LiveauctionProps {
         subtitle: string;
         price: string;
         bids: string;
-        timeLeft: string;
+        timeLeft: string; 
         image: string;
     }[]
 }
@@ -18,64 +18,80 @@ export default function LiveAuctionSection({ LIVE_AUCTIONS }: LiveauctionProps) 
     return (
         <View className="px-4">
             {/* Section Header */}
-            <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-foreground text-base font-bold tracking-tight">Live Auctions</Text>
+            <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-white text-lg font-bold tracking-tight">Live Auctions</Text>
                 <Pressable className="flex-row items-center active:opacity-75">
-                    <Text className="text-primary text-xs font-semibold mr-0.5">See All</Text>
-                    <ChevronRight color="#6d28d9" size={14} />
+                    <Text className="text-purple-500 text-xs font-semibold mr-1">See All</Text>
+                    <ChevronRight color="#a855f7" size={16} />
                 </Pressable>
             </View>
 
-            {/* Auction List Container */}
-            <View className="gap-3">
-                {LIVE_AUCTIONS.map((auction) => (
-                    <View
-                        key={auction.id}
-                        className="bg-card border border-primary rounded-2xl p-3 flex-row items-center"
-                    >
-                        {/* Image Container with Absolute Time Badge */}
-                        <View className="relative w-20 h-20 mr-3">
+            {/* Main Outer Container Wrapper */}
+            <View className="bg-[#0b0d19]/60 border border-zinc-800 rounded-2xl px-4 py-1">
+                {LIVE_AUCTIONS.map((auction, index) => {
+                    // Split time components if format allows, or assume standard breakdown
+                    const timeParts = auction.timeLeft.split('\n');
+
+                    return (
+                        <View
+                            key={auction.id}
+                            className={`flex-row items-center py-4 ${index !== LIVE_AUCTIONS.length - 1 ? 'border-b border-zinc-800/60' : ''
+                                }`}
+                        >
+                            {/* Auction Image */}
                             <Image
                                 source={{ uri: auction.image }}
-                                className="w-full h-full rounded-xl bg-muted"
+                                className="w-16 h-16 rounded-xl bg-zinc-900 border border-zinc-800"
+                                resizeMode="cover"
                             />
-                            {/* Premium Time overlay badge utilizing background layout */}
-                            <View className="absolute bottom-1 left-1 right-1 bg-colors-background-80 border border-primary-40 rounded-md py-0.5 items-center justify-center">
-                                <Text className="text-primary text-[9px] font-extrabold tracking-wide text-center uppercase">
-                                    {auction.timeLeft.replace(/\n/g, ' ')}
-                                </Text>
+
+                            {/* Separated Time Box */}
+                            <View className="border border-purple-900/60 rounded-xl px-2.5 py-1.5 ml-3 items-center justify-center min-w-[52px]">
+                                {timeParts.map((part, pIdx) => (
+                                    <Text
+                                        key={pIdx}
+                                        className={`text-center text-[11px] font-bold ${part.toLowerCase() === 'left' ? 'text-zinc-500 font-normal text-[10px] mt-0.5' : 'text-purple-400'
+                                            }`}
+                                    >
+                                        {part}
+                                    </Text>
+                                ))}
                             </View>
-                        </View>
 
-                        {/* Core Metadata Info */}
-                        <View className="flex-1 justify-center pr-2">
-                            <Text className="text-foreground text-sm font-bold tracking-tight" numberOfLines={1}>
-                                {auction.title}
-                            </Text>
-                            <Text className="text-muted-foreground text-[11px] mt-0.5" numberOfLines={1}>
-                                {auction.subtitle}
-                            </Text>
+                            {/* Core Metadata Info */}
+                            <View className="flex-1 pl-3 justify-center">
+                                <Text className="text-white text-sm font-semibold tracking-tight" numberOfLines={1}>
+                                    {auction.title}
+                                </Text>
+                                <Text className="text-zinc-400 text-[11px] mt-0.5" numberOfLines={1}>
+                                    {auction.subtitle}
+                                </Text>
 
-                            {/* Price & Bid Sub-row */}
-                            <View className="flex-row items-center mt-2">
-                                <View className="w-3.5 h-3.5 rounded-full bg-primary justify-center items-center mr-1">
-                                    <Text className="text-[8px] text-primary-foreground font-black">♦</Text>
+                                {/* Price Layout */}
+                                <View className="flex-row items-center mt-2">
+                                    <Text className="text-zinc-400 text-xs mr-1">Current Bid</Text>
+                                    {/* Purple Gem Icon */}
+                                    <View className="w-4 h-4 rounded bg-purple-600 justify-center items-center mr-1 rotate-45 scale-75">
+                                        <Text className="text-[9px] text-white font-black -rotate-45">♦</Text>
+                                    </View>
+                                    <Text className="text-white text-sm font-bold tracking-tight">
+                                        {auction.price}
+                                    </Text>
                                 </View>
-                                <Text className="text-foreground text-xs font-black tracking-tight mr-2">
-                                    {auction.price}
-                                </Text>
-                                <Text className="text-muted-foreground text-[10px] bg-secondary px-1.5 py-0.5 rounded border border-colors-primary-40">
-                                    {auction.bids}
-                                </Text>
                             </View>
-                        </View>
 
-                        {/* Premium Interactive Action Button using safe custom configurations */}
-                        <Pressable className="bg-primary-10 border border-primary-40 px-3.5 py-2 rounded-xl active:opacity-80">
-                            <Text className="text-primary text-xs font-bold tracking-tight">Place Bid</Text>
-                        </Pressable>
-                    </View>
-                ))}
+                            {/* Bids Count (Positioned to the right side) */}
+                            <Text className="text-zinc-400 text-xs mr-3">
+                                {auction.bids}
+                            </Text>
+
+                            {/* Border-only Action Button */}
+                            <Pressable className="border border-purple-900 px-4 py-2 rounded-xl active:opacity-70 bg-transparent">
+                                <Text className="text-purple-400 text-xs font-bold">Place Bid</Text>
+                            </Pressable>
+                        </View>
+                    );
+                })}
             </View>
         </View>
     );
