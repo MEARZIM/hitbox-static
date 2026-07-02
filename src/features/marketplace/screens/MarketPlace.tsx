@@ -80,8 +80,10 @@ const MarketPlaceScreen = () => {
     return (
         <SafeAreaView className="flex-1 bg-background">
             <ScrollView
-                className="bg-background flex-1"
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                    paddingBottom: 24,
+                }}
             >
                 {/* --- HEADER --- */}
                 <MainHeader
