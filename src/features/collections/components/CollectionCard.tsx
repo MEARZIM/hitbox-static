@@ -60,21 +60,23 @@ export default function CollectionCard({ item }: Props) {
       }
     >
       <View
+        className="rounded-3xl border border-[#232C3F] bg-[#0B1018] p-2.5"
         style={{
-          backgroundColor: "#0A0F1C",
-          borderRadius: 1,
-          borderWidth: 1,
-          borderColor: "#24324A",
-          padding: 5,
-          overflow: "hidden",
+          shadowColor: "#000",
+          shadowOpacity: 0.25,
+          shadowRadius: 10,
+          shadowOffset: {
+            width: 0,
+            height: 5,
+          },
+          elevation: 6,
         }}
       >
         {/* IMAGE */}
         <View
+          className="overflow-hidden rounded-2xl"
           style={{
             height: CARD_WIDTH * 0.82,
-            borderRadius: 1,
-            overflow: "hidden",
           }}
         >
           <Image
@@ -83,14 +85,13 @@ export default function CollectionCard({ item }: Props) {
             style={{
               width: "100%",
               height: "100%",
-             
             }}
           />
 
           <LinearGradient
             colors={[
               "transparent",
-              "rgba(0,0,0,0.55)",
+              "rgba(0,0,0,0.65)",
             ]}
             style={{
               position: "absolute",
@@ -103,21 +104,21 @@ export default function CollectionCard({ item }: Props) {
 
           {item.featured && (
             <LinearGradient
-              colors={["#8B5CF6", "#6D28D9"]}
+              colors={["#A855F7", "#7C3AED"]}
               style={{
                 position: "absolute",
                 top: 6,
                 left: 6,
-                borderRadius: 20,
+                borderRadius: 8,
                 paddingHorizontal: 6,
-                paddingVertical: 2,
+                paddingVertical: 3,
               }}
             >
               <Text
                 style={{
                   color: "#fff",
                   fontWeight: "700",
-                  fontSize: 6,
+                  fontSize: 7,
                 }}
               >
                 FEATURED
@@ -127,13 +128,12 @@ export default function CollectionCard({ item }: Props) {
         </View>
 
         {/* CONTENT */}
-        <View style={{ marginTop: 6 }}>
+        <View className="mt-3">
           <Text
             numberOfLines={2}
+            className="font-bold text-white"
             style={{
-              color: "#fff",
               fontSize: 10,
-              fontWeight: "700",
               lineHeight: 13,
             }}
           >
@@ -142,11 +142,9 @@ export default function CollectionCard({ item }: Props) {
 
           <Text
             numberOfLines={1}
+            className="mt-1 text-zinc-400"
             style={{
-              color: "#8B5CF6",
               fontSize: 8,
-              marginTop: 4,
-            
             }}
           >
             {item.subtitle}

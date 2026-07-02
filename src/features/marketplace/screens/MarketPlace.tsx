@@ -50,7 +50,7 @@ const FEATURED_LISTINGS = [
         price: '3,200',
         bids: '18 bids',
         time: '1d 6h',
-        image: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=400&auto=format&fit=crop&q=60',
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdNk8gPXVHoh_q6lkzrCnuwYSoDzrZ3n9QybD3xMjksBqgbV3g3mEcuAiK&s=10',
     }
 ];
 
