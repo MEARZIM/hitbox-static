@@ -9,7 +9,7 @@ export default function Step4ActionCtx() {
     return (
         <View className="gap-y-3 w-full items-center">
             <AnimatedButton
-                className="bg-primary h-14 rounded-2xl flex-row items-center justify-center gap-x-2.5 shadow-lg shadow-primary/20 w-full"
+                className="bg-primary h-14 rounded-2xl flex-row items-center justify-center gap-x-2.5 shadow-lg shadow-primary w-full"
                 onPress={() => router.push('/(tabs)/collections')}
             >
                 <LayoutDashboard size={25} color="#ffffff" />
@@ -17,13 +17,13 @@ export default function Step4ActionCtx() {
             </AnimatedButton>
 
             <AnimatedButton
-                className="w-full border border-neutral-800 h-14 rounded-2xl flex-row items-center justify-center gap-x-2.5 bg-neutral-900/40 active:bg-neutral-900"
+                className="w-full border border-neutral-800 h-14 rounded-2xl flex-row items-center justify-center gap-x-2.5 bg-neutral-900/40"
                 onPress={() => router.push('/(auth)/register')}
-
             >
                 <Radio size={25} color="#a855f7" />
                 <Text className="text-primary font-bold text-[15px]">Tap Another Item</Text>
             </AnimatedButton>
+
         </View>
     )
 }
