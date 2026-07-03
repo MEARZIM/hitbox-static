@@ -1,4 +1,5 @@
 import { BlurView } from "expo-blur";
+import { router } from "expo-router";
 import { BadgeCheck } from "lucide-react-native";
 import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -21,6 +22,7 @@ export default function SingleCreatorCard({ item }: CreatorCardProps) {
     <TouchableOpacity
       activeOpacity={0.8}
       className="w-32 overflow-hidden rounded-3xl"
+      onPress={() => router.push(`/(routes)/artists/${item.id}`)}
     >
       <BlurView
         intensity={10}

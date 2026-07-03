@@ -94,39 +94,39 @@ export default function DiscoverScreen() {
                     />
                 </View>
 
-                <View className="mt-8 flex-row items-center justify-between mx-4">
-                    <Text className="text-2xl font-bold text-white">
-                        Top Creators
-                    </Text>
 
-                    <TouchableOpacity className="flex-row items-center">
-                        <Text className="mr-1 font-semibold text-violet-500">
-                            See All
+                {/* Artist Section */}
+                <View>
+
+                    <View className="mt-8 flex-row items-center justify-between mx-4">
+                        <Text className="text-2xl font-bold text-white">
+                            Top Creators
                         </Text>
 
-                        <ArrowRight
-                            size={18}
-                            color="#8B5CF6"
+                        <TouchableOpacity className="flex-row items-center">
+                            <Text className="mr-1 font-semibold text-violet-500">
+                                See All
+                            </Text>
+
+                            <ArrowRight
+                                size={18}
+                                color="#8B5CF6"
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    <View className="mt-4 mx-4">
+                        <FlatList
+                            horizontal
+                            data={creatorsData}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <CreatorsCard item={item} />
+                            )}
+                            ItemSeparatorComponent={() => <View className="w-4" />}
+                            showsHorizontalScrollIndicator={false}
                         />
-                    </TouchableOpacity>
-                </View>
-                {/* Categories */}
-                {/* <CategoryList /> */}
-
-                {/* Trending */}
-                {/* <TrendingSection /> */}
-
-                <View className="mt-4 mx-4">
-                    <FlatList
-                        horizontal
-                        data={creatorsData}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                            <CreatorsCard item={item} />
-                        )}
-                        ItemSeparatorComponent={() => <View className="w-4" />}
-                        showsHorizontalScrollIndicator={false}
-                    />
+                    </View>
                 </View>
 
                 <View className="mt-8 flex-row items-center justify-between mx-4">

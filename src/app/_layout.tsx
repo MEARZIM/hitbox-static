@@ -26,6 +26,12 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="(routes)"
+        options={{
+          headerShown: false,
+        }}
+      />
 
       <Stack.Screen name="index" />
     </Stack>
