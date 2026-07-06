@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~56.0.18",
+    "@hookform/resolvers": "^5.4.0",
     "@rn-primitives/accordion": "^1.4.0",
     "@rn-primitives/alert-dialog": "^1.4.0",
     "@rn-primitives/aspect-ratio": "^1.4.0",
@@ -52,6 +53,7 @@
     "prettier-plugin-tailwindcss": "^0.5.14",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hook-form": "^7.81.0",
     "react-native": "0.85.3",
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-gesture-handler": "~2.31.1",

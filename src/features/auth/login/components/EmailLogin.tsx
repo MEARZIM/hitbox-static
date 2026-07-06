@@ -1,0 +1,145 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ChevronRight, Eye, EyeOff, Mail } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import { LoginFormData, loginSchema } from '../schemas/LoginSchema';
+
+export default function EmailLogin({
+    isEmailDialogOpen,
+    setIsEmailDialogOpen
+}: {
+    isEmailDialogOpen: boolean
+    setIsEmailDialogOpen: (value: boolean) => void
+}) {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const {
+        control: emailControl,
+        handleSubmit: handleEmailSubmit,
+        formState: { errors: emailErrors },
+        reset: resetEmailForm
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: { email: '', password: '' }
+    });
+
+    const onEmailSubmit = (data: LoginFormData) => {
+        console.log('Email Form Submitted:', data);
+        setIsEmailDialogOpen(false);
+        resetEmailForm();
+    };
+
+
+    return (
+        <View>
+            <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+                <DialogTrigger asChild>
+                    <TouchableOpacity className="flex-row items-center justify-between bg-background border border-neutral-800 h-14 px-4 rounded-2xl w-full">
+                        <View className="flex-row items-center gap-x-3">
+                            <Mail size={22} color="#FFFFFF" />
+                            <Text className="text-white font-semibold text-base">Continue with Email</Text>
+                        </View>
+                        <ChevronRight size={18} color="#525252" />
+                    </TouchableOpacity>
+                </DialogTrigger>
+
+                <DialogContent className="bg-neutral-950 border w-[350px] border-neutral-900 p-6 rounded-3xl max-w-lg mx-auto">
+                    <DialogHeader className="mb-4">
+                        <DialogTitle className="text-white text-xl font-bold">Sign In with Email</DialogTitle>
+                        <Text className="text-neutral-400 text-xs mt-1">
+                            Enter your credentials to access your account.
+                        </Text>
+                    </DialogHeader>
+
+                    <View className="gap-y-4">
+                        {/* Email Input */}
+                        <View className="gap-y-2">
+                            <Text className="text-neutral-400 text-xs font-semibold uppercase tracking-wider">
+                                Email Address
+                            </Text>
+                            <Controller
+                                control={emailControl}
+                                name="email"
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <TextInput
+                                        className={`bg-neutral-900 border ${emailErrors.email ? 'border-red-500' : 'border-neutral-800'} h-14 px-4 rounded-2xl text-white text-base`}
+                                        placeholder="Enter your email"
+                                        placeholderTextColor="#525252"
+                                        keyboardType="email-address"
+                                        autoCapitalize="none"
+                                        onBlur={onBlur}
+                                        onChangeText={onChange}
+                                        value={value}
+                                    />
+                                )}
+                            />
+                            {emailErrors.email && (
+                                <Text className="text-red-500 text-xs font-medium ml-1">{emailErrors.email.message}</Text>
+                            )}
+                        </View>
+
+                        {/* Password Input */}
+                        <View className="gap-y-2">
+                            <View className="flex-row justify-between items-center">
+                                <Text className="text-neutral-400 text-xs font-semibold uppercase tracking-wider">
+                                    Password
+                                </Text>
+                                <TouchableOpacity>
+                                    <Text className="text-primary text-xs font-semibold">Forgot Password?</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <Controller
+                                control={emailControl}
+                                name="password"
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <View className={`relative flex-row items-center justify-between bg-neutral-900 border ${emailErrors.password ? 'border-red-500' : 'border-neutral-800'} h-14 px-4 rounded-2xl w-full`}>
+                                        <TextInput
+                                            className="flex-1 text-white text-base h-full pr-10"
+                                            placeholder="Enter your password"
+                                            placeholderTextColor="#525252"
+                                            secureTextEntry={!showPassword}
+                                            autoCapitalize="none"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                        />
+                                        <TouchableOpacity
+                                            className="absolute right-4"
+                                            onPress={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? (
+                                                <EyeOff size={20} color="#A3A3A3" />
+                                            ) : (
+                                                <Eye size={20} color="#A3A3A3" />
+                                            )}
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            />
+                            {emailErrors.password && (
+                                <Text className="text-red-500 text-xs font-medium ml-1">{emailErrors.password.message}</Text>
+                            )}
+                        </View>
+
+                        <TouchableOpacity
+                            className="bg-primary h-14 items-center justify-center rounded-2xl w-full mt-2 shadow-lg shadow-primary/20"
+                            onPress={handleEmailSubmit(onEmailSubmit)}
+                        >
+                            <Text className="text-white font-bold text-base">Sign In</Text>
+                        </TouchableOpacity>
+                    </View>
+                </DialogContent>
+            </Dialog>
+        </View>
+    )
+}
