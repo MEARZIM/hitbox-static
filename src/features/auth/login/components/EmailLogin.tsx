@@ -11,6 +11,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { router } from 'expo-router';
 import { LoginFormData, loginSchema } from '../schemas/LoginSchema';
 
 export default function EmailLogin({
@@ -93,7 +94,10 @@ export default function EmailLogin({
                                 <Text className="text-neutral-400 text-xs font-semibold uppercase tracking-wider">
                                     Password
                                 </Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    setIsEmailDialogOpen(false);
+                                    router.push("/(auth)/forget-password")
+                                }}>
                                     <Text className="text-primary text-xs font-semibold">Forgot Password?</Text>
                                 </TouchableOpacity>
                             </View>
