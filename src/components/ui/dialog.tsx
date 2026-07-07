@@ -39,7 +39,7 @@ function DialogOverlay({
     <FullWindowOverlay>
       <DialogPrimitive.Overlay
         className={cn(
-          'absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-white opacity-90  p-2',
+          'absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-background opacity-90  p-2',
           Platform.select({
             web: 'animate-in fade-in-0 fixed cursor-default [&>*]:cursor-auto',
           }),
@@ -70,7 +70,7 @@ function DialogContent({
       <DialogOverlay>
         <DialogPrimitive.Content
           className={cn(
-            'bg-background border-border z-50 mx-auto flex w-full max-w-[calc(100%-2rem)] flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5',
+            'bg-background opacity-100 border border-white z-50 mx-auto flex w-full max-w-[calc(100%-2rem)] flex-col gap-4 rounded-lg p-6 shadow-lg shadow-black/5',
             Platform.select({
               web: 'animate-in fade-in-0 zoom-in-95 duration-200',
             }),

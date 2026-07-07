@@ -53,7 +53,7 @@ export default function EmailLogin({
                     </TouchableOpacity>
                 </DialogTrigger>
 
-                <DialogContent className="bg-neutral-950 border w-[350px] border-neutral-900 p-6 rounded-3xl max-w-lg mx-auto">
+                <DialogContent className="bg-background opacity-100 border w-[350px] border-primary p-6 rounded-3xl max-w-lg mx-auto shadow-xl shadow-primary">
                     <DialogHeader className="mb-4">
                         <DialogTitle className="text-white text-xl font-bold">Sign In with Email</DialogTitle>
                         <Text className="text-neutral-400 text-xs mt-1">
