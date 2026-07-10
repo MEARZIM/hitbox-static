@@ -7,13 +7,20 @@ export const userDetailsSchema = z.object({
     username: z.string()
         .min(3, 'Username must be at least 3 characters')
         .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-    email: z.string().email('Please enter a valid email address'),
+    email: z.email('Please enter a valid email address'),
     countryCode: z.string()
         .min(1, 'Required')
         .regex(/^\+?[1-9]\d{0,3}$/, 'Invalid code'),
     phoneNumber: z.string()
         .min(10, 'Phone number must be at least 10 digits')
         .regex(/^\d+$/, 'Please enter digits only'),
+        
+    acceptPrivacyPolicy: z.boolean().refine((val) => val === true, {
+        message: 'You must accept the Privacy Policy',
+    }),
+    acceptTermsAndConditions: z.boolean().refine((val) => val === true, {
+        message: 'You must accept the Terms and Conditions',
+    }),
 })
 
 export type UserDetailsFormData = z.infer<typeof userDetailsSchema>
