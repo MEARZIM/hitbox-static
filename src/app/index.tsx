@@ -19,6 +19,12 @@ export default function Index() {
           Go to Tabs Section
         </Text>
       </Button>
+
+      <Button onPress={() => router.push('/(auth)/item-not-authenticated')}>
+        <Text>
+          Go to Item Not Authentic Section
+        </Text>
+      </Button>
     </SafeAreaView>
 
   );
