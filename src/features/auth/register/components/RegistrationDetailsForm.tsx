@@ -6,9 +6,9 @@ import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
+// Adjust path according to your react-native-reusables setup
+import { Checkbox } from '@/components/ui/checkbox'
 import { UserDetailsFormData, userDetailsSchema } from '../validation/registrationFormDetails'
-
-
 
 export default function RegistrationDetailsForm() {
     const {
@@ -27,11 +27,12 @@ export default function RegistrationDetailsForm() {
             email: '',
             countryCode: '+1',
             phoneNumber: '',
+            acceptPrivacyPolicy: false,
+            acceptTermsAndConditions: false,
         },
     })
 
     const profileImage = watch('profileImage')
-
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -53,9 +54,8 @@ export default function RegistrationDetailsForm() {
     }
 
     const onSubmit = (data: UserDetailsFormData) => {
-        console.log('Validated Form Data with Image:', data)
+        console.log('Validated Form Data with Image & Agreements:', data)
     }
-
 
     return (
         <View>
@@ -66,7 +66,6 @@ export default function RegistrationDetailsForm() {
                     activeOpacity={0.9}
                     className="relative"
                 >
-                    {/* Outer animated ambient pulse ring */}
                     <MotiView
                         from={{ opacity: 0.3, scale: 0.9 }}
                         animate={{ opacity: profileImage ? 0.1 : 0.4, scale: 1.05 }}
@@ -79,7 +78,6 @@ export default function RegistrationDetailsForm() {
                         className="absolute inset-0 bg-purple-500 rounded-full"
                     />
 
-                    {/* Main Avatar Container */}
                     <MotiView
                         animate={{
                             scale: profileImage ? 1 : 0.95,
@@ -109,7 +107,6 @@ export default function RegistrationDetailsForm() {
                         </AnimatePresence>
                     </MotiView>
 
-                    {/* Small Camera Edit Button badge */}
                     <MotiView
                         from={{ scale: 0 }}
                         animate={{ scale: 1 }}
@@ -121,7 +118,6 @@ export default function RegistrationDetailsForm() {
                 </TouchableOpacity>
                 <Text className="text-gray-400 text-xs mt-3">Click to upload profile image</Text>
             </View>
-            {/* --- End Profile Picture Section --- */}
 
             {/* First Name Field */}
             <View className="mb-4">
@@ -210,7 +206,6 @@ export default function RegistrationDetailsForm() {
             <View className="mb-6">
                 <Text className="text-gray-300 mb-1 font-medium">Phone Number</Text>
                 <View className="flex-row gap-2">
-                    {/* Country Code Picker */}
                     <View className="w-24">
                         <Controller
                             control={control}
@@ -229,7 +224,6 @@ export default function RegistrationDetailsForm() {
                         />
                     </View>
 
-                    {/* Phone Number Input */}
                     <View className="flex-1">
                         <Controller
                             control={control}
@@ -251,6 +245,63 @@ export default function RegistrationDetailsForm() {
                 {errors.countryCode && <Text className="text-red-400 text-sm mt-1">{errors.countryCode.message}</Text>}
                 {errors.phoneNumber && <Text className="text-red-400 text-sm mt-1">{errors.phoneNumber.message}</Text>}
             </View>
+
+            {/* --- Terms & Conditions Checkbox --- */}
+            <MotiView
+                animate={{ scale: errors.acceptTermsAndConditions ? [1, 1.02, 1] : 1 }}
+                transition={{ type: 'timing', duration: 250 }}
+                className="flex-row items-start gap-3 mb-6 px-1"
+            >
+                <Controller
+                    control={control}
+                    name="acceptTermsAndConditions"
+                    render={({ field: { value, onChange } }) => (
+                        <Checkbox
+                            checked={value}
+                            onCheckedChange={onChange}
+                            aria-labelledby="terms-label"
+                            className=' border-white'
+                        />
+                    )}
+                />
+                <View className="flex-1">
+                    <Text id="terms-label" className="text-gray-300 text-sm leading-5">
+                        I agree to the <Text className="text-purple-400 font-medium">Terms and Conditions</Text>
+                    </Text>
+                    {errors.acceptTermsAndConditions && (
+                        <Text className="text-red-400 text-xs mt-1">{errors.acceptTermsAndConditions.message}</Text>
+                    )}
+                </View>
+            </MotiView>
+
+            {/* --- Privacy Policy Checkbox --- */}
+            <MotiView
+                animate={{ scale: errors.acceptPrivacyPolicy ? [1, 1.02, 1] : 1 }}
+                transition={{ type: 'timing', duration: 250 }}
+                className="flex-row items-start gap-3 mb-4 px-1"
+            >
+                <Controller
+                    control={control}
+                    name="acceptPrivacyPolicy"
+                    render={({ field: { value, onChange } }) => (
+                        <Checkbox
+                            checked={value}
+                            onCheckedChange={onChange}
+                            aria-labelledby="privacy-label"
+                            className=' border-white border'
+                        />
+                    )}
+                />
+                <View className="flex-1">
+                    <Text id="privacy-label" className="text-gray-300 text-sm leading-5">
+                        I accept the <Text className="text-purple-400 font-medium">Privacy Policy</Text>
+                    </Text>
+                    {errors.acceptPrivacyPolicy && (
+                        <Text className="text-red-400 text-xs mt-1">{errors.acceptPrivacyPolicy.message}</Text>
+                    )}
+                </View>
+            </MotiView>
+
 
             {/* Submit Button */}
             <TouchableOpacity
