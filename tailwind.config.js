@@ -20,6 +20,18 @@ module.exports = {
           90: "#08060be6", // 90% opacity
         },
         foreground: "var(--foreground)",
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          10: "#ef44441a", // 10% opacity
+          20: "#ef444433", // 20% opacity
+          30: "#ef44444d", // 30% opacity
+          40: "#ef444466", // 40% opacity
+          50: "#ef444480", // 50% opacity
+          60: "#ef444499", // 60% opacity
+          70: "#ef4444b3", // 70% opacity
+          80: "#ef4444cc", // 80% opacity
+          90: "#ef4444e6", // 90% opacity
+        },
 
         // --- CARD OPACITY STEPS ---
         card: {
