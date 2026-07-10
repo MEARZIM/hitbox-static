@@ -54,7 +54,7 @@ export default function Step2ActionCtx() {
 
             {/* Email Button */}
             <AnimatedButton
-                onPress={() => console.log('Email Press')}
+                onPress={() => router.push('/(auth)/register/details')}
                 className="flex-row items-center bg-neutral-900/80 border border-neutral-800 h-12 rounded-2xl px-4"
             >
                 <View className="w-6 items-center"><Mail size={20} color="#fff" /></View>
