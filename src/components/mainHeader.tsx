@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Bell, SlidersHorizontal } from "lucide-react-native";
 import React from "react";
-import { Text, TouchableOpacity, View, Image } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface MainHeaderProps {
   title: string;
@@ -24,11 +24,11 @@ const MainHeader: React.FC<MainHeaderProps> = ({
 }) => {
   return (
     <View className={cn(`flex-col gap-4`, classname)}>
-      {/* Top brand bar: Centered HitBox Logo */}
-      <View className="w-full items-center justify-center">
+      {/* Top brand bar: HitBox Logo in Top Left */}
+      <View className="w-full flex-row justify-start">
         <Image
           source={require("@/assets/images/HitBoxLogo.jpeg")}
-          className="h-10 w-32 rounded-lg"
+          className="h-14 w-44 md:h-20 md:w-64 rounded-lg -ml-12 md:-ml-16"
           resizeMode="contain"
         />
       </View>
