@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Bell, SlidersHorizontal } from "lucide-react-native";
+import { Bell } from "lucide-react-native";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -54,12 +54,12 @@ const MainHeader: React.FC<MainHeaderProps> = ({
         </TouchableOpacity>
 
         {/* Filter */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={onFilterPress ?? undefined}
           className="h-11 w-11 items-center justify-center rounded-full border border-zinc-800 bg-[#121218]"
         >
           <SlidersHorizontal size={20} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
