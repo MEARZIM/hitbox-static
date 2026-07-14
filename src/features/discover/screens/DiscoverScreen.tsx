@@ -42,7 +42,6 @@ export default function DiscoverScreen() {
                     subtitle="Explore collections, creators and exclusive experiences."
                     notificationCount={3}
                     onNotificationPress={() => console.log("Notifications")}
-                    onFilterPress={() => console.log("Filter")}
                     classname='py-2 mx-4'
                 />
 
