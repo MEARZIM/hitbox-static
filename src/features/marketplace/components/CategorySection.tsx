@@ -1,14 +1,17 @@
+import CategoryCard from '@/features/discover/components/CategoryCard';
+import { LucideProps } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { ScrollView, } from 'react-native';
 
 interface CategoriesProps {
     CATEGORIES: {
         id: string
+        icon: React.ForwardRefExoticComponent<LucideProps & React.RefAttributes<SVGSVGElement>>;
         label: string
     }[]
 }
 
-export default function CategorySection(CATEGORIES: CategoriesProps) {
+export default function CategorySection({ CATEGORIES }: CategoriesProps) {
     const [activeCategory, setActiveCategory] = React.useState('all');
 
     return (
@@ -18,21 +21,16 @@ export default function CategorySection(CATEGORIES: CategoriesProps) {
             className="pl-4 mb-6"
             contentContainerStyle={{ paddingRight: 24 }}
         >
-            {CATEGORIES.CATEGORIES.map((cat) => {
+            {CATEGORIES.map((cat) => {
                 const isActive = activeCategory === cat.id;
                 return (
-                    <Pressable
+                    <CategoryCard
                         key={cat.id}
+                        title={cat.label}
+                        Icon={cat.icon}
+                        active={isActive}
                         onPress={() => setActiveCategory(cat.id)}
-                        className={`mr-2.5 px-4 h-9 rounded-full flex-row items-center border ${isActive
-                            ? 'bg-primary border-primary'
-                            : 'bg-secondary border-border'
-                            }`}
-                    >
-                        <Text className={`text-xs font-semibold ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
-                            {cat.label}
-                        </Text>
-                    </Pressable>
+                    />
                 );
             })}
         </ScrollView>
