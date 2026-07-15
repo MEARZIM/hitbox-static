@@ -130,47 +130,48 @@ export default function ArtistProfileScreen() {
             </ScrollView>
 
             {/* Upcoming Events */}
-            <SectionHeader title="Upcoming Events" actionText="View All" />
+            {/* <SectionHeader title="Upcoming Events" actionText="View All" /> */}
+
             {
-                [0, 1, 2, 3].map((_, index) => (
-                    <View key={index} className="mx-4 mb-4 bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-4 flex-row items-center justify-between gap-x-3">
-                        <View className="flex-row items-center gap-x-3 flex-1">
+                // [0, 1, 2, 3].map((_, index) => (
+                //     // <View key={index} className="mx-4 mb-4 bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-4 flex-row items-center justify-between gap-x-3">
+                //     //     <View className="flex-row items-center gap-x-3 flex-1">
 
-                            {/* Premium Date Box with Purple Outline */}
-                            <View className="border border-purple-500/30 bg-zinc-950/80 rounded-xl items-center justify-center w-10 h-14">
-                                <Text className="text-purple-500 text-[9px] font-bold tracking-widest">JUN</Text>
-                                <Text className="text-white text-sm font-bold mt-0.5">
-                                    {artist.upcomingEvent.date.split(' ')[1]}
-                                </Text>
-                            </View>
+                //     //         {/* Premium Date Box with Purple Outline */}
+                //     //         <View className="border border-purple-500/30 bg-zinc-950/80 rounded-xl items-center justify-center w-10 h-14">
+                //     //             <Text className="text-purple-500 text-[9px] font-bold tracking-widest">JUN</Text>
+                //     //             <Text className="text-white text-sm font-bold mt-0.5">
+                //     //                 {artist.upcomingEvent.date.split(' ')[1]}
+                //     //             </Text>
+                //     //         </View>
 
-                            {/* Event Thumbnail Image */}
-                            <Image
-                                source={{ uri: artist.latestReleases[0]?.bg }}
-                                className="w-16 h-14 rounded-xl bg-zinc-800"
-                                resizeMode="cover"
-                            />
+                //     //         {/* Event Thumbnail Image */}
+                //     //         <Image
+                //     //             source={{ uri: artist.latestReleases[0]?.bg }}
+                //     //             className="w-16 h-14 rounded-xl bg-zinc-800"
+                //     //             resizeMode="cover"
+                //     //         />
 
-                            {/* Event Info Stack */}
-                            <View className="flex-1 justify-center">
-                                <Text className="text-white font-semibold text-sm" numberOfLines={1}>
-                                    {artist.upcomingEvent.title}
-                                </Text>
-                                <Text className="text-zinc-400 text-xs mt-0.5" numberOfLines={1}>
-                                    {artist.upcomingEvent.location}
-                                </Text>
-                                <Text className="text-purple-400 text-[11px] font-medium mt-1.5" numberOfLines={1}>
-                                    💎 {artist.upcomingEvent.perk}
-                                </Text>
-                            </View>
-                        </View>
+                //     //         {/* Event Info Stack */}
+                //     //         <View className="flex-1 justify-center">
+                //     //             <Text className="text-white font-semibold text-sm" numberOfLines={1}>
+                //     //                 {artist.upcomingEvent.title}
+                //     //             </Text>
+                //     //             <Text className="text-zinc-400 text-xs mt-0.5" numberOfLines={1}>
+                //     //                 {artist.upcomingEvent.location}
+                //     //             </Text>
+                //     //             <Text className="text-purple-400 text-[11px] font-medium mt-1.5" numberOfLines={1}>
+                //     //                 💎 {artist.upcomingEvent.perk}
+                //     //             </Text>
+                //     //         </View>
+                //     //     </View>
 
-                        {/* View Event Outline Button */}
-                        <TouchableOpacity className="border border-purple-500/40 bg-purple-500/5 px-4 py-2 rounded-xl h-10 justify-center">
-                            <Text className="text-purple-400 text-[10px] font-bold">View Event</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))
+                //     //     {/* View Event Outline Button */}
+                //     //     {/* <TouchableOpacity className="border border-purple-500/40 bg-purple-500/5 px-4 py-2 rounded-xl h-10 justify-center">
+                //     //         <Text className="text-purple-400 text-[10px] font-bold">View Event</Text>
+                //     //     </TouchableOpacity> */}
+                //     // </View>
+                // ))
             }
 
 
