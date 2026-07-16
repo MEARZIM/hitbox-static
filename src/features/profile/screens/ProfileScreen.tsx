@@ -1,4 +1,5 @@
 import MainHeader from '@/components/mainHeader';
+import { useRouter } from 'expo-router';
 import {
     Bell,
     ChevronRight,
@@ -18,6 +19,7 @@ import VipBannerCard from '../components/VipBannerCard';
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
+    const router = useRouter();
 
     return (
         <ScrollView
@@ -50,12 +52,43 @@ export default function ProfileScreen() {
                 <Text className="text-foreground text-lg font-bold mb-3">Account</Text>
                 <View className="bg-card border border-border/30 rounded-2xl overflow-hidden">
 
-                    <AccountRow icon={<User size={20} color="#94a3b8" />} title="Personal Information" subtitle="Update your profile and personal details" />
-                    <AccountRow icon={<Lock size={20} color="#94a3b8" />} title="Security" subtitle="Password, 2FA, and account security" />
-                    <AccountRow icon={<Wallet size={20} color="#94a3b8" />} title="Connected Wallet" subtitle="Manage your blockchain wallet" />
-                    <AccountRow icon={<Bell size={20} color="#94a3b8" />} title="Notifications" subtitle="Manage your notification preferences" />
-                    <AccountRow icon={<ShieldAlert size={20} color="#94a3b8" />} title="Privacy & Data" subtitle="Privacy settings and data management" />
-                    <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" isLast />
+                    <AccountRow 
+                        icon={<User size={20} color="#94a3b8" />} 
+                        title="Personal Information" 
+                        subtitle="Update your profile and personal details" 
+                        onPress={() => router.push('/settings?tab=personal')}
+                    />
+                    <AccountRow 
+                        icon={<Lock size={20} color="#94a3b8" />} 
+                        title="Security" 
+                        subtitle="Password, 2FA, and account security" 
+                        onPress={() => router.push('/settings?tab=security')}
+                    />
+                    <AccountRow 
+                        icon={<Wallet size={20} color="#94a3b8" />} 
+                        title="Connected Wallet" 
+                        subtitle="Manage your blockchain wallet" 
+                        onPress={() => console.log("Wallet")}
+                    />
+                    <AccountRow 
+                        icon={<Bell size={20} color="#94a3b8" />} 
+                        title="Notifications" 
+                        subtitle="Manage your notification preferences" 
+                        onPress={() => router.push('/settings?tab=notifications')}
+                    />
+                    <AccountRow 
+                        icon={<ShieldAlert size={20} color="#94a3b8" />} 
+                        title="Privacy & Data" 
+                        subtitle="Privacy settings and data management" 
+                        onPress={() => console.log("Privacy")}
+                    />
+                    <AccountRow 
+                        icon={<HelpCircle size={20} color="#94a3b8" />} 
+                        title="Help & Support" 
+                        subtitle="Get help and contact support" 
+                        isLast 
+                        onPress={() => console.log("Help")}
+                    />
 
                 </View>
             </View>
@@ -63,9 +96,13 @@ export default function ProfileScreen() {
     )
 }
 
-function AccountRow({ icon, title, subtitle, isLast = false }: { icon: React.ReactNode, title: string, subtitle: string, isLast?: boolean }) {
+function AccountRow({ icon, title, subtitle, isLast = false, onPress }: { icon: React.ReactNode, title: string, subtitle: string, isLast?: boolean, onPress?: () => void }) {
     return (
-        <TouchableOpacity className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-border/30' : ''}`}>
+        <TouchableOpacity 
+            onPress={onPress}
+            activeOpacity={0.7}
+            className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-border/30' : ''}`}
+        >
             <View className="flex-row items-center gap-4 flex-1 pr-2">
                 {icon}
                 <View className="gap-0.5 flex-1">

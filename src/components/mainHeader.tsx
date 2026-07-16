@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useRouter } from "expo-router";
 import { Bell, Settings } from "lucide-react-native";
 import React from "react";
 import {
@@ -27,6 +28,15 @@ const MainHeader: React.FC<MainHeaderProps> = ({
   className,
 }) => {
   const { width } = useWindowDimensions();
+  const router = useRouter();
+
+  const handleSettingsPress = () => {
+    if (onSettingsPress) {
+      onSettingsPress();
+    } else {
+      router.push("/settings");
+    }
+  };
 
   const isSmall = width < 375;
   const isTablet = width >= 768;
@@ -62,7 +72,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
           {/* Settings */}
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onSettingsPress}
+            onPress={handleSettingsPress}
             style={{
               width: buttonSize,
               height: buttonSize,
