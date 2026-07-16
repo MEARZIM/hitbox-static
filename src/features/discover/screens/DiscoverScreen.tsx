@@ -42,8 +42,7 @@ export default function DiscoverScreen() {
                     subtitle="Explore collections, creators and exclusive experiences."
                     notificationCount={3}
                     onNotificationPress={() => console.log("Notifications")}
-                    onFilterPress={() => console.log("Filter")}
-                    classname='py-2 mx-4'
+                    className='py-2 mx-4'
                 />
 
                 {/* Search Bar */}
@@ -70,7 +69,7 @@ export default function DiscoverScreen() {
 
                     <TouchableOpacity className="flex-row items-center">
                         <Text className="mr-1 font-semibold text-violet-500">
-                            See All
+                            View All
                         </Text>
 
                         <ArrowRight
@@ -136,7 +135,7 @@ export default function DiscoverScreen() {
 
                     <TouchableOpacity className="flex-row items-center">
                         <Text className="mr-1 font-semibold text-violet-500">
-                            See All
+                            View All
                         </Text>
 
                         <ArrowRight

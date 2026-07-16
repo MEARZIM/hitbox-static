@@ -25,7 +25,8 @@ export default function ProfileScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* HEADER BAR */}
-                <MainHeader title='Profile' classname='px-4 py-2' />
+                <MainHeader 
+                title='Profile' className='px-4 py-2' />
 
                 {/* USER HERO SECTION */}
                 <UserHeroSection />
@@ -63,9 +64,13 @@ export default function ProfileScreen() {
     )
 }
 
-function AccountRow({ icon, title, subtitle, isLast = false }: { icon: React.ReactNode, title: string, subtitle: string, isLast?: boolean }) {
+function AccountRow({ icon, title, subtitle, isLast = false, onPress }: { icon: React.ReactNode, title: string, subtitle: string, isLast?: boolean, onPress?: () => void }) {
     return (
-        <TouchableOpacity className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-border/30' : ''}`}>
+        <TouchableOpacity 
+            onPress={onPress}
+            activeOpacity={0.7}
+            className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-border/30' : ''}`}
+        >
             <View className="flex-row items-center gap-4 flex-1 pr-2">
                 {icon}
                 <View className="gap-0.5 flex-1">
