@@ -1,8 +1,12 @@
+import { useClerk } from '@clerk/clerk-expo';
+import { useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import {
     Bell,
     ChevronRight,
     HelpCircle,
     Lock,
+    LogOut,
     ShieldAlert,
     User,
     Wallet
@@ -18,6 +22,14 @@ import UserHeroSection from '../components/UserHeroSection';
 import VipBannerCard from '../components/VipBannerCard';
 
 export default function ProfileScreen() {
+    const { signOut } = useClerk();
+    const queryClient = useQueryClient();
+
+    const handleSignOut = async () => {
+        await signOut();
+        queryClient.clear(); // drop cached user data for the next account
+        router.replace('/');
+    };
 
     return (
         <SafeAreaView className="flex-1 bg-background">
@@ -54,7 +66,8 @@ export default function ProfileScreen() {
                         <AccountRow icon={<Wallet size={20} color="#94a3b8" />} title="Connected Wallet" subtitle="Manage your blockchain wallet" />
                         <AccountRow icon={<Bell size={20} color="#94a3b8" />} title="Notifications" subtitle="Manage your notification preferences" />
                         <AccountRow icon={<ShieldAlert size={20} color="#94a3b8" />} title="Privacy & Data" subtitle="Privacy settings and data management" />
-                        <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" isLast />
+                        <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" />
+                        <AccountRow icon={<LogOut size={20} color="#f87171" />} title="Sign Out" subtitle="Log out of your HitBox account" isLast onPress={handleSignOut} />
 
                     </View>
                 </View>
@@ -63,9 +76,9 @@ export default function ProfileScreen() {
     )
 }
 
-function AccountRow({ icon, title, subtitle, isLast = false }: { icon: React.ReactNode, title: string, subtitle: string, isLast?: boolean }) {
+function AccountRow({ icon, title, subtitle, isLast = false, onPress }: { icon: React.ReactNode, title: string, subtitle: string, isLast?: boolean, onPress?: () => void }) {
     return (
-        <TouchableOpacity className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-border/30' : ''}`}>
+        <TouchableOpacity onPress={onPress} className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-border/30' : ''}`}>
             <View className="flex-row items-center gap-4 flex-1 pr-2">
                 {icon}
                 <View className="gap-0.5 flex-1">

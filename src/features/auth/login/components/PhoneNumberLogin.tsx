@@ -1,9 +1,11 @@
+import { useSignIn, useSignUp } from '@clerk/clerk-expo';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from 'expo-router';
 import { ChevronDown, ChevronRight, Phone } from 'lucide-react-native';
 import { AnimatePresence, MotiView } from 'moti';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import {
     Dialog,
@@ -12,6 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { getClerkErrorMessage, isAccountNotFound } from '../../utils/clerk';
 import { OtpFormData, otpSchema, PhoneFormData, phoneSchema } from '../schemas/LoginSchema';
 
 const COUNTRIES = [
@@ -27,19 +30,28 @@ const COUNTRIES = [
 
 export default function PhoneNumberLogin({
     isPhoneDialogOpen,
-    setIsPhoneDialogOpen
+    setIsPhoneDialogOpen,
+    showTrigger = true
 }: {
     isPhoneDialogOpen: boolean;
     setIsPhoneDialogOpen: (value: boolean) => void;
+    /** Hide the built-in button when the dialog is opened from elsewhere (e.g. register step 2). */
+    showTrigger?: boolean;
 }) {
     const [currentStep, setCurrentStep] = useState<'phone' | 'otp'>('phone');
     const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
     const [isCountryPickerOpen, setIsCountryPickerOpen] = useState(false);
+    // Whether the OTP belongs to a sign-in (existing account) or sign-up (new account)
+    const [otpMode, setOtpMode] = useState<'signIn' | 'signUp'>('signIn');
+    const [apiError, setApiError] = useState<string | null>(null);
+
+    const { signIn, setActive, isLoaded: isSignInLoaded } = useSignIn();
+    const { signUp, isLoaded: isSignUpLoaded } = useSignUp();
 
     const {
         control: phoneControl,
         handleSubmit: handlePhoneSubmit,
-        formState: { errors: phoneErrors },
+        formState: { errors: phoneErrors, isSubmitting: isPhoneSubmitting },
         getValues: getPhoneValues,
         reset: resetPhoneForm
     } = useForm<PhoneFormData>({
@@ -51,27 +63,76 @@ export default function PhoneNumberLogin({
     const {
         control: otpControl,
         handleSubmit: handleOtpSubmit,
-        formState: { errors: otpErrors },
+        formState: { errors: otpErrors, isSubmitting: isOtpSubmitting },
         reset: resetOtpForm
     } = useForm<OtpFormData>({
         resolver: zodResolver(otpSchema),
         defaultValues: { otp: '' }
     });
 
-    const onPhoneSubmit = (data: PhoneFormData) => {
+    const onPhoneSubmit = async (data: PhoneFormData) => {
+        if (!isSignInLoaded || !isSignUpLoaded) return;
+        setApiError(null);
         const fullNumber = `${selectedCountry.code}${data.phoneNumber}`;
-        console.log('Sending OTP to full number:', fullNumber);
-        setCurrentStep('otp');
+
+        try {
+            // Existing account → SMS code sign-in
+            const { supportedFirstFactors } = await signIn.create({ identifier: fullNumber });
+            const phoneCodeFactor = supportedFirstFactors?.find(
+                (factor) => factor.strategy === 'phone_code'
+            );
+
+            if (!phoneCodeFactor || !('phoneNumberId' in phoneCodeFactor)) {
+                setApiError('SMS sign-in is not available for this account.');
+                return;
+            }
+
+            await signIn.prepareFirstFactor({
+                strategy: 'phone_code',
+                phoneNumberId: phoneCodeFactor.phoneNumberId,
+            });
+            setOtpMode('signIn');
+            setCurrentStep('otp');
+        } catch (err) {
+            if (isAccountNotFound(err)) {
+                // No account for this number → create one via phone sign-up
+                try {
+                    await signUp.create({ phoneNumber: fullNumber });
+                    await signUp.preparePhoneNumberVerification();
+                    setOtpMode('signUp');
+                    setCurrentStep('otp');
+                } catch (signUpErr) {
+                    setApiError(getClerkErrorMessage(signUpErr));
+                }
+            } else {
+                setApiError(getClerkErrorMessage(err));
+            }
+        }
     };
 
-    const onOtpSubmit = (data: OtpFormData) => {
-        console.log('Verifying OTP Code:', data.otp, 'for:', `${selectedCountry.code}${getPhoneValues('phoneNumber')}`);
+    const onOtpSubmit = async (data: OtpFormData) => {
+        if (!isSignInLoaded || !isSignUpLoaded) return;
+        setApiError(null);
 
-        setIsPhoneDialogOpen(false);
-        setCurrentStep('phone');
-        setIsCountryPickerOpen(false);
-        resetPhoneForm();
-        resetOtpForm();
+        try {
+            const attempt = otpMode === 'signIn'
+                ? await signIn.attemptFirstFactor({ strategy: 'phone_code', code: data.otp })
+                : await signUp.attemptPhoneNumberVerification({ code: data.otp });
+
+            if (attempt.status === 'complete') {
+                await setActive({ session: attempt.createdSessionId });
+                setIsPhoneDialogOpen(false);
+                setCurrentStep('phone');
+                setIsCountryPickerOpen(false);
+                resetPhoneForm();
+                resetOtpForm();
+                router.replace('/(tabs)/discover');
+            } else {
+                setApiError('Verification is incomplete. Please try again.');
+            }
+        } catch (err) {
+            setApiError(getClerkErrorMessage(err));
+        }
     };
 
     const handleOpenChange = (open: boolean) => {
@@ -80,6 +141,7 @@ export default function PhoneNumberLogin({
             setTimeout(() => {
                 setCurrentStep('phone');
                 setIsCountryPickerOpen(false);
+                setApiError(null);
                 resetPhoneForm();
                 resetOtpForm();
             }, 200);
@@ -89,18 +151,20 @@ export default function PhoneNumberLogin({
     return (
         <View>
             <Dialog open={isPhoneDialogOpen} onOpenChange={handleOpenChange}>
-                <DialogTrigger asChild>
-                    <TouchableOpacity className="flex-row items-center justify-between bg-background border border-neutral-800 p-4 rounded-2xl w-full">
-                        <View className="flex-row items-center gap-x-3">
-                            <Phone size={22} color="#FFFFFF" />
-                            <View>
-                                <Text className="text-white font-semibold text-base">Continue with Phone Number</Text>
-                                <Text className="text-neutral-500 text-xs">We'll send you a verification code</Text>
+                {showTrigger && (
+                    <DialogTrigger asChild>
+                        <TouchableOpacity className="flex-row items-center justify-between bg-background border border-neutral-800 p-4 rounded-2xl w-full">
+                            <View className="flex-row items-center gap-x-3">
+                                <Phone size={22} color="#FFFFFF" />
+                                <View>
+                                    <Text className="text-white font-semibold text-base">Continue with Phone Number</Text>
+                                    <Text className="text-neutral-500 text-xs">We'll send you a verification code</Text>
+                                </View>
                             </View>
-                        </View>
-                        <ChevronRight size={18} color="#525252" />
-                    </TouchableOpacity>
-                </DialogTrigger>
+                            <ChevronRight size={18} color="#525252" />
+                        </TouchableOpacity>
+                    </DialogTrigger>
+                )}
 
                 <DialogContent className="bg-neutral-950 border w-[350px] border-neutral-900 p-6 rounded-3xl max-w-lg mx-auto overflow-hidden">
                     <AnimatePresence exitBeforeEnter>
@@ -194,11 +258,18 @@ export default function PhoneNumberLogin({
                                         )}
                                     </View>
 
+                                    {apiError && (
+                                        <Text className="text-red-500 text-xs font-medium text-center">{apiError}</Text>
+                                    )}
+
                                     <TouchableOpacity
                                         className="bg-primary h-14 items-center justify-center rounded-2xl w-full mt-2 shadow-lg shadow-primary/20"
+                                        disabled={isPhoneSubmitting}
                                         onPress={handlePhoneSubmit(onPhoneSubmit)}
                                     >
-                                        <Text className="text-white font-bold text-base">Send Code</Text>
+                                        {isPhoneSubmitting
+                                            ? <ActivityIndicator size="small" color="#FFFFFF" />
+                                            : <Text className="text-white font-bold text-base">Send Code</Text>}
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>
@@ -249,11 +320,18 @@ export default function PhoneNumberLogin({
                                         )}
                                     </View>
 
+                                    {apiError && (
+                                        <Text className="text-red-500 text-xs font-medium text-center">{apiError}</Text>
+                                    )}
+
                                     <TouchableOpacity
                                         className="bg-primary h-14 items-center justify-center rounded-2xl w-full mt-2 shadow-lg shadow-primary/20"
+                                        disabled={isOtpSubmitting}
                                         onPress={handleOtpSubmit(onOtpSubmit)}
                                     >
-                                        <Text className="text-white font-bold text-base">Submit OTP</Text>
+                                        {isOtpSubmitting
+                                            ? <ActivityIndicator size="small" color="#FFFFFF" />
+                                            : <Text className="text-white font-bold text-base">Submit OTP</Text>}
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>
