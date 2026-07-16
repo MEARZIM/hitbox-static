@@ -1,7 +1,9 @@
-import { Me, PublicUser, useApi } from "@/lib/api"
+import { useApi } from "@/lib/api"
 import { queryKeys, retryAuthAware } from "@/lib/queries"
 import { useAuth } from "@clerk/clerk-expo"
 import { useQuery } from "@tanstack/react-query"
+
+import { Me, PublicUser } from "../types/profile"
 
 /** GET /api/v1/users/me — full own profile (email, points, state). */
 export function useMe() {

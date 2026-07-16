@@ -1,6 +1,7 @@
-import { Me, UpdateMeInput, useApi } from "@/lib/api"
+import { UpdateMeInput, useApi } from "@/lib/api"
 import { queryKeys } from "@/lib/queries"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Me } from "../types/profile"
 
 
 /** PATCH /api/v1/users/me — 409 USERS_USERNAME_TAKEN surfaces as ApiRequestError. */
