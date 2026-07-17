@@ -104,6 +104,8 @@ export default function EmailLogin({
                                         placeholderTextColor="#525252"
                                         keyboardType="email-address"
                                         autoCapitalize="none"
+                                        autoComplete="email"
+                                        textContentType="emailAddress"
                                         onBlur={onBlur}
                                         onChangeText={onChange}
                                         value={value}
@@ -140,6 +142,8 @@ export default function EmailLogin({
                                             placeholderTextColor="#525252"
                                             secureTextEntry={!showPassword}
                                             autoCapitalize="none"
+                                            autoComplete="current-password"
+                                            textContentType="password"
                                             onBlur={onBlur}
                                             onChangeText={onChange}
                                             value={value}

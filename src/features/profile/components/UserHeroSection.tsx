@@ -13,17 +13,26 @@ import { useMe } from '../api/getProfile'
 export default function UserHeroSection() {
     const { user } = useUser()
     // Backend profile (rewardPoints, canonical username). Clerk fills the gaps
-    // while the query loads or if the webhook hasn't synced yet.
+    // while the query loads or if the webhook hasn't synced yet. Username and
+    // names live in unsafeMetadata for email sign-ups (Clerk instance has those
+    // attributes disabled), so that's the last Clerk-side fallback.
     const { data: me } = useMe()
+    const meta = (user?.unsafeMetadata ?? {}) as {
+        username?: string
+        firstName?: string
+        lastName?: string
+    }
 
     const displayName = [me?.firstName, me?.lastName].filter(Boolean).join(' ')
         || user?.fullName
+        || [meta.firstName, meta.lastName].filter(Boolean).join(' ')
         || me?.username
         || user?.username
+        || meta.username
         || me?.email
         || user?.primaryEmailAddress?.emailAddress
         || 'HitBox Collector'
-    const username = me?.username ?? user?.username
+    const username = me?.username ?? user?.username ?? meta.username ?? null
     const avatarUrl = me?.avatarUrl ?? user?.imageUrl
     const initials = displayName
         .split(' ')

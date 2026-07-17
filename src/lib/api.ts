@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-expo'
 import { useCallback } from 'react'
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080'
+const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '')
 
 export interface ApiError {
     code: string
