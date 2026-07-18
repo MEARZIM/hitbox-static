@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import React from 'react';
 import { ImageBackground, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,7 +6,6 @@ import Step3ActionCtx from '../components/Step3ActionCtx';
 import Step3Features from '../components/Step3Features';
 import Step3Header from '../components/Step3Header';
 import Step3ProductCard from '../components/Step3ProductCard';
-import StepProgressHeader from '../components/StepProgressHeader';
 
 
 export default function Step3Screen() {
@@ -22,7 +20,7 @@ export default function Step3Screen() {
 
       <SafeAreaView className="flex-1">
         {/* Navigation Indicator Header */}
-        <StepProgressHeader currentStep={3} onBackPress={() => router.back()} />
+        {/* <StepProgressHeader currentStep={3} onBackPress={() => router.back()} /> */}
 
         <ScrollView
           showsVerticalScrollIndicator={false}
