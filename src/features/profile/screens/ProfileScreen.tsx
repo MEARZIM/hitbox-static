@@ -15,7 +15,7 @@ import MainHeader from '@/components/mainHeader';
 import CollectionSection from '../components/CollectionSection';
 import StatsCard from '../components/StatsCard';
 import UserHeroSection from '../components/UserHeroSection';
-import VipBannerCard from '../components/VipBannerCard';
+// import VipBannerCard from '../components/VipBannerCard';
 
 export default function ProfileScreen() {
 
@@ -36,7 +36,7 @@ export default function ProfileScreen() {
 
 
                 {/* VIP BANNER */}
-                <VipBannerCard />
+                {/* <VipBannerCard /> */}
 
 
                 {/* COLLECTION HIGHLIGHTS CONTAINER */}
@@ -52,10 +52,10 @@ export default function ProfileScreen() {
 
                         <AccountRow icon={<User size={20} color="#94a3b8" />} title="Personal Information" subtitle="Update your profile and personal details" />
                         <AccountRow icon={<Lock size={20} color="#94a3b8" />} title="Security" subtitle="Password, 2FA, and account security" />
-                        <AccountRow icon={<Wallet size={20} color="#94a3b8" />} title="Connected Wallet" subtitle="Manage your blockchain wallet" />
-                        <AccountRow icon={<Bell size={20} color="#94a3b8" />} title="Notifications" subtitle="Manage your notification preferences" />
-                        <AccountRow icon={<ShieldAlert size={20} color="#94a3b8" />} title="Privacy & Data" subtitle="Privacy settings and data management" />
-                        <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" isLast />
+                        {/* <AccountRow icon={<Wallet size={20} color="#94a3b8" />} title="Connected Wallet" subtitle="Manage your blockchain wallet" /> */}
+                        <AccountRow icon={<Bell size={20} color="#94a3b8" />} title="Notifications" subtitle="Manage your notification preferences" isLast />
+                        {/* <AccountRow icon={<ShieldAlert size={20} color="#94a3b8" />} title="Privacy & Data" subtitle="Privacy settings and data management" /> */}
+                        {/* <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" isLast /> */}
 
                     </View>
                 </View>

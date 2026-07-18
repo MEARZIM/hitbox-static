@@ -21,11 +21,11 @@ export default function StatsCard() {
                 <Text className="text-foreground text-xl font-bold mt-2">8</Text>
                 <Text className="text-muted-foreground text-[11px] mt-0.5">Collections</Text>
             </View>
-            <View className="items-center flex-1 border-r border-border/40">
+            {/* <View className="items-center flex-1 border-r border-border/40">
                 <Ticket size={20} color="#94a3b8" />
                 <Text className="text-foreground text-xl font-bold mt-2">5</Text>
                 <Text className="text-muted-foreground text-[11px] mt-0.5">Experiences</Text>
-            </View>
+            </View> */}
             <View className="items-center flex-1">
                 <Gem size={20} color="#94a3b8" />
                 <Text className="text-foreground text-xl font-bold mt-2">650</Text>
