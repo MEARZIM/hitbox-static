@@ -1,5 +1,7 @@
 import {
     Calendar,
+    DollarSign,
+    Gem,
     Hash,
     Package,
     ShieldCheck,
@@ -56,9 +58,15 @@ interface TourHeaderDetailsProps {
   itemType: string;
   cardNo?: string;
   rarity: string;
-  collection: string;
+  collection?: string;
   collectionSub?: string;
-  ownedSince: string;
+  ownedSince?: string;
+  /** Label for the date row — e.g. "Released" for catalog items. */
+  dateLabel?: string;
+  /** Already-formatted price, e.g. "$149.99". */
+  price?: string;
+  /** Already-formatted points, e.g. "4,500 pts". */
+  rewardPoints?: string;
 }
 
 export default function TourHeaderDetails({
@@ -72,6 +80,9 @@ export default function TourHeaderDetails({
   collection,
   collectionSub,
   ownedSince,
+  dateLabel = "Owned Since",
+  price,
+  rewardPoints,
 }: TourHeaderDetailsProps) {
   return (
     <View className="ml-5 flex-1 justify-between h-[288px] pt-0 pb-1">
@@ -132,28 +143,49 @@ export default function TourHeaderDetails({
           valueStyle="text-[#a855f7]"
         />
 
-        <InfoRow
-          icon={<Package size={14} color={PURPLE} />}
-          title="Collection"
-          valueElement={
-            <View className="items-end gap-0.5">
-              <Text className="text-[12px] font-bold text-[#a855f7] text-right">
-                {collection}
-              </Text>
-              {collectionSub && (
-                <Text className="text-[11px] font-black text-[#a855f7] text-right">
-                  {collectionSub}
-                </Text>
-              )}
-            </View>
-          }
-        />
+        {price && (
+          <InfoRow
+            icon={<DollarSign size={14} color={PURPLE} />}
+            title="Price"
+            value={price}
+          />
+        )}
 
-        <InfoRow
-          icon={<Calendar size={14} color={PURPLE} />}
-          title="Owned Since"
-          value={ownedSince}
-        />
+        {rewardPoints && (
+          <InfoRow
+            icon={<Gem size={14} color={PURPLE} />}
+            title="Reward Points"
+            value={rewardPoints}
+            valueStyle="text-[#a855f7]"
+          />
+        )}
+
+        {collection && (
+          <InfoRow
+            icon={<Package size={14} color={PURPLE} />}
+            title="Collection"
+            valueElement={
+              <View className="items-end gap-0.5">
+                <Text className="text-[12px] font-bold text-[#a855f7] text-right">
+                  {collection}
+                </Text>
+                {collectionSub && (
+                  <Text className="text-[11px] font-black text-[#a855f7] text-right">
+                    {collectionSub}
+                  </Text>
+                )}
+              </View>
+            }
+          />
+        )}
+
+        {ownedSince && (
+          <InfoRow
+            icon={<Calendar size={14} color={PURPLE} />}
+            title={dateLabel}
+            value={ownedSince}
+          />
+        )}
       </View>
     </View>
   );

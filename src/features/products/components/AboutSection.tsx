@@ -96,7 +96,7 @@ export default function AboutSection({ aboutText, rarity, supply, ownedPercentag
 
         {/* Caption */}
         <Text className="text-[9px] text-zinc-500 font-medium text-right mt-2">
-          of supply owned
+          of supply sold
         </Text>
       </View>
     </View>
