@@ -7,7 +7,6 @@ import MainHeader from '@/components/mainHeader';
 import MainSearchBar from '@/components/mainsearch';
 import CategorySection from '../components/CategorySection';
 import ListingsSection from '../components/ListingsSection';
-import LiveAuctionSection from '../components/LiveAuctionsSection';
 import PromoBannerSection from '../components/PromoBannerSection';
 
 
@@ -105,7 +104,7 @@ const MarketPlaceScreen = () => {
                 <ListingsSection FEATURED_LISTINGS={FEATURED_LISTINGS} />
 
                 {/* --- LIVE AUCTIONS --- */}
-                <LiveAuctionSection LIVE_AUCTIONS={LIVE_AUCTIONS} />
+                {/* <LiveAuctionSection LIVE_AUCTIONS={LIVE_AUCTIONS} /> */}
 
             </ScrollView>
         </SafeAreaView>
