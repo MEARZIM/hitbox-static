@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-expo'
 import { useCallback } from 'react'
 
-const API_URL = (process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '')
+const API_URL = process.env.EXPO_PUBLIC_API_URL
 
 export interface ApiError {
     code: string
@@ -63,43 +63,6 @@ export interface Artist {
     imageUrl: string | null
     genre: ProductGenre | null
     isVerified: boolean
-}
-
-export interface Product {
-    id: string
-    productCode: string
-    name: string
-    type: ProductType
-    category: ProductCategory
-    genre: ProductGenre
-    description: string | null
-    rewardPoints: number
-    state: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
-    marketplaceStatus: MarketplaceStatus | null
-    rarity: ProductRarity
-    priceInDollars: string | number
-    inventoryUnit: number
-    unitsSold: number
-    tagId: string | null
-    claimedStatus: 'UNCLAIMED' | 'CLAIMED'
-    releaseDate: string | null
-    createdAt: string
-    images: ProductImage[]
-    collection: { id: string; name: string; artist: Artist } | null
-}
-
-/** Matches GET /api/v1/products query params. */
-export interface ProductFilters {
-    page?: number
-    limit?: number
-    category?: ProductCategory
-    genre?: ProductGenre
-    type?: ProductType
-    rarity?: ProductRarity
-    marketplaceStatus?: MarketplaceStatus
-    collectionId?: string
-    search?: string
-    sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular'
 }
 
 export interface PageMeta {
