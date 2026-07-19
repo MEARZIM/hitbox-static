@@ -1,19 +1,24 @@
 import CategoryCard from '@/features/discover/components/CategoryCard';
 import { LucideProps } from 'lucide-react-native';
 import React from 'react';
-import { ScrollView, } from 'react-native';
+import { ScrollView } from 'react-native';
+
+import { MarketplaceCategory } from '../types/marketplace';
+
+/** 'all' is a screen-only tab — it maps to omitting `category` in the API call. */
+export type CategoryTabId = MarketplaceCategory | 'all'
 
 interface CategoriesProps {
     CATEGORIES: {
-        id: string
+        id: CategoryTabId
         icon: React.ForwardRefExoticComponent<LucideProps & React.RefAttributes<SVGSVGElement>>;
         label: string
     }[]
+    activeCategory: CategoryTabId
+    onCategoryChange: (id: CategoryTabId) => void
 }
 
-export default function CategorySection({ CATEGORIES }: CategoriesProps) {
-    const [activeCategory, setActiveCategory] = React.useState('all');
-
+export default function CategorySection({ CATEGORIES, activeCategory, onCategoryChange }: CategoriesProps) {
     return (
         <ScrollView
             horizontal
@@ -29,7 +34,7 @@ export default function CategorySection({ CATEGORIES }: CategoriesProps) {
                         title={cat.label}
                         Icon={cat.icon}
                         active={isActive}
-                        onPress={() => setActiveCategory(cat.id)}
+                        onPress={() => onCategoryChange(cat.id)}
                     />
                 );
             })}

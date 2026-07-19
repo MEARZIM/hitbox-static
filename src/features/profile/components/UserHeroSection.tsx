@@ -1,3 +1,4 @@
+import { useUser } from '@clerk/clerk-expo'
 import { Calendar, CheckCircle2, ChevronRight, Gem, ShieldCheck } from 'lucide-react-native'
 import { MotiText, MotiView } from 'moti'
 import React from 'react'
@@ -6,8 +7,44 @@ import { TouchableOpacity, View } from 'react-native'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Text } from '@/components/ui/text'
+import { useMe } from '../api/getProfile'
+
 
 export default function UserHeroSection() {
+    const { user } = useUser()
+    // Backend profile (rewardPoints, canonical username). Clerk fills the gaps
+    // while the query loads or if the webhook hasn't synced yet. Username and
+    // names live in unsafeMetadata for email sign-ups (Clerk instance has those
+    // attributes disabled), so that's the last Clerk-side fallback.
+    const { data: me } = useMe()
+    const meta = (user?.unsafeMetadata ?? {}) as {
+        username?: string
+        firstName?: string
+        lastName?: string
+    }
+
+    const displayName = [me?.firstName, me?.lastName].filter(Boolean).join(' ')
+        || user?.fullName
+        || [meta.firstName, meta.lastName].filter(Boolean).join(' ')
+        || me?.username
+        || user?.username
+        || meta.username
+        || me?.email
+        || user?.primaryEmailAddress?.emailAddress
+        || 'HitBox Collector'
+    const username = me?.username ?? user?.username ?? meta.username ?? null
+    const avatarUrl = me?.avatarUrl ?? user?.imageUrl
+    const initials = displayName
+        .split(' ')
+        .map((part) => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    const joinedAt = me?.createdAt ?? user?.createdAt
+    const memberSince = joinedAt
+        ? new Date(joinedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        : null
+
     return (
         <MotiView
             from={{ opacity: 0, translateY: 15 }}
@@ -24,12 +61,14 @@ export default function UserHeroSection() {
                     className="p-[3px] rounded-full border-2 border-primary shadow-lg shadow-primary/30"
                 >
                     <Avatar className="w-20 h-20 border border-black/40" alt={'Profile'}>
-                        <AvatarImage
-                            source={{ uri: 'https://github.com/leerob.png' }}
-                            className='w-full h-full'
-                        />
+                        {avatarUrl ? (
+                            <AvatarImage
+                                source={{ uri: avatarUrl }}
+                                className='w-full h-full'
+                            />
+                        ) : null}
                         <AvatarFallback>
-                            <Text className="text-white font-bold text-lg">AM</Text>
+                            <Text className="text-white font-bold text-lg">{initials}</Text>
                         </AvatarFallback>
                     </Avatar>
                 </MotiView>
@@ -38,14 +77,16 @@ export default function UserHeroSection() {
                 <View className="gap-1 flex-1">
                     <View className="flex-row items-center gap-1.5 flex-wrap">
                         <Text className="text-foreground text-xl font-bold tracking-tight">
-                            Alex Mercer
+                            {displayName}
                         </Text>
                         <CheckCircle2 size={18} color="#ffffff" fill="#6d28d9" className="mt-0.5" />
                     </View>
 
-                    <Text className="text-muted-foreground text-sm font-medium">
-                        @alexmercer
-                    </Text>
+                    {username && (
+                        <Text className="text-muted-foreground text-sm font-medium">
+                            @{username}
+                        </Text>
+                    )}
 
                     <Badge
                         variant="secondary"
@@ -58,12 +99,14 @@ export default function UserHeroSection() {
                     </Badge>
 
                     {/* Join Date Row */}
-                    <View className="flex-row items-center gap-1 mt-1">
-                        <Calendar size={12} color="#94a3b8" />
-                        <Text className="text-muted-foreground text-[11px] font-medium">
-                            Member since May 18, 2024
-                        </Text>
-                    </View>
+                    {memberSince && (
+                        <View className="flex-row items-center gap-1 mt-1">
+                            <Calendar size={12} color="#94a3b8" />
+                            <Text className="text-muted-foreground text-[11px] font-medium">
+                                Member since {memberSince}
+                            </Text>
+                        </View>
+                    )}
                 </View>
             </View>
 
@@ -91,7 +134,7 @@ export default function UserHeroSection() {
                             transition={{ delay: 350 }}
                             className="text-foreground text-lg font-black tracking-tight"
                         >
-                            2,450
+                            {(me?.rewardPoints ?? 0).toLocaleString('en-US')}
                         </MotiText>
                     </View>
                     <ChevronRight size={14} color="#475569" className="mt-3" />

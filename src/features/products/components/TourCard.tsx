@@ -16,7 +16,7 @@ export default function TourCard({ image }: TourCardProps) {
         <Image
           source={imageSource}
           resizeMode="cover"
-          className="h-[285px] w-full"
+          className="h-[320px] w-full"
         />
 
         {/* Verified Green Check Badge positioned inside the image bottom right */}

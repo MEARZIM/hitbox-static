@@ -1,8 +1,9 @@
+import { useSignIn } from '@clerk/clerk-expo';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRight, Eye, EyeOff, Mail } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import {
     Dialog,
@@ -12,6 +13,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { router } from 'expo-router';
+import { getClerkErrorMessage, isAccountNotFound } from '../../utils/clerk';
 import { LoginFormData, loginSchema } from '../schemas/LoginSchema';
 
 export default function EmailLogin({
@@ -22,21 +24,46 @@ export default function EmailLogin({
     setIsEmailDialogOpen: (value: boolean) => void
 }) {
     const [showPassword, setShowPassword] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
+
+    const { signIn, setActive, isLoaded } = useSignIn();
 
     const {
         control: emailControl,
         handleSubmit: handleEmailSubmit,
-        formState: { errors: emailErrors },
+        formState: { errors: emailErrors, isSubmitting },
         reset: resetEmailForm
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: { email: '', password: '' }
     });
 
-    const onEmailSubmit = (data: LoginFormData) => {
-        console.log('Email Form Submitted:', data);
-        setIsEmailDialogOpen(false);
-        resetEmailForm();
+    const onEmailSubmit = async (data: LoginFormData) => {
+        if (!isLoaded) return;
+        setApiError(null);
+
+        try {
+            const attempt = await signIn.create({
+                identifier: data.email,
+                password: data.password,
+            });
+
+            if (attempt.status === 'complete') {
+                await setActive({ session: attempt.createdSessionId });
+                setIsEmailDialogOpen(false);
+                resetEmailForm();
+                router.replace('/(tabs)/discover');
+            } else {
+                // e.g. MFA / additional verification configured in Clerk
+                setApiError('Additional verification is required to sign in.');
+            }
+        } catch (err) {
+            if (isAccountNotFound(err)) {
+                setApiError('No account found with this email. Please register first.');
+            } else {
+                setApiError(getClerkErrorMessage(err));
+            }
+        }
     };
 
 
@@ -77,6 +104,8 @@ export default function EmailLogin({
                                         placeholderTextColor="#525252"
                                         keyboardType="email-address"
                                         autoCapitalize="none"
+                                        autoComplete="email"
+                                        textContentType="emailAddress"
                                         onBlur={onBlur}
                                         onChangeText={onChange}
                                         value={value}
@@ -113,6 +142,8 @@ export default function EmailLogin({
                                             placeholderTextColor="#525252"
                                             secureTextEntry={!showPassword}
                                             autoCapitalize="none"
+                                            autoComplete="current-password"
+                                            textContentType="password"
                                             onBlur={onBlur}
                                             onChangeText={onChange}
                                             value={value}
@@ -135,11 +166,18 @@ export default function EmailLogin({
                             )}
                         </View>
 
+                        {apiError && (
+                            <Text className="text-red-500 text-xs font-medium text-center">{apiError}</Text>
+                        )}
+
                         <TouchableOpacity
                             className="bg-primary h-14 items-center justify-center rounded-2xl w-full mt-2 shadow-lg shadow-primary/20"
+                            disabled={isSubmitting}
                             onPress={handleEmailSubmit(onEmailSubmit)}
                         >
-                            <Text className="text-white font-bold text-base">Sign In</Text>
+                            {isSubmitting
+                                ? <ActivityIndicator size="small" color="#FFFFFF" />
+                                : <Text className="text-white font-bold text-base">Sign In</Text>}
                         </TouchableOpacity>
                     </View>
                 </DialogContent>

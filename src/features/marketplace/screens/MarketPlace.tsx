@@ -1,81 +1,46 @@
-import { CreditCard, LayoutGrid, Shirt, Ticket, ToyBrick } from 'lucide-react-native';
-import React from 'react';
-import { ScrollView } from 'react-native';
+import {
+    CreditCard,
+    Frame,
+    LayoutGrid,
+    MonitorSmartphone,
+    Package,
+    Shirt,
+    ToyBrick,
+} from 'lucide-react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import MainHeader from '@/components/mainHeader';
 import MainSearchBar from '@/components/mainsearch';
-import CategorySection from '../components/CategorySection';
+import { useMarketplaceFeed } from '../api/getMarketplaceFeed';
+import CategorySection, { CategoryTabId } from '../components/CategorySection';
+import ListingsResultsSection from '../components/ListingsResultsSection';
 import ListingsSection from '../components/ListingsSection';
-import LiveAuctionSection from '../components/LiveAuctionsSection';
 import PromoBannerSection from '../components/PromoBannerSection';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 
-
-
-// --- Mock Data ---
-const CATEGORIES = [
+// Screen tabs → API `category` values (see api/routes.ts); 'all' omits the param
+const CATEGORIES: { id: CategoryTabId; icon: any; label: string }[] = [
     { id: 'all', icon: LayoutGrid, label: 'All Items' },
     { id: 'cards', icon: CreditCard, label: 'Cards' },
     { id: 'figures', icon: ToyBrick, label: 'Figures' },
     { id: 'apparel', icon: Shirt, label: 'Apparel' },
-    { id: 'tickets', icon: Ticket, label: 'Tickets' },
-];
-
-const FEATURED_LISTINGS = [
-    {
-        id: '1',
-        tag: 'HOT',
-        title: 'Warped Tour 2026',
-        subtitle: 'VIP Laminate',
-        price: '1,250',
-        bids: '12 bids',
-        time: '2h 15m',
-        image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&auto=format&fit=crop&q=60',
-    },
-    {
-        id: '2',
-        tag: 'NEW',
-        title: 'PTV Funko Pop! #02',
-        subtitle: 'Pierce The Veil',
-        price: '850',
-        bids: '7 bids',
-        time: '5h 32m',
-        image: 'https://images.unsplash.com/photo-1559251606-c623743a6d76?w=400&auto=format&fit=crop&q=60',
-    },
-    {
-        id: '3',
-        tag: 'RARE',
-        title: 'Pierce The Veil',
-        subtitle: 'Signature Series Card',
-        price: '3,200',
-        bids: '18 bids',
-        time: '1d 6h',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdNk8gPXVHoh_q6lkzrCnuwYSoDzrZ3n9QybD3xMjksBqgbV3g3mEcuAiK&s=10',
-    }
-];
-
-const LIVE_AUCTIONS = [
-    {
-        id: '1',
-        title: 'Sleeping With Sirens',
-        subtitle: 'Complete Collection',
-        price: '1,450',
-        bids: '12 bids',
-        timeLeft: '02h\n21m\nLeft',
-        image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&auto=format&fit=crop&q=60',
-    },
-    {
-        id: '2',
-        title: 'Warped Tour 2026',
-        subtitle: 'Backstage Pass',
-        price: '750',
-        bids: '8 bids',
-        timeLeft: '05h\n47m\nLeft',
-        image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&auto=format&fit=crop&q=60',
-    }
+    { id: 'posters', icon: Frame, label: 'Posters' },
+    { id: 'digital', icon: MonitorSmartphone, label: 'Digital' },
+    { id: 'other', icon: Package, label: 'Other' },
 ];
 
 const MarketPlaceScreen = () => {
+    const [activeCategory, setActiveCategory] = useState<CategoryTabId>('all');
+    const [search, setSearch] = useState('');
+    const debouncedSearch = useDebouncedValue(search.trim());
+
+    // The feed sections only make sense on the untouched "All Items" view;
+    // a tab or search term switches to the paginated listings endpoint.
+    const isBrowsing = activeCategory !== 'all' || debouncedSearch.length > 0;
+
+    const { data: feed, isLoading, isError, refetch, isRefetching } = useMarketplaceFeed();
 
     return (
         <SafeAreaView className="flex-1 bg-background">
@@ -84,6 +49,13 @@ const MarketPlaceScreen = () => {
                 contentContainerStyle={{
                     paddingBottom: 24,
                 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={refetch}
+                        tintColor="#8B5CF6"
+                    />
+                }
             >
                 {/* --- HEADER --- */}
                 <MainHeader
@@ -92,20 +64,58 @@ const MarketPlaceScreen = () => {
                     classname='px-4 py-2'
                 />
 
-                {/* --- SEARCH BAR --- */}
-                <MainSearchBar />
+                {/* --- SEARCH BAR — GET /marketplace/listings?search= --- */}
+                <MainSearchBar
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="Search listings..."
+                />
 
                 {/* --- PROMO BANNER --- */}
                 <PromoBannerSection />
 
-                {/* --- CATEGORIES --- */}
-                <CategorySection CATEGORIES={CATEGORIES} />
+                {/* --- CATEGORY TABS --- */}
+                <CategorySection
+                    CATEGORIES={CATEGORIES}
+                    activeCategory={activeCategory}
+                    onCategoryChange={setActiveCategory}
+                />
 
-                {/* --- FEATURED LISTINGS --- */}
-                <ListingsSection FEATURED_LISTINGS={FEATURED_LISTINGS} />
+                {isBrowsing ? (
+                    <ListingsResultsSection
+                        category={activeCategory === 'all' ? undefined : activeCategory}
+                        search={debouncedSearch}
+                    />
+                ) : (
+                    <>
+                        {isLoading && (
+                            <View className="mt-16 items-center">
+                                <ActivityIndicator size="large" color="#8B5CF6" />
+                            </View>
+                        )}
 
-                {/* --- LIVE AUCTIONS --- */}
-                <LiveAuctionSection LIVE_AUCTIONS={LIVE_AUCTIONS} />
+                        {isError && !isLoading && (
+                            <View className="mt-16 items-center px-8">
+                                <Text className="text-muted-foreground text-sm text-center">
+                                    Couldn't load the marketplace. Check your connection.
+                                </Text>
+                                <TouchableOpacity onPress={() => refetch()} className="mt-3 bg-primary px-4 py-2 rounded-xl">
+                                    <Text className="text-white font-semibold text-sm">Retry</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+
+                        {feed && (
+                            <>
+                                {/* --- FEATURED — curated, most-sold first --- */}
+                                <ListingsSection title="Featured Listings" items={feed.featured} />
+
+                                {/* --- NEW LISTINGS — newest active products --- */}
+                                <ListingsSection title="New Listings" items={feed.newListings} />
+                            </>
+                        )}
+                    </>
+                )}
 
             </ScrollView>
         </SafeAreaView>

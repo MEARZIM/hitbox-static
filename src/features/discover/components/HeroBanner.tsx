@@ -3,10 +3,20 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Dimensions, ImageBackground, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 import { Badge } from '@/components/ui/badge'
+import { DiscoverProductItem } from '../types/discover'
+import { DISCOVER_PLACEHOLDER_IMAGE, formatRewardPoints } from '../utils/format'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const CAROUSEL_WIDTH = SCREEN_WIDTH - 32
 
+interface HeroSlide {
+    id: string | number
+    title: string
+    subtitle: string
+    uri: string
+}
+
+// Static fallback shown while the discover feed loads (or if it's empty)
 const SLIDER_DATA = [
     {
         id: 1,
@@ -40,13 +50,30 @@ const SLIDER_DATA = [
     },
 ]
 
-export default function HeroBanner() {
+interface HeroBannerProps {
+    /** Featured products from GET /api/v1/discover (≤5). Falls back to static slides when absent. */
+    items?: DiscoverProductItem[]
+    onItemPress?: (item: DiscoverProductItem) => void
+}
+
+export default function HeroBanner({ items, onItemPress }: HeroBannerProps) {
     const [activeIndex, setActiveIndex] = useState(0)
     const scrollViewRef = useRef<ScrollView>(null)
 
+    const featured = items ?? []
+    const slides: HeroSlide[] = featured.length > 0
+        ? featured.map((item) => ({
+            id: item.id,
+            title: item.name,
+            subtitle: `Earn ${formatRewardPoints(item.rewardPoints)} with this drop.`,
+            uri: item.imageUrl ?? DISCOVER_PLACEHOLDER_IMAGE,
+        }))
+        : SLIDER_DATA
+
     useEffect(() => {
+        if (slides.length < 2) return
         const timer = setInterval(() => {
-            const nextIndex = (activeIndex + 1) % SLIDER_DATA.length
+            const nextIndex = (activeIndex + 1) % slides.length
             setActiveIndex(nextIndex)
 
             scrollViewRef.current?.scrollTo({
@@ -56,13 +83,13 @@ export default function HeroBanner() {
         }, 4000)
 
         return () => clearInterval(timer)
-    }, [activeIndex])
+    }, [activeIndex, slides.length])
 
 
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollOffset = event.nativeEvent.contentOffset.x;
         const currentIndex = Math.round(scrollOffset / CAROUSEL_WIDTH);
-        if (currentIndex !== activeIndex && currentIndex >= 0 && currentIndex < SLIDER_DATA.length) {
+        if (currentIndex !== activeIndex && currentIndex >= 0 && currentIndex < slides.length) {
             setActiveIndex(currentIndex);
         }
     };
@@ -79,7 +106,7 @@ export default function HeroBanner() {
                 decelerationRate="fast"
                 snapToInterval={CAROUSEL_WIDTH}
             >
-                {SLIDER_DATA.map((item) => (
+                {slides.map((item, slideIndex) => (
                     <View key={item.id} style={{ width: CAROUSEL_WIDTH }} className="h-full">
                         <ImageBackground
                             source={{ uri: item.uri }}
@@ -109,6 +136,10 @@ export default function HeroBanner() {
                                     <View className="min-w-[85px] max-w-[40%] mt-6 items-end justify-center shrink-0">
                                         <TouchableOpacity
                                             activeOpacity={0.8}
+                                            onPress={() => {
+                                                const product = featured[slideIndex]
+                                                if (product) onItemPress?.(product)
+                                            }}
                                             className="bg-primary px-3 py-2 rounded-xl shadow-sm shadow-primary/30 w-full items-center justify-center"
                                         >
                                             <Text className="text-white font-bold text-xs" numberOfLines={1}>
@@ -124,7 +155,7 @@ export default function HeroBanner() {
             </ScrollView>
 
             <View className="absolute bottom-5 left-0 right-0 flex-row justify-center pointer-events-none">
-                {SLIDER_DATA.map((_, index) => {
+                {slides.map((_, index) => {
                     const isActive = index === activeIndex
                     return (
                         <MotiView
