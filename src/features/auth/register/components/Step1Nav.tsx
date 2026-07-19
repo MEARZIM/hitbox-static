@@ -1,6 +1,5 @@
-import { HelpCircle } from 'lucide-react-native'
 import React from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, View } from 'react-native'
 
 export default function Step1Nav() {
     return (
@@ -10,10 +9,10 @@ export default function Step1Nav() {
                     HIT<Text className="text-primary">B★X</Text>
                 </Text>
             </View>
-            <TouchableOpacity className="flex-row items-center gap-x-1.5 bg-neutral-900/50 px-3 py-1.5 rounded-full border border-neutral-800">
+            {/* <TouchableOpacity className="flex-row items-center gap-x-1.5 bg-neutral-900/50 px-3 py-1.5 rounded-full border border-neutral-800">
                 <HelpCircle size={16} color="#a1a1aa" />
                 <Text className="text-neutral-300 text-xs font-semibold">Help</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
     )
 }

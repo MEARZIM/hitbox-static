@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle2, Hash, ShieldCheck, Star, Tag } from 'lucide-react-native'
+import { Calendar, Hash, ShieldCheck, Star, Tag } from 'lucide-react-native'
 import { MotiView } from 'moti'
 import React from 'react'
 import { ImageBackground, Text, View } from 'react-native'
@@ -36,10 +36,10 @@ export default function Step3ProductCard() {
 
             {/* Right side: Detailed Metadata Parameters */}
             <View className="flex-1 pl-4 justify-between py-1">
-                <View className="flex-row items-center gap-x-1.5 bg-primary/15 border border-primary/20 self-start px-2 py-0.5 rounded-md">
+                {/* <View className="flex-row items-center gap-x-1.5 bg-primary/15 border border-primary/20 self-start px-2 py-0.5 rounded-md">
                     <CheckCircle2 size={15} color="#a855f7" />
                     <Text className="text-primary text-[15px] font-bold uppercase tracking-wider">Verified</Text>
-                </View>
+                </View> */}
 
                 <View className="mt-1">
                     <Text className="text-white text-lg font-black tracking-tight leading-5">Pierce The Veil</Text>
