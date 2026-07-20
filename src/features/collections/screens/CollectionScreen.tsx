@@ -1,5 +1,5 @@
 import { Clock, Compass, Music, Tag } from "lucide-react-native";
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -40,8 +40,7 @@ export default function CollectionScreen() {
           subtitle="Welcome to your HitBox collection."
           notificationCount={3}
           onNotificationPress={() => console.log("Notifications")}
-          onFilterPress={() => setIsFilterOpen(!isFilterOpen)}
-          classname="mx-4 py-2"
+          className="mx-4 py-2"
         />
 
         {/* Collection Progress */}

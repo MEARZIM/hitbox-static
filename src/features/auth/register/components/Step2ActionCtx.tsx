@@ -35,7 +35,7 @@ export default function Step2ActionCtx() {
 
         try {
             const redirectUrl = Linking.createURL('/')
-            console.log('SSO redirectUrl:', redirectUrl)
+            // console.log('SSO redirectUrl:', redirectUrl)
 
             const { createdSessionId, setActive } = await startSSOFlow({
                 strategy,
@@ -44,7 +44,7 @@ export default function Step2ActionCtx() {
                 redirectUrl,
             })
 
-            console.log(createdSessionId)
+            // console.log(createdSessionId)
 
             if (createdSessionId && setActive) {
                 await setActive({ session: createdSessionId })

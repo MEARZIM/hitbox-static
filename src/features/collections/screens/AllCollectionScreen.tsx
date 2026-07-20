@@ -1,6 +1,7 @@
 import React from "react";
-import { SafeAreaView, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
+import { SafeAreaView } from "react-native-safe-area-context";
 import MainHeader from "../../../components/mainHeader";
 import CollectionGrid from "../components/CollectionGrid";
 import MyCollections from "../data/MyCollection";
