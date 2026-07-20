@@ -154,7 +154,7 @@ export default function HeroBanner({ items, onItemPress }: HeroBannerProps) {
                 ))}
             </ScrollView>
 
-            <View className="absolute bottom-5 left-0 right-0 flex-row justify-center pointer-events-none">
+            <View className="absolute bottom-2 left-0 right-0 flex-row justify-center pointer-events-none">
                 {slides.map((_, index) => {
                     const isActive = index === activeIndex
                     return (

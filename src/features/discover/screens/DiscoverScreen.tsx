@@ -12,7 +12,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import MainHeader from "@/components/mainHeader";
 import MainSearchBar from "@/components/mainsearch";
@@ -26,7 +26,7 @@ import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { DiscoverProductItem } from "../types/discover";
 
 export default function DiscoverScreen() {
-    const insets = useSafeAreaInsets();
+
     const [search, setSearch] = useState("");
     const debouncedSearch = useDebouncedValue(search.trim());
     const isSearching = debouncedSearch.length > 0;
@@ -42,12 +42,11 @@ export default function DiscoverScreen() {
     };
 
     return (
-        <View className="flex-1 bg-black ">
+        <SafeAreaView className="flex-1 bg-black ">
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
-                    paddingTop: insets.top,
-                    paddingBottom: insets.bottom + 24,
+                    paddingBottom: 0,
                 }}
                 refreshControl={
                     <RefreshControl
@@ -62,7 +61,7 @@ export default function DiscoverScreen() {
                     subtitle="Explore collections, creators and exclusive experiences."
                     notificationCount={3}
                     onNotificationPress={() => console.log("Notifications")}
-                    className='py-2 mx-4'
+                    className='px-4 py-2'
                 />
 
                 {/* Search Bar — backed by GET /api/v1/discover/products?search= */}
@@ -177,7 +176,7 @@ export default function DiscoverScreen() {
 
             </ScrollView>
 
-        </View>
+        </SafeAreaView>
     );
 }
 
