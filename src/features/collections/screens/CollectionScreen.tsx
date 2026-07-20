@@ -24,8 +24,7 @@ export default function CollectionScreen() {
           subtitle="Welcome to your HitBox collection."
           notificationCount={3}
           onNotificationPress={() => console.log("Notifications")}
-          onFilterPress={() => console.log("Filter")}
-          classname="mx-4 py-2"
+          className="mx-4 py-2"
         />
 
         {/* Collection Progress */}

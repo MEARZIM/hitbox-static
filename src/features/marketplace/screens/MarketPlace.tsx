@@ -61,7 +61,7 @@ const MarketPlaceScreen = () => {
                 <MainHeader
                     title='Marketplace'
                     subtitle={" Buy, sell and trade with collectors worldwide."}
-                    classname='px-4 py-2'
+                    className='px-4 py-2'
                 />
 
                 {/* --- SEARCH BAR — GET /marketplace/listings?search= --- */}

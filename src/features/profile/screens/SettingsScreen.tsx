@@ -1,39 +1,41 @@
-import { 
-  ArrowLeft, 
-  Bell, 
-  ChevronRight, 
-  Lock, 
-  User, 
-  ShieldCheck, 
-  Eye, 
+import { useClerk } from '@clerk/clerk-expo';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
+import {
+  ArrowLeft,
+  Bell,
+  CheckCircle2,
+  ChevronRight,
+  Eye,
   EyeOff,
-  CheckCircle2
+  Lock,
+  LogOut,
+  User
 } from 'lucide-react-native';
 import { AnimatePresence, MotiView } from 'moti';
 import React, { useState } from 'react';
-import { 
-  ScrollView, 
-  Text, 
-  TouchableOpacity, 
-  View, 
-  TextInput, 
-  Switch, 
-  Platform 
+import {
+  ScrollView,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SettingsScreenProps {
-  initialTab?: 'personal' | 'security' | 'notifications';
+  initialTab?: 'menu' | 'personal' | 'security' | 'notifications';
 }
 
 export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenProps) {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
-  
+  const { signOut } = useClerk();
+  const queryClient = useQueryClient();
+
   // Navigation states: 'menu', 'personal', 'security', 'notifications'
   const [activeTab, setActiveTab] = useState<'menu' | 'personal' | 'security' | 'notifications'>(initialTab);
-  
+
   // Success states
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
 
@@ -67,6 +69,12 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
   const handleSaveProfile = () => {
     // Mock save profile
     triggerSuccess('Personal information updated!');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    queryClient.clear(); // drop cached user data for the next account
+    router.replace('/');
   };
 
   const handleUpdatePassword = () => {
@@ -103,27 +111,23 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
   };
 
   return (
-    <View 
+    <SafeAreaView
       className="flex-1 bg-background"
-      style={{
-        paddingTop: Platform.OS === 'ios' ? insets.top : insets.top + 10,
-        paddingBottom: insets.bottom
-      }}
     >
       {/* Header bar */}
       <View className="flex-row items-center justify-between px-5 py-4 border-b border-border/20">
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={goBack}
           activeOpacity={0.7}
           className="w-10 h-10 rounded-full bg-muted justify-center items-center"
         >
           <ArrowLeft size={20} color="white" />
         </TouchableOpacity>
-        
+
         <Text className="text-foreground text-lg font-bold text-center flex-1">
           {getHeaderTitle()}
         </Text>
-        
+
         {/* Spacer for alignment */}
         <View className="w-10" />
       </View>
@@ -141,13 +145,13 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
         </MotiView>
       )}
 
-      <ScrollView 
-        className="flex-1 px-4 mt-4" 
+      <ScrollView
+        className="flex-1 px-4 mt-4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <AnimatePresence exitBeforeEnter>
-          
+
           {/* MAIN MENU */}
           {activeTab === 'menu' && (
             <MotiView
@@ -161,9 +165,9 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
               <Text className="text-muted-foreground text-sm font-semibold uppercase tracking-wider mb-1 px-1">
                 Account Settings
               </Text>
-              
+
               <View className="bg-card border border-border/30 rounded-2xl overflow-hidden">
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setActiveTab('personal')}
                   activeOpacity={0.7}
                   className="flex-row items-center justify-between p-4 border-b border-border/30"
@@ -180,7 +184,7 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
                   <ChevronRight size={18} color="#94a3b8" />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setActiveTab('security')}
                   activeOpacity={0.7}
                   className="flex-row items-center justify-between p-4 border-b border-border/30"
@@ -197,7 +201,7 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
                   <ChevronRight size={18} color="#94a3b8" />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setActiveTab('notifications')}
                   activeOpacity={0.7}
                   className="flex-row items-center justify-between p-4"
@@ -209,6 +213,24 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
                     <View className="flex-1">
                       <Text className="text-foreground text-sm font-bold">Notifications</Text>
                       <Text className="text-muted-foreground text-xs">Toggle push notifications and emails</Text>
+                    </View>
+                  </View>
+                  <ChevronRight size={18} color="#94a3b8" />
+                </TouchableOpacity>
+
+                {/* Sign Out */}
+                 <TouchableOpacity
+                  onPress={handleSignOut}
+                  activeOpacity={0.7}
+                  className="flex-row items-center justify-between p-4"
+                >
+                  <View className="flex-row items-center gap-4 flex-1">
+                    <View className="w-9 h-9 rounded-xl bg-destructive-80/30 items-center justify-center border border-violet-500/20">
+                      <LogOut size={20} color="red" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-foreground text-sm font-bold">Sign Out</Text>
+                      <Text className="text-muted-foreground text-xs">Log out of your HitBox account</Text>
                     </View>
                   </View>
                   <ChevronRight size={18} color="#94a3b8" />
@@ -495,8 +517,10 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
             </MotiView>
           )}
 
+
+
         </AnimatePresence>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

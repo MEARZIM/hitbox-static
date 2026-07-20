@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import { Bell, Settings } from "lucide-react-native";
 import React from "react";
@@ -29,12 +30,13 @@ const MainHeader: React.FC<MainHeaderProps> = ({
 }) => {
   const { width } = useWindowDimensions();
   const router = useRouter();
+  const { isSignedIn } = useAuth();
 
   const handleSettingsPress = () => {
     if (onSettingsPress) {
       onSettingsPress();
     } else {
-      router.push("/settings");
+      router.push("/(routes)/settings/index");
     }
   };
 
@@ -69,26 +71,6 @@ const MainHeader: React.FC<MainHeaderProps> = ({
         />
 
         <View className="flex-row items-center">
-          {/* Settings */}
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={handleSettingsPress}
-            style={{
-              width: buttonSize,
-              height: buttonSize,
-              borderRadius: buttonSize / 2,
-              backgroundColor: "#18181B",
-              justifyContent: "center",
-              alignItems: "center",
-              marginRight: 12,
-            }}
-          >
-            <Settings
-              size={iconSize}
-              color="white"
-              strokeWidth={2}
-            />
-          </TouchableOpacity>
 
           {/* Notifications */}
           <TouchableOpacity
@@ -138,6 +120,31 @@ const MainHeader: React.FC<MainHeaderProps> = ({
               </View>
             )}
           </TouchableOpacity>
+
+          {/* Settings */}
+          {
+            isSignedIn && (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleSettingsPress}
+                style={{
+                  width: buttonSize,
+                  height: buttonSize,
+                  borderRadius: buttonSize / 2,
+                  backgroundColor: "#18181B",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginRight: 12,
+                }}
+              >
+                <Settings
+                  size={iconSize}
+                  color="white"
+                  strokeWidth={2}
+                />
+              </TouchableOpacity>
+            )
+          }
         </View>
       </View>
 
