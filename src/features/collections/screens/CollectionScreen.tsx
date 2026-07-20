@@ -41,7 +41,6 @@ export default function CollectionScreen() {
           notificationCount={3}
           onNotificationPress={() => console.log("Notifications")}
           className='px-4 py-2'
-          variant="compact"
         />
 
         {/* Collection Progress */}
@@ -59,7 +58,7 @@ export default function CollectionScreen() {
           <FilterHeader onFilterPress={() => setIsFilterOpen(!isFilterOpen)} />
 
           {isFilterOpen && (
-            <View 
+            <View
               className="absolute right-0 top-10 w-44 bg-[#090D16] border border-[#1E293B] rounded-2xl p-1.5 shadow-2xl z-50"
               style={{
                 shadowColor: "#000",
@@ -79,18 +78,16 @@ export default function CollectionScreen() {
                       setSelectedFilter(option.value);
                       setIsFilterOpen(false);
                     }}
-                    className={`flex-row items-center px-3.5 py-3 rounded-xl ${
-                      isSelected ? "bg-violet-600/15" : "active:bg-zinc-800/20"
-                    }`}
+                    className={`flex-row items-center px-3.5 py-3 rounded-xl ${isSelected ? "bg-violet-600/15" : "active:bg-zinc-800/20"
+                      }`}
                   >
                     <IconComponent
                       size={15}
                       color={isSelected ? "#A78BFA" : "#94A3B8"}
                     />
                     <Text
-                      className={`ml-3 font-semibold text-xs ${
-                        isSelected ? "text-violet-300" : "text-zinc-400"
-                      }`}
+                      className={`ml-3 font-semibold text-xs ${isSelected ? "text-violet-300" : "text-zinc-400"
+                        }`}
                     >
                       {option.label}
                     </Text>
