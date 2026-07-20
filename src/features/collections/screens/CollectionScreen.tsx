@@ -40,7 +40,8 @@ export default function CollectionScreen() {
           subtitle="Welcome to your HitBox collection."
           notificationCount={3}
           onNotificationPress={() => console.log("Notifications")}
-          className="mx-4 py-2"
+          className='px-4 py-2'
+          variant="compact"
         />
 
         {/* Collection Progress */}
