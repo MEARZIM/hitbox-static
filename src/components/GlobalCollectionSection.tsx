@@ -82,11 +82,13 @@ export default function GlobalCollectionSection({
     return true;
   });
 
-  const displayedItems = showAll ? filteredItems : filteredItems.slice(0, 4);
+  // 3 items per row — collapsed view shows 2 complete rows
+  const COLLAPSED_COUNT = 6;
+  const displayedItems = showAll ? filteredItems : filteredItems.slice(0, COLLAPSED_COUNT);
 
   const chunkedItems: CollectibleItem[][] = [];
-  for (let i = 0; i < displayedItems.length; i += 4) {
-    chunkedItems.push(displayedItems.slice(i, i + 4));
+  for (let i = 0; i < displayedItems.length; i += 3) {
+    chunkedItems.push(displayedItems.slice(i, i + 3));
   }
 
   // Skeleton Load View (No animations to prevent NativeWind render issues)
@@ -117,15 +119,15 @@ export default function GlobalCollectionSection({
             <View className="h-3 bg-zinc-800 rounded-full w-full" />
           </View>
 
-          {/* Grid Skeleton */}
+          {/* Grid Skeleton — 3 per row */}
           <View className="flex-row flex-wrap justify-between px-4 mt-8">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <View
                 key={i}
-                className="w-[23.5%] rounded-2xl border p-2 mb-3"
+                className="w-[31.5%] rounded-2xl border p-2 mb-3"
                 style={{ backgroundColor: "#0B1018", borderColor: "rgba(35, 44, 63, 0.5)" }}
               >
-                <View className="h-24 bg-zinc-800/60 rounded-xl" />
+                <View className="h-28 bg-zinc-800/60 rounded-xl" />
                 <View className="mt-2 gap-y-1">
                   <View className="h-3 bg-zinc-800 rounded w-4/5" />
                   <View className="h-2 bg-zinc-800/60 rounded w-3/5" />
@@ -210,7 +212,7 @@ export default function GlobalCollectionSection({
                   paddingVertical: 5,
                 }}
               >
-                <Text className="text-white text-[10px] font-extrabold tracking-widest uppercase">
+                <Text className="text-white text-xs font-extrabold tracking-widest uppercase">
                   {collection.category}
                 </Text>
               </LinearGradient>
@@ -328,7 +330,7 @@ export default function GlobalCollectionSection({
                     return (
                       <View
                         key={item.id}
-                        className="w-[23.5%] rounded-2xl border p-2"
+                        className="w-[31.5%] rounded-2xl border p-2"
                         style={{
                           backgroundColor: "#0B1018",
                           borderColor: "#232C3F",
@@ -344,7 +346,7 @@ export default function GlobalCollectionSection({
                           <Image
                             source={typeof item.image === "string" ? { uri: item.image } : item.image}
                             resizeMode="cover"
-                            style={{ width: "100%", height: 95 }}
+                            style={{ width: "100%", height: 110 }}
                           />
                           <LinearGradient
                             colors={["transparent", "rgba(0,0,0,0.65)"]}
@@ -389,13 +391,13 @@ export default function GlobalCollectionSection({
                         {/* Title & Info */}
                         <View className="mt-2">
                           <Text
-                            className="font-bold text-white text-[10px] leading-4"
+                            className="font-bold text-white text-sm leading-4"
                             numberOfLines={1}
                           >
                             {item.title}
                           </Text>
                           <Text
-                            className="text-zinc-500 text-[8px] mt-0.5"
+                            className="text-zinc-500 text-xs mt-0.5"
                             numberOfLines={1}
                           >
                             {item.subtitle}
@@ -407,7 +409,7 @@ export default function GlobalCollectionSection({
                             style={{ backgroundColor: styles.bg }}
                           >
                             <Text
-                              className="font-bold text-[7px]"
+                              className="font-bold text-[10px]"
                               style={{ color: styles.text }}
                             >
                               {item.rarity}
@@ -417,15 +419,15 @@ export default function GlobalCollectionSection({
                       </View>
                     );
                   })}
-                  {row.length < 4 &&
-                    Array.from({ length: 4 - row.length }).map((_, idx) => (
-                      <View key={`pad-${idx}`} className="w-[23.5%] p-2" />
+                  {row.length < 3 &&
+                    Array.from({ length: 3 - row.length }).map((_, idx) => (
+                      <View key={`pad-${idx}`} className="w-[31.5%] p-2" />
                     ))}
                 </View>
               ))}
             </View>
 
-            {filteredItems.length > 4 && (
+            {filteredItems.length > COLLAPSED_COUNT && (
               <TouchableOpacity
                 onPress={() => setShowAll(!showAll)}
                 className="mx-4 mt-2 py-3 border rounded-full items-center justify-center"
