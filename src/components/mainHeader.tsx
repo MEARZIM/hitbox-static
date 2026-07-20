@@ -36,7 +36,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
     if (onSettingsPress) {
       onSettingsPress();
     } else {
-      router.push("/(routes)/settings/index");
+      router.push("/(routes)/settings");
     }
   };
 

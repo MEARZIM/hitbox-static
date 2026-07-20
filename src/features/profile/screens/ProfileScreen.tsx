@@ -2,14 +2,7 @@ import { useClerk } from '@clerk/clerk-expo';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import {
-    Bell,
-    ChevronRight,
-    HelpCircle,
-    Lock,
-    LogOut,
-    ShieldAlert,
-    User,
-    Wallet
+    ChevronRight
 } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -58,7 +51,7 @@ export default function ProfileScreen() {
                 />
 
                 {/* ACCOUNT LIST SECTION */}
-                <View className="mt-6 mb-10 px-4">
+                {/* <View className="mt-6 mb-10 px-4">
                     <Text className="text-foreground text-lg font-bold mb-3">Account</Text>
                     <View className="bg-card border border-border/30 rounded-2xl overflow-hidden">
 
@@ -71,7 +64,7 @@ export default function ProfileScreen() {
                         <AccountRow icon={<LogOut size={20} color="#f87171" />} title="Sign Out" subtitle="Log out of your HitBox account" isLast onPress={handleSignOut} />
 
                     </View>
-                </View>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     )

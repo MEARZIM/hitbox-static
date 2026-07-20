@@ -1,4 +1,4 @@
-import SettingsScreen from '@/features/profile/screens/SettingsScreen';
+import SettingsScreen from '@/features/settings/screens/SettingsScreen';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 
