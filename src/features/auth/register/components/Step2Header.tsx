@@ -1,6 +1,6 @@
 import { MotiView } from 'moti'
 import React from 'react'
-import { Text } from 'react-native'
+import { Image, Text, View } from 'react-native'
 
 export default function Step2Header() {
     return (
@@ -9,9 +9,18 @@ export default function Step2Header() {
             animate={{ opacity: 1, translateY: 0 }}
             className="items-center my-6"
         >
-            <Text className="text-white text-3xl font-black tracking-widest uppercase">
-                HIT<Text className="text-primary">B★X</Text>
-            </Text>
+            <View className="flex items-center justify-center w-full">
+
+                <Image
+                    source={require("@/assets/images/HitBoxLogo.png")}
+                    resizeMode="contain"
+                    style={{
+                        width: 40,
+                        height: 40,
+                    }}
+                />
+
+            </View>
             <Text className="text-white text-2xl font-bold mt-4 tracking-tight">
                 {`Let’s get you in`}
             </Text>

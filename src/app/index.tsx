@@ -34,13 +34,17 @@ export default function Index() {
         </Text>
       </Button>
 
-      {!isSignedIn && (
-        <Button onPress={() => router.push('/(auth)/item-not-authenticated')}>
-          <Text>
-            Go to Item Not Authentic Section
-          </Text>
-        </Button>
-      )}
+      <Button onPress={() => router.push('/(auth)/item-not-authenticated')}>
+        <Text>
+          Go to Item Not Authentic Section
+        </Text>
+      </Button>
+
+       <Button onPress={() => router.push('/(auth)/register/step3')}>
+        <Text>
+          Step - 3
+        </Text>
+      </Button>
     </SafeAreaView>
 
   );

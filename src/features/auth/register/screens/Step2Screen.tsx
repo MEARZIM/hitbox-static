@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import React from 'react';
 import { ImageBackground, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,7 +6,6 @@ import Step2ActionCtx from '../components/Step2ActionCtx';
 import Step2Footer from '../components/Step2Footer';
 import Step2Header from '../components/Step2Header';
 import Step2Perks from '../components/Step2Perks';
-import StepProgressHeader from '../components/StepProgressHeader';
 
 export default function Step2Screen() {
     return (
@@ -21,7 +19,7 @@ export default function Step2Screen() {
 
             <SafeAreaView className="flex-1">
                 {/* Navigation Indicator Header */}
-                <StepProgressHeader currentStep={2} onBackPress={() => router.back()} />
+                {/* <StepProgressHeader currentStep={2} onBackPress={() => router.back()} /> */}
 
                 {/* Step 2 Registration Flow */}
                 <ScrollView

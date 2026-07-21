@@ -45,15 +45,14 @@ function RootNavigator() {
           headerShown: false,
         }}
       />
-      {/* Login/registration is only reachable while signed out */}
-      <Stack.Protected guard={!isSignedIn}>
-        <Stack.Screen
-          name="(auth)"
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack.Protected>
+      {/* Auth screens stay navigable in any state; the private routes
+          (profile, collections) are protected in (tabs)/_layout.tsx. */}
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="(routes)"
         options={{

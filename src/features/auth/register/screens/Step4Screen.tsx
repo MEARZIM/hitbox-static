@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import React, { useRef } from 'react';
 import { Dimensions, ImageBackground, ScrollView, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -6,8 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Step4ActionCtx from '../components/Step4ActionCtx';
 import Step4Header from '../components/Step4Header';
+import Step4Nav from '../components/Step4Nav';
 import Step4ProductBox from '../components/Step4ProductBox';
-import StepProgressHeader from '../components/StepProgressHeader';
 
 
 export default function Step4Screen() {
@@ -36,12 +35,13 @@ export default function Step4Screen() {
 
             <SafeAreaView className="flex-1">
                 {/* Navigation Indicator Header */}
-                <StepProgressHeader currentStep={4} onBackPress={() => router.back()} />
+                {/* <StepProgressHeader currentStep={4} onBackPress={() => router.back()} /> */}
 
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
                 >
+                    <Step4Nav />
 
                     {/* Confetti Success Header Section */}
                     <Step4Header />
