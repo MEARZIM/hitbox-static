@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { Bell, Settings } from "lucide-react-native";
+import { Bell, Settings2 } from "lucide-react-native";
 import React from "react";
 import {
   Image,
@@ -18,6 +18,8 @@ interface MainHeaderProps {
   onNotificationPress?: () => void;
   onSettingsPress?: () => void;
   className?: string;
+  /** 'compact' shows the title inline with the icons (no logo row), subtitle below. */
+  variant?: "default" | "compact";
 }
 
 const MainHeader: React.FC<MainHeaderProps> = ({
@@ -27,6 +29,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
   onNotificationPress,
   onSettingsPress,
   className,
+  variant = "default",
 }) => {
   const { width } = useWindowDimensions();
   const router = useRouter();
@@ -60,15 +63,31 @@ const MainHeader: React.FC<MainHeaderProps> = ({
     >
       {/* Top Row */}
       <View className="flex-row items-center justify-between">
-        <Image
-          source={require("@/assets/images/HitBoxLogo.png")}
-          resizeMode="contain"
-          style={{
-            width: logoWidth,
-            height: logoHeight,
-            marginLeft: -60,
-          }}
-        />
+        {variant === "compact" ? (
+          <Text
+            numberOfLines={1}
+            style={{
+              flex: 1,
+              fontSize: isTablet ? 38 : isSmall ? 26 : 32,
+              fontWeight: "900",
+              color: "white",
+              letterSpacing: -1,
+              marginRight: 12,
+            }}
+          >
+            {title}
+          </Text>
+        ) : (
+          <Image
+            source={require("@/assets/images/HitBoxLogo.png")}
+            resizeMode="contain"
+            style={{
+              width: logoWidth,
+              height: logoHeight,
+              marginLeft: -60,
+            }}
+          />
+        )}
 
         <View className="flex-row items-center">
 
@@ -83,6 +102,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({
               backgroundColor: "#18181B",
               justifyContent: "center",
               alignItems: "center",
+              marginRight: 12,
+
             }}
           >
             <Bell
@@ -134,10 +155,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({
                   backgroundColor: "#18181B",
                   justifyContent: "center",
                   alignItems: "center",
-                  marginRight: 12,
                 }}
               >
-                <Settings
+                <Settings2
                   size={iconSize}
                   color="white"
                   strokeWidth={2}
@@ -151,27 +171,29 @@ const MainHeader: React.FC<MainHeaderProps> = ({
       {/* Header Content */}
       <View
         style={{
-          marginTop: isTablet ? 30 : 22,
+          marginTop: variant === "compact" ? 6 : isTablet ? 30 : 22,
         }}
       >
-        <Text
-          style={{
-            fontSize: titleSize,
-            fontWeight: "900",
-            color: "white",
-            letterSpacing: -1,
-          }}
-        >
-          {title}
-        </Text>
+        {variant !== "compact" && (
+          <Text
+            style={{
+              fontSize: titleSize,
+              fontWeight: "900",
+              color: "white",
+              letterSpacing: -1,
+            }}
+          >
+            {title}
+          </Text>
+        )}
 
         {subtitle && (
           <Text
             style={{
-              marginTop: 8,
-              fontSize: isTablet ? 17 : 15,
+              marginTop: variant === "compact" ? 0 : 8,
+              fontSize: isTablet ? 17 : variant === "compact" ? 13 : 15,
               color: "#A1A1AA",
-              lineHeight: 24,
+              lineHeight: variant === "compact" ? 18 : 24,
               maxWidth: "92%",
             }}
           >

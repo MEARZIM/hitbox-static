@@ -1,4 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import React from "react";
 import {
   Image,
@@ -58,6 +59,12 @@ export default function CollectionCard({ item }: Props) {
       onPressOut={() =>
         (scale.value = withSpring(1))
       }
+      onPress={() => {
+        router.push({
+          pathname: "/collections/view-collection",
+          params: { id: item.id },
+        });
+      }}
     >
       <View
         className="rounded-3xl border border-[#232C3F] bg-[#0B1018] p-2.5"

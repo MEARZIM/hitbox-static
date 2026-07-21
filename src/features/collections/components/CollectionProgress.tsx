@@ -121,7 +121,7 @@ export default function CollectionProgress({
       </View>
 
       {/* Bottom Section: View Rewards link */}
-      <View className="flex-row justify-end mt-3">
+      {/* <View className="flex-row justify-end mt-3">
         <TouchableOpacity
           onPress={onViewRewardsPress}
           className="flex-row items-center"
@@ -132,7 +132,7 @@ export default function CollectionProgress({
           </Text>
           <ArrowRight size={13} color="#A78BFA" strokeWidth={2.5} />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }
