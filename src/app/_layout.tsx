@@ -64,7 +64,7 @@ function RootNavigator() {
     </Stack>
   );
 }
-console.log(process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY)
+
 export default function RootLayout() {
   return (
     <View className="flex-1">

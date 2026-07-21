@@ -35,7 +35,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="collections"
           options={{
-            title: "Collections",
+            title: "My Collections",
             tabBarIcon: ({ color, size }) => (
               <Box color={color} size={size} />
             ),
