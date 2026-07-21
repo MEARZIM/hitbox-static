@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { ArrowLeft, Check, MoreHorizontal, Share2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   Text,
@@ -63,6 +64,12 @@ interface GlobalCollectionSectionProps {
   items: CollectibleItem[];
   loading: boolean;
   onBack?: () => void;
+  /** When provided, the footer becomes a server-side "Load More" button. */
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onRetry?: () => void;
+  error?: boolean;
 }
 
 export default function GlobalCollectionSection({
@@ -70,11 +77,19 @@ export default function GlobalCollectionSection({
   items,
   loading,
   onBack,
+  onLoadMore,
+  hasMore,
+  loadingMore,
+  onRetry,
+  error,
 }: GlobalCollectionSectionProps) {
   const [activeFilter, setActiveFilter] = useState<"all" | "owned" | "missing">("all");
   const [showAll, setShowAll] = useState(false);
 
   const handleBack = onBack || (() => router.back());
+
+  // When the parent paginates on the server, don't also slice client-side.
+  const serverPaginated = typeof onLoadMore === "function";
 
   const filteredItems = items.filter((item) => {
     if (activeFilter === "owned") return item.owned;
@@ -84,7 +99,11 @@ export default function GlobalCollectionSection({
 
   // 3 items per row — collapsed view shows 2 complete rows
   const COLLAPSED_COUNT = 6;
-  const displayedItems = showAll ? filteredItems : filteredItems.slice(0, COLLAPSED_COUNT);
+  const displayedItems = serverPaginated
+    ? filteredItems
+    : showAll
+      ? filteredItems
+      : filteredItems.slice(0, COLLAPSED_COUNT);
 
   const chunkedItems: CollectibleItem[][] = [];
   for (let i = 0; i < displayedItems.length; i += 3) {
@@ -137,6 +156,33 @@ export default function GlobalCollectionSection({
             ))}
           </View>
         </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (error && !loading) {
+    return (
+      <SafeAreaView className="flex-1" style={{ backgroundColor: "#070B14" }}>
+        <View className="flex-row items-center px-4 py-3">
+          <TouchableOpacity
+            onPress={handleBack}
+            className="h-10 w-10 items-center justify-center rounded-full border"
+            style={{ backgroundColor: "rgba(24, 24, 27, 0.6)", borderColor: "#27272a" }}
+            activeOpacity={0.8}
+          >
+            <ArrowLeft size={20} color="#FFF" />
+          </TouchableOpacity>
+        </View>
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-zinc-400 text-sm text-center">
+            Couldn&apos;t load this collection. Check your connection.
+          </Text>
+          {onRetry && (
+            <TouchableOpacity onPress={onRetry} className="mt-3 bg-violet-600 px-4 py-2 rounded-xl">
+              <Text className="text-white font-semibold text-sm">Retry</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </SafeAreaView>
     );
   }
@@ -427,18 +473,34 @@ export default function GlobalCollectionSection({
               ))}
             </View>
 
-            {filteredItems.length > COLLAPSED_COUNT && (
-              <TouchableOpacity
-                onPress={() => setShowAll(!showAll)}
-                className="mx-4 mt-2 py-3 border rounded-full items-center justify-center"
-                style={{ backgroundColor: "#0B1018", borderColor: "#232C3F" }}
-                activeOpacity={0.8}
-              >
-                <Text className="text-violet-400 text-xs font-bold">
-                  {showAll ? "Show Less" : "See All"}
-                </Text>
-              </TouchableOpacity>
-            )}
+            {serverPaginated
+              ? hasMore && (
+                <TouchableOpacity
+                  onPress={onLoadMore}
+                  disabled={loadingMore}
+                  className="mx-4 mt-2 py-3 border rounded-full items-center justify-center"
+                  style={{ backgroundColor: "#0B1018", borderColor: "#232C3F" }}
+                  activeOpacity={0.8}
+                >
+                  {loadingMore ? (
+                    <ActivityIndicator size="small" color="#A78BFA" />
+                  ) : (
+                    <Text className="text-violet-400 text-xs font-bold">Load More</Text>
+                  )}
+                </TouchableOpacity>
+              )
+              : filteredItems.length > COLLAPSED_COUNT && (
+                <TouchableOpacity
+                  onPress={() => setShowAll(!showAll)}
+                  className="mx-4 mt-2 py-3 border rounded-full items-center justify-center"
+                  style={{ backgroundColor: "#0B1018", borderColor: "#232C3F" }}
+                  activeOpacity={0.8}
+                >
+                  <Text className="text-violet-400 text-xs font-bold">
+                    {showAll ? "Show Less" : "See All"}
+                  </Text>
+                </TouchableOpacity>
+              )}
           </>
         )}
       </ScrollView>

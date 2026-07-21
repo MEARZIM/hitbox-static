@@ -1,14 +1,23 @@
 import { Clock, Compass, Music, Tag } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import MainHeader from "@/components/mainHeader";
+import { useCollectionStats } from "../api/getCollectionStats";
+import { useMyCollection } from "../api/getMyCollection";
 import CategoriesSection from "../components/CategoriesSection";
 import CollectionGrid from "../components/CollectionGrid";
 import CollectionProgress from "../components/CollectionProgress";
 import FilterHeader from "../components/FilterHeader";
-import MyCollectionData from "../data/MyCollection";
+import { toCollectionCard } from "../utils/mapCollectionItem";
 
 const FILTER_OPTIONS = [
   { label: "Artist", value: "Artist", icon: Music },
@@ -21,18 +30,37 @@ export default function CollectionScreen() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Latest");
 
-  const filteredData = useMemo(() => {
-    if (selectedFilter === "Latest") {
-      // Sort by date descending
-      return [...MyCollectionData].sort((a, b) => b.date - a.date);
-    }
-    return MyCollectionData.filter((item) => item.type === selectedFilter);
-  }, [selectedFilter]);
+  const stats = useCollectionStats();
+  const {
+    data: collection,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useMyCollection();
+
+  // The API returns the shelf newest-first; map into the shared card shape.
+  const cards = useMemo(
+    () => (collection?.data ?? []).map(toCollectionCard),
+    [collection]
+  );
+
+  const progress = stats.data?.collectionProgress.percentage ?? 0;
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => {
+              refetch();
+              stats.refetch();
+            }}
+            tintColor="#8B5CF6"
+          />
+        }
       >
         {/* Header */}
         <MainHeader
@@ -43,9 +71,13 @@ export default function CollectionScreen() {
           className='px-4 py-2'
         />
 
-        {/* Collection Progress */}
+        {/* Collection Progress — real stats from GET /collections/me/stats */}
         <View className="mx-4 mt-4">
-          <CollectionProgress />
+          <CollectionProgress
+            progress={progress}
+            itemsOwned={stats.data?.totalClaimedItems ?? 0}
+            totalCollections={stats.data?.totalArtistCollections ?? 0}
+          />
         </View>
 
         {/* Categories */}
@@ -97,7 +129,41 @@ export default function CollectionScreen() {
             </View>
           )}
 
-          <CollectionGrid data={filteredData} />
+          {/* Loading */}
+          {isLoading && (
+            <View className="mt-16 items-center">
+              <ActivityIndicator size="large" color="#8B5CF6" />
+            </View>
+          )}
+
+          {/* Error */}
+          {isError && !isLoading && (
+            <View className="mt-16 items-center px-8">
+              <Text className="text-zinc-400 text-sm text-center">
+                Couldn&apos;t load your collection. Check your connection.
+              </Text>
+              <TouchableOpacity
+                onPress={() => refetch()}
+                className="mt-3 bg-primary px-4 py-2 rounded-xl"
+              >
+                <Text className="text-white font-semibold text-sm">Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Empty */}
+          {!isLoading && !isError && cards.length === 0 && (
+            <View className="mt-16 items-center px-8">
+              <Text className="text-zinc-400 text-sm text-center">
+                Your collection is empty. Claim a collectible to get started.
+              </Text>
+            </View>
+          )}
+
+          {/* Grid */}
+          {!isLoading && !isError && cards.length > 0 && (
+            <CollectionGrid data={cards} />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
