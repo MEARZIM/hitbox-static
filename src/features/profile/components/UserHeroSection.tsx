@@ -1,5 +1,6 @@
 import { useUser } from '@clerk/clerk-expo'
-import { Calendar, CheckCircle2, ChevronRight, Gem } from 'lucide-react-native'
+import { router } from 'expo-router'
+import { Calendar, CheckCircle2, ChevronRight, Gem, Pencil } from 'lucide-react-native'
 import { MotiText, MotiView } from 'moti'
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
@@ -32,7 +33,9 @@ export default function UserHeroSection() {
         || user?.primaryEmailAddress?.emailAddress
         || 'HitBox Collector'
     const username = me?.username ?? user?.username ?? meta.username ?? null
-    const avatarUrl = me?.avatarUrl ?? user?.imageUrl
+    // Clerk first: setProfileImage() updates user.imageUrl instantly, so a new
+    // upload shows here immediately (the backend row catches up via PATCH/webhook).
+    const avatarUrl = user?.imageUrl ?? me?.avatarUrl
     const initials = displayName
         .split(' ')
         .map((part) => part[0])
@@ -59,17 +62,28 @@ export default function UserHeroSection() {
                     transition={{ type: 'spring', damping: 15 }}
                     className="p-[3px] rounded-full border-2 border-primary shadow-lg shadow-primary/30"
                 >
-                    <Avatar className="w-20 h-20 border border-black/40" alt={'Profile'}>
-                        {avatarUrl ? (
-                            <AvatarImage
-                                source={{ uri: avatarUrl }}
-                                className='w-full h-full'
-                            />
-                        ) : null}
-                        <AvatarFallback>
-                            <Text className="text-white font-bold text-lg">{initials}</Text>
-                        </AvatarFallback>
-                    </Avatar>
+                    {/* Tap the avatar to edit the profile */}
+                    <TouchableOpacity
+                        activeOpacity={0.85}
+                        onPress={() => router.push('/(routes)/edit-profile')}
+                        className="relative"
+                    >
+                        <Avatar className="w-20 h-20 border border-black/40" alt={'Profile'}>
+                            {avatarUrl ? (
+                                <AvatarImage
+                                    source={{ uri: avatarUrl }}
+                                    className='w-full h-full'
+                                />
+                            ) : null}
+                            <AvatarFallback>
+                                <Text className="text-white font-bold text-lg">{initials}</Text>
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <View className="absolute -bottom-0.5 -right-0.5 bg-primary p-1.5 rounded-full border-2 border-background">
+                            <Pencil size={11} color="#fff" />
+                        </View>
+                    </TouchableOpacity>
                 </MotiView>
 
                 {/* TEXT DETAILS */}

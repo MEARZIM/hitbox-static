@@ -1,14 +1,13 @@
-/* Jest setup — global mocks shared by the registration test suite. */
+/* Jest setup — global mocks shared across the test suites. */
 
-// @testing-library/react-native v13 registers its matchers automatically —
-// no explicit extend-expect import needed.
+// @testing-library/react-native v13 registers its matchers automatically.
 
-// Silence the "not wrapped in act(...)" reanimated noise in CI logs.
+// Silence the reanimated animation runtime in tests.
 jest.mock("react-native-reanimated", () =>
   require("react-native-reanimated/mock")
 );
 
-// moti renders plain Views in tests — avoids pulling the animation runtime.
+// moti renders plain Views/Fragments in tests — avoids the animation runtime.
 jest.mock("moti", () => {
   const React = require("react");
   const { View, Text } = require("react-native");
@@ -21,7 +20,7 @@ jest.mock("moti", () => {
   };
 });
 
-// lucide icons → simple stubs (they render SVGs we don't assert on).
+// lucide icons → simple stubs (SVGs we don't assert on).
 jest.mock("lucide-react-native", () => {
   const React = require("react");
   const { View } = require("react-native");
