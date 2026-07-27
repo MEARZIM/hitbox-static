@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Step4ActionCtx from '../components/Step4ActionCtx';
 import Step4Header from '../components/Step4Header';
+import Step4Nav from '../components/Step4Nav';
 import Step4ProductBox from '../components/Step4ProductBox';
 
 
@@ -40,6 +41,7 @@ export default function Step4Screen() {
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
                 >
+                    <Step4Nav />
 
                     {/* Confetti Success Header Section */}
                     <Step4Header />
