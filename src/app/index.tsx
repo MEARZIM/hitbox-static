@@ -25,6 +25,12 @@ export default function Index() {
           Go to Item Not Authentic Section
         </Text>
       </Button>
+
+      <Button onPress={() => router.push('/(routes)/scan' as never)}>
+        <Text>
+          Scan NFC & Claim
+        </Text>
+      </Button>
     </SafeAreaView>
 
   );
