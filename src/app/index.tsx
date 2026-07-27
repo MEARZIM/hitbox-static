@@ -34,6 +34,13 @@ export default function Index() {
         </Text>
       </Button>
 
+      {/* NFC section — tap or type a tag id, then Claim or Verify */}
+      <Button onPress={() => router.push('/(routes)/scan' as never)}>
+        <Text>
+          NFC Claim &amp; Verify
+        </Text>
+      </Button>
+
       <Button onPress={() => router.push('/(auth)/item-not-authenticated')}>
         <Text>
           Go to Item Not Authentic Section

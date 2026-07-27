@@ -1,105 +1,58 @@
-import { useAuth } from '@clerk/clerk-expo';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import {
+    AlertTriangle,
     Award,
     BadgeCheck,
     CheckCircle2,
     Info,
-    LogIn,
-    Lock,
     RefreshCw,
     ScanLine,
+    ShieldAlert,
     ShieldCheck,
 } from 'lucide-react-native';
 import { View as MotiView } from 'moti';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { setPendingClaim } from '@/lib/pending-claim';
-import { confirmClaim, fetchLedger, validateTag, type ClaimResult, type LedgerEntry, type ValidateResult } from '../api';
+import { NfcRequestError } from '../api/client';
+import { useConfirmClaim } from '../api/useConfirmClaim';
+import { useLedger } from '../api/useLedger';
+import { useValidateTag } from '../api/useValidateTag';
+import { ClaimResult, LedgerEntry, ValidateResult } from '../types/claim';
 
-type State =
-    | { k: 'init' }
-    | { k: 'signin' }
-    | { k: 'validating' }
-    | { k: 'review'; v: ValidateResult }
-    | { k: 'owned'; v: ValidateResult }
-    | { k: 'taken'; v: ValidateResult }
-    | { k: 'confirming'; v: ValidateResult }
-    | { k: 'success'; r: ClaimResult }
-    | { k: 'error'; code: string; message: string };
+/** Pulls the backend error code out of a thrown NfcRequestError. */
+function errorCodeOf(err: unknown): string | null {
+    return err instanceof NfcRequestError ? err.error.code : null;
+}
 
+/**
+ * Tap → verify against the ledger → claim. No sign-in required for now: the
+ * NFC api client sends a fixed account, so claims still record a real userId
+ * and "you already own this" works.
+ */
 export default function ClaimScreen({ tagId }: { tagId: string }) {
-    const { isSignedIn, isLoaded } = useAuth();
-    const [state, setState] = useState<State>({ k: 'init' });
-    const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+    const validate = useValidateTag(tagId);
+    const ledger = useLedger(tagId, validate.isSuccess);
+    const confirm = useConfirmClaim(tagId);
 
-    /** Provenance chain (public read) — refreshed after validate and after claim. */
-    const loadLedger = useCallback(async () => {
-        const res = await fetchLedger(tagId);
-        if (res.ok && Array.isArray(res.data)) setLedger(res.data);
-    }, [tagId]);
+    // Re-check whenever the screen regains focus.
+    useFocusEffect(
+        useCallback(() => {
+            void validate.refetch();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [tagId]),
+    );
 
-    const runValidate = useCallback(async () => {
-        setState({ k: 'validating' });
-        const res = await validateTag(tagId);
-        if (res.ok && res.data) {
-            const v = res.data;
-            if (v.screen === 'CLAIMABLE') setState({ k: 'review', v });
-            else if (v.screen === 'ALREADY_CLAIMED_BY_YOU') setState({ k: 'owned', v });
-            else setState({ k: 'taken', v });
-            void loadLedger();
-            return;
-        }
-        // Unregistered / unreadable tag → the app's "not authentic" screen.
-        if (res.error?.code === 'CLAIMS_TAG_NOT_FOUND' || res.status === 404) {
-            router.replace(`/(auth)/item-not-authenticated?tagId=${encodeURIComponent(tagId)}` as never);
-            return;
-        }
-        setState({
-            k: 'error',
-            code: res.error?.code ?? String(res.status || 'ERROR'),
-            message: res.error?.message ?? 'Could not reach the server. Check your connection.',
-        });
-    }, [tagId, loadLedger]);
+    const code = errorCodeOf(validate.error);
+    const notRegistered = code === 'CLAIMS_TAG_NOT_FOUND';
 
-    // Signed in → validate. Signed out → offer social sign-in.
-    useEffect(() => {
-        if (!isLoaded) return;
-        if (isSignedIn) void runValidate();
-        else setState((prev) => (prev.k === 'init' ? { k: 'signin' } : prev));
-    }, [isLoaded, isSignedIn, runValidate]);
+    const claimed = confirm.data?.outcome === 'CLAIMED' ? confirm.data : null;
+    const v = validate.data;
 
-    /** Go to the app's own sign-in page, remembering this tag to come back to. */
-    const goToSignIn = useCallback(() => {
-        setPendingClaim(tagId);
-        router.push(`/(auth)/login?claimTag=${encodeURIComponent(tagId)}` as never);
-    }, [tagId]);
-
-    const onClaim = useCallback(async (v: ValidateResult) => {
-        setState({ k: 'confirming', v });
-        const res = await confirmClaim(tagId);
-        if (res.ok && res.data) {
-            if (res.data.outcome === 'CLAIMED') {
-                setState({ k: 'success', r: res.data });
-                void loadLedger(); // chain now has the CLAIM row with this user
-            } else {
-                void runValidate();
-            }
-        } else {
-            setState({
-                k: 'error',
-                code: res.error?.code ?? String(res.status || 'ERROR'),
-                message: res.error?.message ?? 'Claim failed. Please try again.',
-            });
-        }
-    }, [tagId, runValidate, loadLedger]);
-
-    const loading = state.k === 'init' || state.k === 'validating' || state.k === 'confirming';
-    const loadingLabel =
-        state.k === 'confirming' ? 'Claiming your collectible…' : state.k === 'validating' ? 'Verifying on the ledger…' : ' ';
+    const busy = validate.isPending || confirm.isPending;
+    const busyLabel = confirm.isPending ? 'Claiming your item…' : 'Verifying on the ledger…';
 
     return (
         <SafeAreaView className="flex-1 bg-[#050507]">
@@ -111,6 +64,7 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     </Text>
                 </MotiView>
 
+                {/* The scanned tag */}
                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0F0F13] border border-[#1F1F24] rounded-xl p-3.5 mt-2 mb-5 flex-row items-center">
                     <ScanLine color="#208AEF" size={22} />
                     <View className="ml-3">
@@ -119,65 +73,88 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     </View>
                 </MotiView>
 
-                {loading && (
+                {busy && (
                     <View className="items-center mt-16">
                         <ActivityIndicator size="large" color="#208AEF" />
-                        <Text className="text-neutral-300 mt-4 text-base font-medium">{loadingLabel}</Text>
+                        <Text className="text-neutral-300 mt-4 text-base font-medium">{busyLabel}</Text>
                     </View>
                 )}
 
-                {state.k === 'signin' && (
-                    <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} className="mt-2 items-center">
-                        <View className="bg-[#0C1B2E] p-5 rounded-full border mb-4" style={{ borderColor: '#208AEF' }}>
-                            <Lock color="#208AEF" size={40} />
-                        </View>
-                        <Text className="text-white text-2xl font-black">Sign in to claim</Text>
-                        <Text className="text-[14px] text-neutral-400 text-center font-medium mt-1 px-6">
-                            Sign in with Google, Facebook or Apple — your account will own this collectible.
-                        </Text>
-                    </MotiView>
+                {!busy && notRegistered && <NotRegisteredCard tagId={tagId} />}
+
+                {!busy && claimed && <SuccessCard r={claimed} />}
+
+                {!busy && !claimed && v && (
+                    <>
+                        {v.screen === 'CLAIMABLE' && <ReviewCard v={v} />}
+                        {v.screen === 'ALREADY_CLAIMED_BY_YOU' && <OwnedCard v={v} mine />}
+                        {v.screen === 'ALREADY_CLAIMED' && <OwnedCard v={v} />}
+                    </>
                 )}
 
-                {state.k === 'review' && <ReviewCard v={state.v} />}
-                {state.k === 'owned' && <OwnedCard v={state.v} mine />}
-                {state.k === 'taken' && <OwnedCard v={state.v} />}
-                {state.k === 'success' && <SuccessCard r={state.r} />}
-                {state.k === 'error' && <ErrorCard message={state.message} code={state.code} />}
+                {!busy && !claimed && validate.isError && !notRegistered && (
+                    <ErrorCard
+                        code={code ?? 'ERROR'}
+                        message={(validate.error as Error)?.message ?? 'Could not reach the server.'}
+                    />
+                )}
 
-                {/* Provenance ledger — shown whenever we have a verified product */}
-                {['review', 'owned', 'taken', 'success'].includes(state.k) && ledger.length > 0 && (
-                    <LedgerCard entries={ledger} />
+                {!busy && confirm.isError && (
+                    <ErrorCard
+                        code={errorCodeOf(confirm.error) ?? 'ERROR'}
+                        message={(confirm.error as Error)?.message ?? 'Claim failed.'}
+                    />
+                )}
+
+                {/* Blockchain ledger — whenever we have a verified product */}
+                {!busy && !notRegistered && (ledger.data?.length ?? 0) > 0 && (
+                    <LedgerCard entries={ledger.data as LedgerEntry[]} />
                 )}
             </ScrollView>
 
+            {/* Actions */}
             <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-5 mb-2">
-                {state.k === 'signin' && (
-                    <TouchableOpacity onPress={goToSignIn} activeOpacity={0.85}
-                        className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
-                        <LogIn color="#FFF" size={20} />
-                        <Text className="text-white text-base font-bold">Sign in</Text>
-                    </TouchableOpacity>
-                )}
-                {state.k === 'review' && (
-                    <TouchableOpacity onPress={() => onClaim(state.v)} activeOpacity={0.85}
+                {!busy && !claimed && v?.screen === 'CLAIMABLE' && (
+                    <TouchableOpacity onPress={() => confirm.mutate()} activeOpacity={0.85}
                         className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
                         <BadgeCheck color="#FFF" size={20} />
                         <Text className="text-white text-base font-bold">Claim Product</Text>
                     </TouchableOpacity>
                 )}
-                {state.k === 'error' && (
-                    <TouchableOpacity onPress={() => void runValidate()} activeOpacity={0.85}
+
+                {!busy && validate.isError && !notRegistered && (
+                    <TouchableOpacity onPress={() => void validate.refetch()} activeOpacity={0.85}
                         className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
                         <RefreshCw color="#FFF" size={18} />
                         <Text className="text-white text-base font-bold">Try again</Text>
                     </TouchableOpacity>
                 )}
+
                 <TouchableOpacity onPress={() => router.back()} activeOpacity={0.85}
                     className="bg-transparent border border-[#2A2A32] rounded-xl h-14 items-center justify-center">
                     <Text className="text-neutral-200 text-base font-bold">Done</Text>
                 </TouchableOpacity>
             </MotiView>
         </SafeAreaView>
+    );
+}
+
+/** Tag carries no product — nothing to verify or claim. */
+function NotRegisteredCard({ tagId }: { tagId: string }) {
+    return (
+        <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} className="items-center mt-4">
+            <View className="bg-[#2A1414] p-5 rounded-full mb-4 border" style={{ borderColor: '#7A1C1C' }}>
+                <ShieldAlert color="#FF3B30" size={56} />
+            </View>
+            <Text className="text-2xl font-black text-white mb-2 text-center">Product is not registered</Text>
+            <Text className="text-[15px] text-neutral-300 text-center font-medium leading-5 px-5">
+                This NFC tag isn&apos;t linked to any HitBox product, so it can&apos;t be verified or claimed.
+            </Text>
+            <View className="mt-5 bg-[#0F0F13] border border-[#1F1F24] rounded-xl px-4 py-3">
+                <Text className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Scanned tag</Text>
+                <Text className="text-neutral-200 text-sm font-bold tracking-wide">{tagId}</Text>
+            </View>
+        </MotiView>
     );
 }
 
@@ -218,7 +195,7 @@ function ReviewCard({ v }: { v: ValidateResult }) {
     );
 }
 
-/** Already-claimed state — names the owner (userId) who holds it. */
+/** Already claimed — "you already own this item", or names the other owner. */
 function OwnedCard({ v, mine = false }: { v: ValidateResult; mine?: boolean }) {
     const color = mine ? '#28C76F' : '#F2B807';
     const ownerName = v.owner?.displayName ?? v.owner?.username ?? v.owner?.id ?? 'another collector';
@@ -227,14 +204,15 @@ function OwnedCard({ v, mine = false }: { v: ValidateResult; mine?: boolean }) {
             <View className="p-5 rounded-full mb-4 border" style={{ borderColor: color, backgroundColor: '#12121a' }}>
                 {mine ? <CheckCircle2 color={color} size={56} /> : <Info color={color} size={56} />}
             </View>
-            <Text className="text-2xl font-black text-white mb-1">{mine ? 'You own this' : 'Already claimed'}</Text>
+            <Text className="text-2xl font-black text-white mb-1 text-center px-4">
+                {mine ? 'You already own this item' : 'Already claimed'}
+            </Text>
             <Text className="text-[15px] text-neutral-300 text-center font-medium leading-5 px-4 mb-4">
                 {mine
-                    ? `You already own "${v.product.name}".`
+                    ? `"${v.product.name}" is already in your collection.`
                     : `"${v.product.name}" is already claimed by ${ownerName}.`}
             </Text>
 
-            {/* Owner identity */}
             <View className="w-full bg-[#0F0F13] border border-[#1F1F24] rounded-xl p-4 mb-4">
                 <Row label="Owner" value={ownerName + (mine ? ' (you)' : '')} />
                 {v.owner?.id ? <Row label="User ID" value={v.owner.id} /> : null}
@@ -264,11 +242,11 @@ function SuccessCard({ r }: { r: ClaimResult }) {
     );
 }
 
-function ErrorCard({ message, code }: { message: string; code: string }) {
+function ErrorCard({ code, message }: { code: string; message: string }) {
     return (
         <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} className="items-center mt-6">
             <View className="bg-[#2A1414] p-5 rounded-full mb-4 border" style={{ borderColor: '#7A1C1C' }}>
-                <Info color="#FF3B30" size={56} />
+                <AlertTriangle color="#FF3B30" size={56} />
             </View>
             <Text className="text-2xl font-black text-white mb-2">Something went wrong</Text>
             <Text className="text-[15px] text-neutral-300 text-center font-medium leading-5 px-4">{message}</Text>
@@ -277,7 +255,7 @@ function ErrorCard({ message, code }: { message: string; code: string }) {
     );
 }
 
-/** Blockchain ledger: Product Id · Tag · Owner · DateTime · Hash · Claim History. */
+/** Blockchain ledger: Product Id · Tag # · Owner Id · DateTime · Hash · Claim History. */
 function LedgerCard({ entries }: { entries: LedgerEntry[] }) {
     return (
         <MotiView
@@ -289,7 +267,9 @@ function LedgerCard({ entries }: { entries: LedgerEntry[] }) {
             <View className="flex-row items-center mb-3">
                 <ShieldCheck color="#208AEF" size={18} />
                 <Text className="text-white font-bold text-base ml-2">Blockchain Ledger</Text>
-                <Text className="text-neutral-500 text-xs font-medium ml-2">{entries.length} record{entries.length === 1 ? '' : 's'}</Text>
+                <Text className="text-neutral-500 text-xs font-medium ml-2">
+                    {entries.length} record{entries.length === 1 ? '' : 's'}
+                </Text>
             </View>
 
             {entries.map((e) => {
@@ -298,14 +278,10 @@ function LedgerCard({ entries }: { entries: LedgerEntry[] }) {
                 return (
                     <View key={`${e.sequenceNo}-${e.hash}`} className="bg-[#0F0F13] border border-[#1F1F24] rounded-xl p-3.5 mb-2.5">
                         <View className="flex-row items-center justify-between mb-2">
-                            <View className="flex-row items-center">
-                                <View className="rounded-md px-2 py-0.5" style={{ backgroundColor: accent + '22', borderWidth: 1, borderColor: accent }}>
-                                    <Text className="text-[11px] font-black" style={{ color: accent }}>#{e.sequenceNo} {e.txType}</Text>
-                                </View>
+                            <View className="rounded-md px-2 py-0.5" style={{ backgroundColor: accent + '22', borderWidth: 1, borderColor: accent }}>
+                                <Text className="text-[11px] font-black" style={{ color: accent }}>#{e.sequenceNo} {e.txType}</Text>
                             </View>
-                            <Text className="text-[11px] text-neutral-500 font-medium">
-                                {new Date(e.dateTime).toLocaleString()}
-                            </Text>
+                            <Text className="text-[11px] text-neutral-500 font-medium">{new Date(e.dateTime).toLocaleString()}</Text>
                         </View>
 
                         <LedgerRow label="Product Id" value={e.productId} />
