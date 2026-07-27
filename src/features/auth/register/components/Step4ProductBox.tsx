@@ -1,7 +1,7 @@
 import { Box, Calendar, Check, CheckCircle2, Gift, Hash, ShieldCheck, ShoppingBag, Star, Ticket, User } from 'lucide-react-native'
 import { MotiView } from 'moti'
 import React from 'react'
-import { ImageBackground, Text, View } from 'react-native'
+import { Image, ImageBackground, Text, View } from 'react-native'
 
 export default function Step4ProductBox() {
     return (
@@ -19,8 +19,18 @@ export default function Step4ProductBox() {
                         className="absolute inset-0 opacity-50 justify-end p-3"
                     />
                     <View className="absolute top-2 left-2 flex-row justify-between w-full pr-4">
+                        <View className="flex items-center justify-center">
+                            <Image
+                                source={require("@/assets/images/HitBoxLogo.png")}
+                                resizeMode="contain"
+                                style={{
+                                    width: 20,
+                                    height: 20,
+                                }}
+                                className='mix-blend-multiply'
+                            />
+                        </View>
                         <Text className="text-[7px] font-black text-white tracking-widest">HITBOX</Text>
-                        <View className="w-2 h-2 bg-white/20 rounded-sm" />
                     </View>
 
                     <View className="items-center pb-4 z-10">

@@ -11,7 +11,9 @@ const FilterHeader: React.FC<Props> = ({
 }) => {
   return (
     <View className="w-full flex-row items-center justify-end">
-      {/* Right */}
+     
+
+      {/* Right: filter dropdown trigger */}
       <TouchableOpacity
         onPress={onFilterPress}
         className="flex-row items-center"

@@ -1,11 +1,8 @@
+import { useClerk } from '@clerk/clerk-expo';
+import { useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import {
-    Bell,
-    ChevronRight,
-    HelpCircle,
-    Lock,
-    ShieldAlert,
-    User,
-    Wallet
+    ChevronRight
 } from 'lucide-react-native';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -18,6 +15,14 @@ import UserHeroSection from '../components/UserHeroSection';
 // import VipBannerCard from '../components/VipBannerCard';
 
 export default function ProfileScreen() {
+    const { signOut } = useClerk();
+    const queryClient = useQueryClient();
+
+    const handleSignOut = async () => {
+        await signOut();
+        queryClient.clear(); // drop cached user data for the next account
+        router.replace('/');
+    };
 
     return (
         <SafeAreaView className="flex-1 bg-background">
@@ -46,19 +51,20 @@ export default function ProfileScreen() {
                 />
 
                 {/* ACCOUNT LIST SECTION */}
-                <View className="mt-6 mb-10 px-4">
+                {/* <View className="mt-6 mb-10 px-4">
                     <Text className="text-foreground text-lg font-bold mb-3">Account</Text>
                     <View className="bg-card border border-border/30 rounded-2xl overflow-hidden">
 
                         <AccountRow icon={<User size={20} color="#94a3b8" />} title="Personal Information" subtitle="Update your profile and personal details" />
                         <AccountRow icon={<Lock size={20} color="#94a3b8" />} title="Security" subtitle="Password, 2FA, and account security" />
-                        {/* <AccountRow icon={<Wallet size={20} color="#94a3b8" />} title="Connected Wallet" subtitle="Manage your blockchain wallet" /> */}
-                        <AccountRow icon={<Bell size={20} color="#94a3b8" />} title="Notifications" subtitle="Manage your notification preferences" isLast />
-                        {/* <AccountRow icon={<ShieldAlert size={20} color="#94a3b8" />} title="Privacy & Data" subtitle="Privacy settings and data management" /> */}
-                        {/* <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" isLast /> */}
+                        <AccountRow icon={<Wallet size={20} color="#94a3b8" />} title="Connected Wallet" subtitle="Manage your blockchain wallet" />
+                        <AccountRow icon={<Bell size={20} color="#94a3b8" />} title="Notifications" subtitle="Manage your notification preferences" />
+                        <AccountRow icon={<ShieldAlert size={20} color="#94a3b8" />} title="Privacy & Data" subtitle="Privacy settings and data management" />
+                        <AccountRow icon={<HelpCircle size={20} color="#94a3b8" />} title="Help & Support" subtitle="Get help and contact support" />
+                        <AccountRow icon={<LogOut size={20} color="#f87171" />} title="Sign Out" subtitle="Log out of your HitBox account" isLast onPress={handleSignOut} />
 
                     </View>
-                </View>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     )
