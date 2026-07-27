@@ -37,7 +37,10 @@ export default function MenuSection({
 
             <View className="bg-card border border-border/30 rounded-2xl overflow-hidden">
                 <TouchableOpacity
-                    onPress={() => setActiveTab('personal')}
+                    onPress={() => {
+                        setActiveTab('personal');
+                        router.push('/(routes)/edit-profile');
+                    }}
                     activeOpacity={0.7}
                     className="flex-row items-center justify-between p-4 border-b border-border/30"
                 >
