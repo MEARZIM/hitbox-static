@@ -14,13 +14,13 @@ import React from 'react';
 import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { NfcRequestError } from '../api/client';
+import { ApiRequestError } from '@/lib/api';
 import { useLedger } from '../api/useLedger';
 import { useVerifyTag } from '../api/useVerifyTag';
 import { LedgerEntry, VerifyResult } from '../types/claim';
 
 function errorCodeOf(err: unknown): string | null {
-    return err instanceof NfcRequestError ? err.error.code : null;
+    return err instanceof ApiRequestError ? err.error.code : null;
 }
 
 /**

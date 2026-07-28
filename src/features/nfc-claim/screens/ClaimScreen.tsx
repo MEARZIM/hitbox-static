@@ -1,49 +1,105 @@
+import { useAuth, useSSO } from '@clerk/clerk-expo';
 import { Image } from 'expo-image';
 import { router, useFocusEffect } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import {
     AlertTriangle,
     Award,
     BadgeCheck,
     CheckCircle2,
+    ChevronRight,
     Info,
+    Lock,
     RefreshCw,
     ScanLine,
     ShieldAlert,
     ShieldCheck,
 } from 'lucide-react-native';
 import { View as MotiView } from 'moti';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { NfcRequestError } from '../api/client';
+import { AppleSvg } from '@/components/icons/AppleIcon';
+import { FacebookSvg } from '@/components/icons/FacebookIcon';
+import { GoogleSvg } from '@/components/icons/GoogleIcon';
+import { getClerkErrorMessage, useWarmUpBrowser } from '@/features/auth/utils/clerk';
+import { ApiRequestError } from '@/lib/api';
 import { useConfirmClaim } from '../api/useConfirmClaim';
 import { useLedger } from '../api/useLedger';
 import { useValidateTag } from '../api/useValidateTag';
 import { ClaimResult, LedgerEntry, ValidateResult } from '../types/claim';
 
-/** Pulls the backend error code out of a thrown NfcRequestError. */
+WebBrowser.maybeCompleteAuthSession();
+
+type SSOStrategy = 'oauth_google' | 'oauth_facebook' | 'oauth_apple';
+
+const PROVIDERS: { strategy: SSOStrategy; label: string; Icon: () => React.JSX.Element }[] = [
+    { strategy: 'oauth_google', label: 'Continue with Google', Icon: GoogleSvg },
+    { strategy: 'oauth_facebook', label: 'Continue with Facebook', Icon: FacebookSvg },
+    { strategy: 'oauth_apple', label: 'Continue with Apple', Icon: AppleSvg },
+];
+
+/** Pulls the backend error code out of a thrown ApiRequestError. */
 function errorCodeOf(err: unknown): string | null {
-    return err instanceof NfcRequestError ? err.error.code : null;
+    return err instanceof ApiRequestError ? err.error.code : null;
 }
 
 /**
- * Tap → verify against the ledger → claim. No sign-in required for now: the
- * NFC api client sends a fixed account, so claims still record a real userId
- * and "you already own this" works.
+ * Tap → sign in (if needed) → verify against the ledger → claim.
+ *
+ * Sign-in happens inline on this screen so the tag context is never lost to a
+ * navigation round-trip. The claim is recorded against the signed-in Clerk
+ * user's id, so "you already own this item" is per-account.
  */
 export default function ClaimScreen({ tagId }: { tagId: string }) {
-    const validate = useValidateTag(tagId);
+    const { isLoaded, isSignedIn } = useAuth();
+    const { startSSOFlow } = useSSO();
+    useWarmUpBrowser();
+
+    const [pendingStrategy, setPendingStrategy] = useState<SSOStrategy | null>(null);
+    const [authError, setAuthError] = useState<string | null>(null);
+
+    const signedIn = isLoaded && !!isSignedIn;
+    // Claiming needs a session; validate would 401 without one.
+    const validate = useValidateTag(tagId, signedIn);
     const ledger = useLedger(tagId, validate.isSuccess);
     const confirm = useConfirmClaim(tagId);
 
     // Re-check whenever the screen regains focus.
     useFocusEffect(
         useCallback(() => {
-            void validate.refetch();
+            if (signedIn) void validate.refetch();
             // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [tagId]),
+        }, [tagId, signedIn]),
     );
+
+    /** Inline sign-in — no navigation, so nothing can loop or lose the tag. */
+    const signInWith = async (strategy: SSOStrategy) => {
+        if (pendingStrategy) return;
+        setPendingStrategy(strategy);
+        setAuthError(null);
+        try {
+            // No custom redirectUrl: Clerk derives it and uses the same string
+            // for openAuthSessionAsync, so the browser redirect always matches.
+            const { createdSessionId, setActive, authSessionResult } = await startSSOFlow({ strategy });
+
+            if (createdSessionId && setActive) {
+                await setActive({ session: createdSessionId });
+                return; // session goes active → validate runs → claim UI renders
+            }
+            const type = (authSessionResult as { type?: string } | null)?.type ?? 'unknown';
+            setAuthError(
+                type === 'cancel' || type === 'dismiss'
+                    ? 'Sign-in was cancelled.'
+                    : `Sign-in did not complete (${type}). Please try again.`,
+            );
+        } catch (err) {
+            setAuthError(getClerkErrorMessage(err));
+        } finally {
+            setPendingStrategy(null);
+        }
+    };
 
     const code = errorCodeOf(validate.error);
     const notRegistered = code === 'CLAIMS_TAG_NOT_FOUND';
@@ -51,8 +107,17 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
     const claimed = confirm.data?.outcome === 'CLAIMED' ? confirm.data : null;
     const v = validate.data;
 
-    const busy = validate.isPending || confirm.isPending;
-    const busyLabel = confirm.isPending ? 'Claiming your item…' : 'Verifying on the ledger…';
+    const showSignIn = isLoaded && !isSignedIn;
+    const busy =
+        !isLoaded ||
+        pendingStrategy !== null ||
+        (signedIn && validate.isPending) ||
+        confirm.isPending;
+    const busyLabel = confirm.isPending
+        ? 'Claiming your item…'
+        : pendingStrategy
+            ? 'Signing in…'
+            : 'Verifying on the ledger…';
 
     return (
         <SafeAreaView className="flex-1 bg-[#050507]">
@@ -80,11 +145,59 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     </View>
                 )}
 
-                {!busy && notRegistered && <NotRegisteredCard tagId={tagId} />}
+                {/* Signed out → inline social sign-in, right on this screen */}
+                {!busy && showSignIn && (
+                    <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} className="mt-1">
+                        <View className="items-center mb-6">
+                            <View className="bg-[#0C1B2E] p-4 rounded-full border mb-3" style={{ borderColor: '#208AEF' }}>
+                                <Lock color="#208AEF" size={34} />
+                            </View>
+                            <Text className="text-white text-2xl font-black">Sign in to claim</Text>
+                            <Text className="text-[14px] text-neutral-400 text-center font-medium mt-1 px-6">
+                                Your account will own this collectible.
+                            </Text>
+                        </View>
 
-                {!busy && claimed && <SuccessCard r={claimed} />}
+                        <View className="gap-y-3">
+                            {PROVIDERS.map(({ strategy, label, Icon }) => (
+                                <TouchableOpacity
+                                    key={strategy}
+                                    className="flex-row items-center justify-between bg-white h-14 px-4 rounded-2xl w-full"
+                                    disabled={!!pendingStrategy}
+                                    onPress={() => void signInWith(strategy)}
+                                    activeOpacity={0.85}
+                                >
+                                    <View className="flex-row items-center gap-x-3">
+                                        <Icon />
+                                        <Text className="text-black font-semibold text-base">{label}</Text>
+                                    </View>
+                                    <ChevronRight size={18} color="#A3A3A3" />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
 
-                {!busy && !claimed && v && (
+                        {authError && (
+                            <Text className="text-red-500 text-xs font-medium text-center mt-3">{authError}</Text>
+                        )}
+
+                        {/* Verifying needs no account */}
+                        <TouchableOpacity
+                            onPress={() => router.replace(`/(routes)/verify/${tagId}` as never)}
+                            activeOpacity={0.85}
+                            className="mt-5 items-center"
+                        >
+                            <Text className="text-primary font-bold text-[14px]">
+                                Just verify this item instead →
+                            </Text>
+                        </TouchableOpacity>
+                    </MotiView>
+                )}
+
+                {!busy && !showSignIn && notRegistered && <NotRegisteredCard tagId={tagId} />}
+
+                {!busy && !showSignIn && claimed && <SuccessCard r={claimed} />}
+
+                {!busy && !showSignIn && !claimed && v && (
                     <>
                         {v.screen === 'CLAIMABLE' && <ReviewCard v={v} />}
                         {v.screen === 'ALREADY_CLAIMED_BY_YOU' && <OwnedCard v={v} mine />}
@@ -92,14 +205,14 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     </>
                 )}
 
-                {!busy && !claimed && validate.isError && !notRegistered && (
+                {!busy && !showSignIn && !claimed && validate.isError && !notRegistered && (
                     <ErrorCard
                         code={code ?? 'ERROR'}
                         message={(validate.error as Error)?.message ?? 'Could not reach the server.'}
                     />
                 )}
 
-                {!busy && confirm.isError && (
+                {!busy && !showSignIn && confirm.isError && (
                     <ErrorCard
                         code={errorCodeOf(confirm.error) ?? 'ERROR'}
                         message={(confirm.error as Error)?.message ?? 'Claim failed.'}
@@ -107,14 +220,14 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                 )}
 
                 {/* Blockchain ledger — whenever we have a verified product */}
-                {!busy && !notRegistered && (ledger.data?.length ?? 0) > 0 && (
+                {!busy && !showSignIn && !notRegistered && (ledger.data?.length ?? 0) > 0 && (
                     <LedgerCard entries={ledger.data as LedgerEntry[]} />
                 )}
             </ScrollView>
 
             {/* Actions */}
             <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-5 mb-2">
-                {!busy && !claimed && v?.screen === 'CLAIMABLE' && (
+                {!busy && !showSignIn && !claimed && v?.screen === 'CLAIMABLE' && (
                     <TouchableOpacity onPress={() => confirm.mutate()} activeOpacity={0.85}
                         className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
                         <BadgeCheck color="#FFF" size={20} />
@@ -122,7 +235,7 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     </TouchableOpacity>
                 )}
 
-                {!busy && validate.isError && !notRegistered && (
+                {!busy && !showSignIn && validate.isError && !notRegistered && (
                     <TouchableOpacity onPress={() => void validate.refetch()} activeOpacity={0.85}
                         className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
                         <RefreshCw color="#FFF" size={18} />
