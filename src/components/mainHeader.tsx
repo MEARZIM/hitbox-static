@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { Bell, Settings2 } from "lucide-react-native";
+import { Bell, Settings2, UserPlus } from "lucide-react-native";
 import React from "react";
 import {
   Image,
@@ -17,6 +17,8 @@ interface MainHeaderProps {
   notificationCount?: number;
   onNotificationPress?: () => void;
   onSettingsPress?: () => void;
+  /** Overrides the default push to `/(auth)/register` on the signed-out button. */
+  onSignUpPress?: () => void;
   className?: string;
   /** 'compact' shows the title inline with the icons (no logo row), subtitle below. */
   variant?: "default" | "compact";
@@ -28,6 +30,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
   notificationCount = 0,
   onNotificationPress,
   onSettingsPress,
+  onSignUpPress,
   className,
   variant = "default",
 }) => {
@@ -40,6 +43,14 @@ const MainHeader: React.FC<MainHeaderProps> = ({
       onSettingsPress();
     } else {
       router.push("/(routes)/settings");
+    }
+  };
+
+  const handleSignUpPress = () => {
+    if (onSignUpPress) {
+      onSignUpPress();
+    } else {
+      router.push("/(auth)/register");
     }
   };
 
@@ -142,29 +153,58 @@ const MainHeader: React.FC<MainHeaderProps> = ({
             )}
           </TouchableOpacity>
 
-          {/* Settings */}
-          {
-            isSignedIn && (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleSettingsPress}
+          {/* Settings when signed in, Sign Up when not — same slot either way */}
+          {isSignedIn ? (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleSettingsPress}
+              style={{
+                width: buttonSize,
+                height: buttonSize,
+                borderRadius: buttonSize / 2,
+                backgroundColor: "#18181B",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Settings2
+                size={iconSize}
+                color="white"
+                strokeWidth={2}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              onPress={handleSignUpPress}
+              style={{
+                height: buttonSize,
+                borderRadius: buttonSize / 2,
+                backgroundColor: "#7C3AED",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+                paddingHorizontal: isTablet ? 20 : 16,
+              }}
+            >
+              <UserPlus
+                size={iconSize - 3}
+                color="white"
+                strokeWidth={2.5}
+              />
+              <Text
                 style={{
-                  width: buttonSize,
-                  height: buttonSize,
-                  borderRadius: buttonSize / 2,
-                  backgroundColor: "#18181B",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  color: "white",
+                  fontWeight: "700",
+                  fontSize: isTablet ? 15 : 13,
+                  marginLeft: 6,
                 }}
               >
-                <Settings2
-                  size={iconSize}
-                  color="white"
-                  strokeWidth={2}
-                />
-              </TouchableOpacity>
-            )
-          }
+                Sign Up
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 

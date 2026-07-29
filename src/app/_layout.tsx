@@ -6,6 +6,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { PortalHost } from '@rn-primitives/portal';
+import ScanFab from '@/components/ScanFab';
 import '../global.css';
 
 const queryClient = new QueryClient({
@@ -73,6 +74,8 @@ export default function RootLayout() {
       >
         <QueryClientProvider client={queryClient}>
           <RootNavigator />
+          {/* Floats over every screen; before PortalHost so dialogs sit above it. */}
+          <ScanFab />
           <PortalHost />
         </QueryClientProvider>
       </ClerkProvider>

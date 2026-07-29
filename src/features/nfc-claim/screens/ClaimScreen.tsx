@@ -138,7 +138,6 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
         await performClaim();
     };
 
-    /** Rendered in every branch below — the Claim button exists in more than one. */
     const signInPopup = (
         <SignInPopup
             open={askSignIn}
@@ -149,8 +148,17 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     ? `Sign in to claim "${v.product.name}" and add it to your collection.`
                     : 'Sign in to claim this item and add it to your collection.'
             }
-            // Signed in → carry straight on with the claim the user already asked for.
-            onSignedIn={() => void performClaim()}
+            /**
+             * Signed in → back on this same product page, re-verified with the
+             * new session. The claim is *not* fired automatically: nothing is
+             * claimed until the user presses Claim themselves, and the button
+             * subtitle now reads "Add this item to my collection".
+             *
+             */
+            onSignedIn={() => {
+                void verify.refetch();
+                void product.refetch();
+            }}
         />
     );
 
