@@ -1,44 +1,33 @@
-import { useAuth, useSSO } from '@clerk/clerk-expo';
+import { useAuth } from '@clerk/clerk-expo';
 import { Image } from 'expo-image';
 import { router, useFocusEffect } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import {
     AlertTriangle,
     Award,
-    BadgeCheck,
     CheckCircle2,
-    ChevronRight,
     Info,
-    Lock,
     RefreshCw,
     ScanLine,
     ShieldAlert,
-    ShieldCheck,
+    ShieldCheck
 } from 'lucide-react-native';
 import { View as MotiView } from 'moti';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppleSvg } from '@/components/icons/AppleIcon';
-import { FacebookSvg } from '@/components/icons/FacebookIcon';
-import { GoogleSvg } from '@/components/icons/GoogleIcon';
-import { getClerkErrorMessage, useWarmUpBrowser } from '@/features/auth/utils/clerk';
+import { useMe } from '@/features/profile/api/getProfile';
 import { ApiRequestError } from '@/lib/api';
 import { useConfirmClaim } from '../api/useConfirmClaim';
 import { useLedger } from '../api/useLedger';
-import { useValidateTag } from '../api/useValidateTag';
+import { useProductByTag } from '../api/useProductByTag';
+import { useVerifyTag } from '../api/useVerifyTag';
 import { ClaimResult, LedgerEntry, ValidateResult } from '../types/claim';
+import ProductVerifiedScreen from './ProductVerifiedScreen';
+import SucessfulClaimScreen from './SucessfulClaimScreen';
 
 WebBrowser.maybeCompleteAuthSession();
-
-type SSOStrategy = 'oauth_google' | 'oauth_facebook' | 'oauth_apple';
-
-const PROVIDERS: { strategy: SSOStrategy; label: string; Icon: () => React.JSX.Element }[] = [
-    { strategy: 'oauth_google', label: 'Continue with Google', Icon: GoogleSvg },
-    { strategy: 'oauth_facebook', label: 'Continue with Facebook', Icon: FacebookSvg },
-    { strategy: 'oauth_apple', label: 'Continue with Apple', Icon: AppleSvg },
-];
 
 /** Pulls the backend error code out of a thrown ApiRequestError. */
 function errorCodeOf(err: unknown): string | null {
@@ -46,87 +35,147 @@ function errorCodeOf(err: unknown): string | null {
 }
 
 /**
- * Tap → sign in (if needed) → verify against the ledger → claim.
+ * Entry point for a tapped tag (`/(routes)/claim/:tagId`) — the state machine
+ * that decides which screen the user sees.
  *
- * Sign-in happens inline on this screen so the tag context is never lost to a
- * navigation round-trip. The claim is recorded against the signed-in Clerk
- * user's id, so "you already own this item" is per-account.
+ * On mount it **verifies the tag against the backend** with the public reads
+ * (`GET /verify/:tagId` + `GET /products/tag/:tagId`), so a tap always resolves
+ * whether or not the user is signed in:
+ *
+ *   verified & UNCLAIMED  → `ProductVerifiedScreen`  (Claim button lives there)
+ *   claim succeeded       → `SucessfulClaimScreen`
+ *   already claimed       → owned card (yours / someone else's)
+ *   tag not registered    → not-registered card
+ *   server / network fail → error card + retry
+ *
+ * Claiming — and the ledger write — happens **only** when that Claim button is
+ * pressed (`POST /claims/:tagId/confirm`).
  */
 export default function ClaimScreen({ tagId }: { tagId: string }) {
     const { isLoaded, isSignedIn } = useAuth();
-    const { startSSOFlow } = useSSO();
-    useWarmUpBrowser();
-
-    const [pendingStrategy, setPendingStrategy] = useState<SSOStrategy | null>(null);
-    const [authError, setAuthError] = useState<string | null>(null);
-
     const signedIn = isLoaded && !!isSignedIn;
-    // Claiming needs a session; validate would 401 without one.
-    const validate = useValidateTag(tagId, signedIn);
-    const ledger = useLedger(tagId, validate.isSuccess);
-    const confirm = useConfirmClaim(tagId);
 
-    // Re-check whenever the screen regains focus.
+    // PUBLIC reads — these run on every tap, signed in or not.
+    const verify = useVerifyTag(tagId);
+    const product = useProductByTag(tagId);
+    const ledger = useLedger(tagId, verify.isSuccess);
+    const confirm = useConfirmClaim(tagId);
+    // Only to distinguish "you own this" from "someone else owns this".
+    const me = useMe();
+
+    // Re-verify whenever the screen regains focus (ownership can change).
     useFocusEffect(
         useCallback(() => {
-            if (signedIn) void validate.refetch();
+            void verify.refetch();
+            void product.refetch();
             // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, [tagId, signedIn]),
+        }, [tagId]),
     );
 
-    /** Inline sign-in — no navigation, so nothing can loop or lose the tag. */
-    const signInWith = async (strategy: SSOStrategy) => {
-        if (pendingStrategy) return;
-        setPendingStrategy(strategy);
-        setAuthError(null);
-        try {
-            // No custom redirectUrl: Clerk derives it and uses the same string
-            // for openAuthSessionAsync, so the browser redirect always matches.
-            const { createdSessionId, setActive, authSessionResult } = await startSSOFlow({ strategy });
+    const code = errorCodeOf(verify.error) ?? errorCodeOf(product.error);
+    const notRegistered =
+        code === 'CLAIMS_TAG_NOT_FOUND' || code === 'PRODUCTS_NOT_FOUND';
 
-            if (createdSessionId && setActive) {
-                await setActive({ session: createdSessionId });
-                return; // session goes active → validate runs → claim UI renders
-            }
-            const type = (authSessionResult as { type?: string } | null)?.type ?? 'unknown';
-            setAuthError(
-                type === 'cancel' || type === 'dismiss'
-                    ? 'Sign-in was cancelled.'
-                    : `Sign-in did not complete (${type}). Please try again.`,
-            );
-        } catch (err) {
-            setAuthError(getClerkErrorMessage(err));
-        } finally {
-            setPendingStrategy(null);
+    const claimed = confirm.data?.outcome === 'CLAIMED' ? confirm.data : null;
+    const busy = verify.isPending && product.isPending;
+
+    const ownerId = verify.data?.owner?.id ?? product.data?.ownerId ?? null;
+    const claimedByYou = !!ownerId && !!me.data?.id && ownerId === me.data.id;
+    const isClaimed = verify.data?.claimed ?? product.data?.claimedStatus === 'CLAIMED';
+
+    /**
+     * The existing owned/error cards below were written against `ValidateResult`,
+     * so the public reads are adapted into that shape — no UI rewrite needed.
+     */
+    const v: ValidateResult | null = verify.data
+        ? {
+            tagId,
+            screen: !isClaimed
+                ? 'CLAIMABLE'
+                : claimedByYou
+                    ? 'ALREADY_CLAIMED_BY_YOU'
+                    : 'ALREADY_CLAIMED',
+            claimedByYou,
+            product: {
+                id: verify.data.productId,
+                productCode: verify.data.productCode,
+                name: verify.data.name,
+                tagId,
+                priceInDollars: product.data?.priceInDollars ?? '0',
+                rewardPoints: product.data?.rewardPoints ?? 0,
+                state: verify.data.state,
+                imageUrl: product.data?.images?.[0]?.url ?? null,
+            },
+            owner: verify.data.owner,
+            claimedAt: product.data?.claimedAt ?? null,
+        }
+        : null;
+
+    /** Claim button → sign in if needed, then perform the claim + ledger write. */
+    const handleClaim = async () => {
+        if (!signedIn) {
+            router.push({
+                pathname: '/(auth)/login',
+                params: { returnTo: `/(routes)/claim/${tagId}` },
+            } as never);
+            return;
+        }
+        try {
+            await confirm.mutateAsync();
+        } catch {
+            // Rendered by the claim error line / ErrorCard.
         }
     };
 
-    const code = errorCodeOf(validate.error);
-    const notRegistered = code === 'CLAIMS_TAG_NOT_FOUND';
+    // ── Claim succeeded → the success screen, nothing else ──────────────────
+    if (claimed) return <SucessfulClaimScreen result={claimed} />;
 
-    const claimed = confirm.data?.outcome === 'CLAIMED' ? confirm.data : null;
-    const v = validate.data;
+    // ── Verified AND unclaimed → the verified screen (owns the Claim button) ──
+    if (!busy && !notRegistered && v?.screen === 'CLAIMABLE') {
+        return (
+            <ProductVerifiedScreen
+                product={{
+                    name: v.product.name,
+                    productCode: v.product.productCode,
+                    tagId,
+                    imageUrl: v.product.imageUrl,
+                    priceInDollars: product.data?.priceInDollars ?? null,
+                    rewardPoints: product.data?.rewardPoints ?? null,
+                    rarity: product.data?.rarity
+                        ? product.data.rarity.charAt(0) + product.data.rarity.slice(1).toLowerCase()
+                        : null,
+                    ledgerLength: verify.data?.ledgerLength ?? null,
+                }}
+                onClaim={handleClaim}
+                isClaiming={confirm.isPending}
+                signedIn={signedIn}
+                claimError={
+                    confirm.isError
+                        ? ((confirm.error as Error)?.message ?? 'Claim failed. Please try again.')
+                        : null
+                }
+            />
+        );
+    }
 
-    const showSignIn = isLoaded && !isSignedIn;
-    const busy =
-        !isLoaded ||
-        pendingStrategy !== null ||
-        (signedIn && validate.isPending) ||
-        confirm.isPending;
-    const busyLabel = confirm.isPending
-        ? 'Claiming your item…'
-        : pendingStrategy
-            ? 'Signing in…'
-            : 'Verifying on the ledger…';
-
+    // ── Everything else: loading, not registered, already claimed, errors ────
     return (
         <SafeAreaView className="flex-1 bg-[#050507]">
             <StatusBar barStyle="light-content" />
             <ScrollView className="px-5 pt-3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                 <MotiView from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} className="items-center my-2">
-                    <Text className="text-white text-3xl font-black tracking-widest uppercase">
-                        HIT<Text className="text-primary">B★X</Text>
-                    </Text>
+                    <View className="flex items-center justify-center w-full">
+
+                        <Image
+                            source={require("@/assets/images/HitBoxLogo.png")}
+                            resizeMode="contain"
+                            style={{
+                                width: 40,
+                                height: 40,
+                            }}
+                        />
+
+                    </View>
                 </MotiView>
 
                 {/* The scanned tag */}
@@ -138,105 +187,51 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     </View>
                 </MotiView>
 
+
+
+                {/* Verifying the tap against the backend */}
                 {busy && (
                     <View className="items-center mt-16">
                         <ActivityIndicator size="large" color="#208AEF" />
-                        <Text className="text-neutral-300 mt-4 text-base font-medium">{busyLabel}</Text>
+                        <Text className="text-neutral-300 mt-4 text-base font-medium">
+                            Verifying this item…
+                        </Text>
                     </View>
                 )}
 
-                {/* Signed out → inline social sign-in, right on this screen */}
-                {!busy && showSignIn && (
-                    <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} className="mt-1">
-                        <View className="items-center mb-6">
-                            <View className="bg-[#0C1B2E] p-4 rounded-full border mb-3" style={{ borderColor: '#208AEF' }}>
-                                <Lock color="#208AEF" size={34} />
-                            </View>
-                            <Text className="text-white text-2xl font-black">Sign in to claim</Text>
-                            <Text className="text-[14px] text-neutral-400 text-center font-medium mt-1 px-6">
-                                Your account will own this collectible.
-                            </Text>
-                        </View>
+                {!busy && notRegistered && <NotRegisteredCard tagId={tagId} />}
 
-                        <View className="gap-y-3">
-                            {PROVIDERS.map(({ strategy, label, Icon }) => (
-                                <TouchableOpacity
-                                    key={strategy}
-                                    className="flex-row items-center justify-between bg-white h-14 px-4 rounded-2xl w-full"
-                                    disabled={!!pendingStrategy}
-                                    onPress={() => void signInWith(strategy)}
-                                    activeOpacity={0.85}
-                                >
-                                    <View className="flex-row items-center gap-x-3">
-                                        <Icon />
-                                        <Text className="text-black font-semibold text-base">{label}</Text>
-                                    </View>
-                                    <ChevronRight size={18} color="#A3A3A3" />
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        {authError && (
-                            <Text className="text-red-500 text-xs font-medium text-center mt-3">{authError}</Text>
-                        )}
-
-                        {/* Verifying needs no account */}
-                        <TouchableOpacity
-                            onPress={() => router.replace(`/(routes)/verify/${tagId}` as never)}
-                            activeOpacity={0.85}
-                            className="mt-5 items-center"
-                        >
-                            <Text className="text-primary font-bold text-[14px]">
-                                Just verify this item instead →
-                            </Text>
-                        </TouchableOpacity>
-                    </MotiView>
-                )}
-
-                {!busy && !showSignIn && notRegistered && <NotRegisteredCard tagId={tagId} />}
-
-                {!busy && !showSignIn && claimed && <SuccessCard r={claimed} />}
-
-                {!busy && !showSignIn && !claimed && v && (
+                {/* Already claimed — by you, or by someone else */}
+                {!busy && !notRegistered && v && (
                     <>
-                        {v.screen === 'CLAIMABLE' && <ReviewCard v={v} />}
                         {v.screen === 'ALREADY_CLAIMED_BY_YOU' && <OwnedCard v={v} mine />}
                         {v.screen === 'ALREADY_CLAIMED' && <OwnedCard v={v} />}
                     </>
                 )}
 
-                {!busy && !showSignIn && !claimed && validate.isError && !notRegistered && (
+                {/* Verify itself failed (server / network) */}
+                {!busy && !notRegistered && !v && verify.isError && (
                     <ErrorCard
                         code={code ?? 'ERROR'}
-                        message={(validate.error as Error)?.message ?? 'Could not reach the server.'}
-                    />
-                )}
-
-                {!busy && !showSignIn && confirm.isError && (
-                    <ErrorCard
-                        code={errorCodeOf(confirm.error) ?? 'ERROR'}
-                        message={(confirm.error as Error)?.message ?? 'Claim failed.'}
+                        message={(verify.error as Error)?.message ?? 'Could not reach the server.'}
                     />
                 )}
 
                 {/* Blockchain ledger — whenever we have a verified product */}
-                {!busy && !showSignIn && !notRegistered && (ledger.data?.length ?? 0) > 0 && (
+                {!busy && !notRegistered && (ledger.data?.length ?? 0) > 0 && (
                     <LedgerCard entries={ledger.data as LedgerEntry[]} />
                 )}
             </ScrollView>
 
             {/* Actions */}
             <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-5 mb-2">
-                {!busy && !showSignIn && !claimed && v?.screen === 'CLAIMABLE' && (
-                    <TouchableOpacity onPress={() => confirm.mutate()} activeOpacity={0.85}
-                        className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
-                        <BadgeCheck color="#FFF" size={20} />
-                        <Text className="text-white text-base font-bold">Claim Product</Text>
-                    </TouchableOpacity>
-                )}
-
-                {!busy && !showSignIn && validate.isError && !notRegistered && (
-                    <TouchableOpacity onPress={() => void validate.refetch()} activeOpacity={0.85}
+                {!busy && verify.isError && !notRegistered && (
+                    <TouchableOpacity
+                        onPress={() => {
+                            void verify.refetch();
+                            void product.refetch();
+                        }}
+                        activeOpacity={0.85}
                         className="bg-primary rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3">
                         <RefreshCw color="#FFF" size={18} />
                         <Text className="text-white text-base font-bold">Try again</Text>

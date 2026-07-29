@@ -3,7 +3,7 @@ import { LayoutDashboard, Radio } from 'lucide-react-native'
 import React from 'react'
 import { Text, View } from 'react-native'
 
-import { AnimatedButton } from './AnimatedButton'
+import { AnimatedButton } from '../../auth/register/components/AnimatedButton'
 
 export default function Step4ActionCtx() {
     return (

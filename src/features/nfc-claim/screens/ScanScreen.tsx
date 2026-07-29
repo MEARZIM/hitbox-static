@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { BadgeCheck, Nfc, ScanLine, ShieldCheck } from 'lucide-react-native';
 import { View as MotiView } from 'moti';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
@@ -72,9 +72,18 @@ export default function ScanScreen() {
             <StatusBar barStyle="light-content" />
             <ScrollView className="px-5 pt-3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
                 <MotiView from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} className="items-center my-2">
-                    <Text className="text-white text-3xl font-black tracking-widest uppercase">
-                        HIT<Text className="text-primary">B★X</Text>
-                    </Text>
+                    <View className="flex items-center justify-center w-full mb-5">
+
+                        <Image
+                            source={require("@/assets/images/HitBoxLogo.png")}
+                            resizeMode="contain"
+                            style={{
+                                width: 50,
+                                height: 50,
+                            }}
+                        />
+
+                    </View>
                     <Text className="text-neutral-500 text-[11px] font-bold uppercase tracking-widest mt-1">
                         NFC claim &amp; verify
                     </Text>

@@ -15,8 +15,8 @@ export default function Step3Header() {
                     source={require("@/assets/images/HitBoxLogo.png")}
                     resizeMode="contain"
                     style={{
-                        width: 40,
-                        height: 40,
+                        width: 50,
+                        height: 50,
                     }}
                 />
 

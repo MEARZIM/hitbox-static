@@ -21,6 +21,40 @@ export interface VerifyResult {
     verifiedAt: string
 }
 
+/**
+ * GET /api/v1/products/tag/:tagId — the product carrying the tag. Public, so the
+ * verified screen can show images/price/rarity that `/verify` doesn't return.
+ */
+export interface TaggedProduct {
+    id: string
+    productCode: string
+    name: string
+    description: string | null
+    rarity: string
+    priceInDollars: string
+    rewardPoints: number
+    state: string
+    tagId: string | null
+    claimedStatus: 'CLAIMED' | 'UNCLAIMED'
+    claimedAt: string | null
+    ownerId: string | null
+    images: { id: string; url: string; title: string | null }[]
+    collection: { id: string; name: string } | null
+}
+
+/** What the verified screen renders — merged from /verify + /products/tag. */
+export interface VerifiedProductView {
+    name: string
+    productCode: string
+    tagId: string
+    imageUrl: string | null
+    priceInDollars: string | null
+    rewardPoints: number | null
+    rarity: string | null
+    /** Records already on the provenance chain (origin MINT row). */
+    ledgerLength: number | null
+}
+
 /** POST /api/v1/claims/:tagId — validate step; tells the app which screen to show. */
 export interface ValidateResult {
     tagId: string

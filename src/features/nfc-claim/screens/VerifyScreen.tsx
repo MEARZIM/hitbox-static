@@ -11,7 +11,7 @@ import {
 } from 'lucide-react-native';
 import { View as MotiView } from 'moti';
 import React from 'react';
-import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ApiRequestError } from '@/lib/api';
@@ -40,9 +40,18 @@ export default function VerifyScreen({ tagId }: { tagId: string }) {
             <StatusBar barStyle="light-content" />
             <ScrollView className="px-5 pt-3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
                 <MotiView from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} className="items-center my-2">
-                    <Text className="text-white text-3xl font-black tracking-widest uppercase">
-                        HIT<Text className="text-primary">B★X</Text>
-                    </Text>
+                    <View className="flex items-center justify-center w-full mb-5">
+
+                        <Image
+                            source={require("@/assets/images/HitBoxLogo.png")}
+                            resizeMode="contain"
+                            style={{
+                                width: 50,
+                                height: 50,
+                            }}
+                        />
+
+                    </View>
                     <Text className="text-neutral-500 text-[11px] font-bold uppercase tracking-widest mt-1">
                         Authenticity check
                     </Text>

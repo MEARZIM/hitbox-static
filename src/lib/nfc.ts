@@ -71,17 +71,32 @@ export async function promptEnableNfcIfNeeded(): Promise<void> {
 }
 
 /**
- * Listen for tag taps while the app is foregrounded. Calls `onTag` with the
- * normalized tag id on every discovery. Returns a cleanup function.
+ * Listen for tag taps while the Scan screen is open. Calls `onTag` with the
+ * normalized tag id on every discovery. Returns a cleanup function that stops
+ * scanning — scanning is scoped to `/(routes)/scan`, not the whole app.
  */
 export function startTagListener(onTag: (tagId: string) => void): () => void {
+    let cancelled = false;
+
     NfcManager.setEventListener(NfcEvents.DiscoverTag, (tag: TagEvent) => {
         const id = normalizeTagId(tag?.id);
-        if (id) onTag(id);
+        if (id && !cancelled) onTag(id);
     });
-    void NfcManager.registerTagEvent().catch(() => { /* NFC off / unsupported */ });
+
+    // Make sure the native stack is up before registering, otherwise the very
+    // first registration on a cold start can silently fail.
+    void (async () => {
+        const ok = await initNfc();
+        if (!ok || cancelled) return;
+        try {
+            await NfcManager.registerTagEvent();
+        } catch {
+            /* NFC off / unsupported */
+        }
+    })();
 
     return () => {
+        cancelled = true;
         NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
         void NfcManager.unregisterTagEvent().catch(() => { /* ignore */ });
     };
