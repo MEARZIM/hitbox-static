@@ -13,10 +13,11 @@ import {
     ShieldCheck
 } from 'lucide-react-native';
 import { View as MotiView } from 'moti';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import SignInPopup from '@/components/auth/SignInPopup';
 import { useMe } from '@/features/profile/api/getProfile';
 import { ApiRequestError } from '@/lib/api';
 import { useConfirmClaim } from '../api/useConfirmClaim';
@@ -54,6 +55,9 @@ function errorCodeOf(err: unknown): string | null {
 export default function ClaimScreen({ tagId }: { tagId: string }) {
     const { isLoaded, isSignedIn } = useAuth();
     const signedIn = isLoaded && !!isSignedIn;
+
+    // Sign-in popup, opened only when a signed-out user presses Claim.
+    const [askSignIn, setAskSignIn] = useState(false);
 
     // PUBLIC reads — these run on every tap, signed in or not.
     const verify = useVerifyTag(tagId);
@@ -111,15 +115,8 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
         }
         : null;
 
-    /** Claim button → sign in if needed, then perform the claim + ledger write. */
-    const handleClaim = async () => {
-        if (!signedIn) {
-            router.push({
-                pathname: '/(auth)/login',
-                params: { returnTo: `/(routes)/claim/${tagId}` },
-            } as never);
-            return;
-        }
+    /** POST /claims/:tagId/confirm — the claim + ledger write. */
+    const performClaim = async () => {
         try {
             await confirm.mutateAsync();
         } catch {
@@ -127,34 +124,67 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
         }
     };
 
+    /**
+     * Claim button → ask a signed-out user to sign in **over this screen** rather
+     * than pushing `/(auth)/login`: that route finishes by replacing to the
+     * discover tab, which would drop the verified tag the user just tapped.
+     * `SignInPopup` keeps this screen mounted and hands control back here.
+     */
+    const handleClaim = async () => {
+        if (!signedIn) {
+            setAskSignIn(true);
+            return;
+        }
+        await performClaim();
+    };
+
+    /** Rendered in every branch below — the Claim button exists in more than one. */
+    const signInPopup = (
+        <SignInPopup
+            open={askSignIn}
+            onOpenChange={setAskSignIn}
+            title="Sign in to claim"
+            description={
+                v?.product.name
+                    ? `Sign in to claim "${v.product.name}" and add it to your collection.`
+                    : 'Sign in to claim this item and add it to your collection.'
+            }
+            // Signed in → carry straight on with the claim the user already asked for.
+            onSignedIn={() => void performClaim()}
+        />
+    );
+
     // ── Claim succeeded → the success screen, nothing else ──────────────────
     if (claimed) return <SucessfulClaimScreen result={claimed} />;
 
     // ── Verified AND unclaimed → the verified screen (owns the Claim button) ──
     if (!busy && !notRegistered && v?.screen === 'CLAIMABLE') {
         return (
-            <ProductVerifiedScreen
-                product={{
-                    name: v.product.name,
-                    productCode: v.product.productCode,
-                    tagId,
-                    imageUrl: v.product.imageUrl,
-                    priceInDollars: product.data?.priceInDollars ?? null,
-                    rewardPoints: product.data?.rewardPoints ?? null,
-                    rarity: product.data?.rarity
-                        ? product.data.rarity.charAt(0) + product.data.rarity.slice(1).toLowerCase()
-                        : null,
-                    ledgerLength: verify.data?.ledgerLength ?? null,
-                }}
-                onClaim={handleClaim}
-                isClaiming={confirm.isPending}
-                signedIn={signedIn}
-                claimError={
-                    confirm.isError
-                        ? ((confirm.error as Error)?.message ?? 'Claim failed. Please try again.')
-                        : null
-                }
-            />
+            <>
+                <ProductVerifiedScreen
+                    product={{
+                        name: v.product.name,
+                        productCode: v.product.productCode,
+                        tagId,
+                        imageUrl: v.product.imageUrl,
+                        priceInDollars: product.data?.priceInDollars ?? null,
+                        rewardPoints: product.data?.rewardPoints ?? null,
+                        rarity: product.data?.rarity
+                            ? product.data.rarity.charAt(0) + product.data.rarity.slice(1).toLowerCase()
+                            : null,
+                        ledgerLength: verify.data?.ledgerLength ?? null,
+                    }}
+                    onClaim={handleClaim}
+                    isClaiming={confirm.isPending}
+                    signedIn={signedIn}
+                    claimError={
+                        confirm.isError
+                            ? ((confirm.error as Error)?.message ?? 'Claim failed. Please try again.')
+                            : null
+                    }
+                />
+                {signInPopup}
+            </>
         );
     }
 
@@ -243,6 +273,8 @@ export default function ClaimScreen({ tagId }: { tagId: string }) {
                     <Text className="text-neutral-200 text-base font-bold">Done</Text>
                 </TouchableOpacity>
             </MotiView>
+
+            {signInPopup}
         </SafeAreaView>
     );
 }
