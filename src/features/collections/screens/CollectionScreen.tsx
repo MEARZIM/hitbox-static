@@ -1,4 +1,4 @@
-import { Clock, Compass, Music, Tag } from "lucide-react-native";
+import { Clock, Music, Tag } from "lucide-react-native";
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,7 +22,7 @@ import { toCollectionCard } from "../utils/mapCollectionItem";
 const FILTER_OPTIONS = [
   { label: "Artist", value: "Artist", icon: Music },
   { label: "Brand", value: "Brand", icon: Tag },
-  { label: "Genre", value: "Genre", icon: Compass },
+  // { label: "Genre", value: "Genre", icon: Compass },
   { label: "Latest", value: "Latest", icon: Clock },
 ];
 
@@ -68,7 +68,7 @@ export default function CollectionScreen() {
       >
         {/* Header */}
         <MainHeader
-          title="My Collection"
+          title="My Collections"
           subtitle="Welcome to your HitBox collection."
           className='px-4 py-2'
         />
