@@ -3,6 +3,9 @@ import { router, usePathname } from 'expo-router';
 import { ScanLine } from 'lucide-react-native';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { TabBarBaseHeight } from '@/constants/theme';
 
 /**
  * Routes where the button would be pointless or in the way. `usePathname()`
@@ -18,18 +21,23 @@ const HIDDEN_ON = [
     '/sso-callback',
 ];
 
+/** Routes that render the bottom tab bar, which the button has to clear. */
+const TAB_ROUTES = ['/discover', '/collections', '/marketplace', '/profile'];
+
 /**
  * Floating scan button — the app-wide entry point into `/(routes)/scan`.
  *
  * Rendered once in `src/app/_layout.tsx` as a sibling of the navigator, so it
- * survives every route change instead of being re-mounted per screen. It sits
- * clear of the 80px tab bar and is hidden on the routes listed above.
+ * survives every route change instead of being re-mounted per screen. It clears
+ * the tab bar (plus the system nav bar below it) on tab routes, sits just above
+ * the safe area elsewhere, and is hidden on the routes listed above.
  *
  * Tapping only *navigates*: scanning itself stays scoped to the scan screen —
  * there is deliberately no app-wide tag listener (see AGENTS.md §8).
  */
 export default function ScanFab() {
     const pathname = usePathname();
+    const insets = useSafeAreaInsets();
     // The navigator shows a spinner until Clerk restores the session; a button
     // floating over that reads as a glitch.
     const { isLoaded } = useAuth();
@@ -37,8 +45,13 @@ export default function ScanFab() {
     if (!isLoaded) return null;
     if (HIDDEN_ON.some((route) => pathname.startsWith(route))) return null;
 
+    // The tab bar is TabBarBaseHeight + insets.bottom tall, so on a tab route the
+    // button has to start above both; elsewhere only the safe area matters.
+    const onTabRoute = TAB_ROUTES.some((route) => pathname.startsWith(route));
+    const bottom = insets.bottom + (onTabRoute ? TabBarBaseHeight + 12 : 24);
+
     return (
-        <View pointerEvents="box-none" className="absolute bottom-24 right-5 items-center">
+        <View pointerEvents="box-none" style={{ bottom }} className="absolute right-5 items-center">
             <TouchableOpacity
                 accessibilityRole="button"
                 accessibilityLabel="Scan an NFC tag"

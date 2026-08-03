@@ -2,8 +2,10 @@ import { useAuth } from "@clerk/clerk-expo";
 import { router, Tabs } from "expo-router";
 import { Box, Compass, Handbag, User } from "lucide-react-native";
 import React, { useRef, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import SignInPopup from "@/components/auth/SignInPopup";
+import { TabBarBaseHeight } from "@/constants/theme";
 
 /**
  * Tabs whose screens can't work without a Clerk session. They stay **visible**
@@ -29,6 +31,10 @@ type GatedTab = keyof typeof GATED_TABS;
 
 export default function TabLayout() {
   const { isSignedIn } = useAuth();
+  // Android's gesture/3-button nav bar sits on top of the tab bar otherwise:
+  // a fixed `height` + `paddingBottom` overrides the inset handling that
+  // React Navigation would normally apply for us.
+  const insets = useSafeAreaInsets();
 
   const [gatedTab, setGatedTab] = useState<GatedTab | null>(null);
   // The popup closes itself before calling onSignedIn, so the target is read
@@ -51,8 +57,8 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            height: 80,
-            paddingBottom: 8,
+            height: TabBarBaseHeight + insets.bottom,
+            paddingBottom: 2,
             paddingTop: 8,
             backgroundColor: "#000000"
           },
@@ -60,50 +66,49 @@ export default function TabLayout() {
           tabBarInactiveTintColor: "#999",
         }}
       >
-        <Tabs.Screen
-          name="discover"
-          options={{
-            title: "Discover",
-            tabBarIcon: ({ color, size }) => (
-              <Compass color={color} size={size} />
-            ),
-          }}
-        />
+          <Tabs.Screen
+            name="discover"
+            options={{
+              title: "Discover",
+              tabBarIcon: ({ color, size }) => (
+                <Compass color={color} size={size} />
+              ),
+            }}
+          />
 
-        {/* Private, but still listed when signed out — see GATED_TABS */}
-        <Tabs.Screen
-          name="collections"
-          listeners={guard("collections")}
-          options={{
-            title: "My Collections",
-            tabBarIcon: ({ color, size }) => (
-              <Box color={color} size={size} />
-            ),
-          }}
-        />
+          {/* Private, but still listed when signed out — see GATED_TABS */}
+          <Tabs.Screen
+            name="collections"
+            listeners={guard("collections")}
+            options={{
+              title: "My Collections",
+              tabBarIcon: ({ color, size }) => (
+                <Box color={color} size={size} />
+              ),
+            }}
+          />
 
-        <Tabs.Screen
-          name="marketplace"
-          options={{
-            title: "Marketplace",
-            tabBarIcon: ({ color, size }) => (
-              <Handbag color={color} size={size} />
-            ),
-          }}
-        />
+          <Tabs.Screen
+            name="marketplace"
+            options={{
+              title: "Marketplace",
+              tabBarIcon: ({ color, size }) => (
+                <Handbag color={color} size={size} />
+              ),
+            }}
+          />
 
-        <Tabs.Screen
-          name="profile"
-          listeners={guard("profile")}
-          options={{
-            title: "Profile",
-            tabBarIcon: ({ color, size }) => (
-              <User color={color} size={size} />
-            ),
-          }}
-        />
+          <Tabs.Screen
+            name="profile"
+            listeners={guard("profile")}
+            options={{
+              title: "Profile",
+              tabBarIcon: ({ color, size }) => (
+                <User color={color} size={size} />
+              ),
+            }}
+          />
       </Tabs>
-
       <SignInPopup
         open={!!gatedTab}
         onOpenChange={(open) => {
@@ -119,6 +124,7 @@ export default function TabLayout() {
           if (target) router.push(GATED_TABS[target].href);
         }}
       />
+
     </>
   );
 }

@@ -25,7 +25,11 @@ export default function ProfileScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <SafeAreaView
+            // No bottom edge: the tab bar already reserves the safe area below.
+            edges={['top', 'left', 'right']}
+            className="flex-1 bg-background"
+        >
             <ScrollView
                 showsVerticalScrollIndicator={false}
             >

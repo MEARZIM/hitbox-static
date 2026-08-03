@@ -42,7 +42,12 @@ export default function TourScreen({ tourId }: TourScreenProps) {
   return (
     // flex-1 is required all the way down — without it the containers have
     // zero height and the screen renders blank
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView
+      // No bottom edge: this route lives under (tabs), and the tab bar already
+      // reserves the safe area below.
+      edges={["top", "left", "right"]}
+      className="flex-1 bg-background"
+    >
 
       <View className="flex-1 bg-background">
 
