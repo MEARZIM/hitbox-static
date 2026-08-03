@@ -63,8 +63,6 @@ export default function DiscoverScreen() {
                 <MainHeader
                     title="Discover"
                     subtitle="Explore collections, creators and exclusive experiences."
-                    notificationCount={3}
-                    onNotificationPress={() => console.log("Notifications")}
                     className='px-4 py-2'
                 />
 

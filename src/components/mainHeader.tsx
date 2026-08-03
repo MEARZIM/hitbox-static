@@ -1,3 +1,4 @@
+import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
@@ -14,7 +15,9 @@ import {
 interface MainHeaderProps {
   title: string;
   subtitle?: string;
+  /** Overrides the live unread count from `useNotifications()`. */
   notificationCount?: number;
+  /** Overrides the default push to `/(routes)/notifications`. */
   onNotificationPress?: () => void;
   onSettingsPress?: () => void;
   /** Overrides the default push to `/(auth)/register` on the signed-out button. */
@@ -27,7 +30,7 @@ interface MainHeaderProps {
 const MainHeader: React.FC<MainHeaderProps> = ({
   title,
   subtitle,
-  notificationCount = 0,
+  notificationCount,
   onNotificationPress,
   onSettingsPress,
   onSignUpPress,
@@ -37,6 +40,18 @@ const MainHeader: React.FC<MainHeaderProps> = ({
   const { width } = useWindowDimensions();
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { unreadCount } = useNotifications();
+
+  // Callers may pin a count; otherwise the badge follows the real feed.
+  const badgeCount = notificationCount ?? unreadCount;
+
+  const handleNotificationPress = () => {
+    if (onNotificationPress) {
+      onNotificationPress();
+    } else {
+      router.push("/(routes)/notifications");
+    }
+  };
 
   const handleSettingsPress = () => {
     if (onSettingsPress) {
@@ -105,7 +120,11 @@ const MainHeader: React.FC<MainHeaderProps> = ({
           {/* Notifications */}
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onNotificationPress}
+            accessibilityRole="button"
+            accessibilityLabel={
+              badgeCount > 0 ? `Notifications, ${badgeCount} unread` : "Notifications"
+            }
+            onPress={handleNotificationPress}
             style={{
               width: buttonSize,
               height: buttonSize,
@@ -123,7 +142,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
               strokeWidth={2}
             />
 
-            {notificationCount > 0 && (
+            {badgeCount > 0 && (
               <View
                 style={{
                   position: "absolute",
@@ -145,9 +164,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({
                     fontWeight: "700",
                   }}
                 >
-                  {notificationCount > 99
+                  {badgeCount > 99
                     ? "99+"
-                    : notificationCount}
+                    : badgeCount}
                 </Text>
               </View>
             )}

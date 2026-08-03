@@ -70,8 +70,6 @@ export default function CollectionScreen() {
         <MainHeader
           title="My Collection"
           subtitle="Welcome to your HitBox collection."
-          notificationCount={3}
-          onNotificationPress={() => console.log("Notifications")}
           className='px-4 py-2'
         />
 
