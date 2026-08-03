@@ -7,7 +7,7 @@ interface TabSectionProps {
   tourId?: string | string[];
 }
 
-const TABS = ["Details", "History", "Offers (3)", "Listings (12)"];
+const TABS = ["Details", "History", "Offers", "Listings"];
 
 export default function TabSection({ renderActiveContent, tourId }: TabSectionProps) {
   const [activeTab, setActiveTab] = useState("Details");
