@@ -2,7 +2,7 @@ import { useNotifications } from "@/features/notifications/hooks/useNotification
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { Bell, Settings2, UserPlus } from "lucide-react-native";
+import { Bell, Settings, UserPlus } from "lucide-react-native";
 import React from "react";
 import {
   Image,
@@ -186,7 +186,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
                 alignItems: "center",
               }}
             >
-              <Settings2
+              <Settings
                 size={iconSize}
                 color="white"
                 strokeWidth={2}
