@@ -1,0 +1,20 @@
+# AGENTS.md §4, §7 — (auth)/login stays navigable in any auth state and offers
+# every sign-in path: email+password, phone SMS OTP, and the SSO providers.
+appId: ${APP_ID}
+name: Login screen offers every sign-in option
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- scrollUntilVisible:
+    element:
+      text: ".*have an account.*"
+    direction: DOWN
+- tapOn: "Sign In"
+- assertVisible: "OR CONTINUE WITH"
+- assertVisible: "Continue with Email"
+- assertVisible: "Continue with Phone Number"
+- takeScreenshot: login-screen

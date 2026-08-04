@@ -1,0 +1,19 @@
+# Maestro workspace config for the HitBox mobile client.
+#
+# `maestro test .maestro` picks this up automatically and runs everything under
+# flows/ — common/ holds reusable subflows that are only ever called by name.
+#
+# The excluded tags below are the flows that need something the repo can't
+# provide on its own: a real account, real tag ids on the QA backend, a live
+# OTP/SMS/OAuth round-trip, or a mutation you don't want on every run.
+# Opt into them explicitly, e.g.
+#   maestro test .maestro --include-tags signed-in -e EMAIL=… -e PASSWORD=…
+flows:
+  - "flows/**"
+
+excludeTags:
+  - signed-in     # needs EMAIL + PASSWORD of a real Clerk user
+  - needs-tag     # needs TAG_CLAIMED / TAG_UNCLAIMED registered on the backend
+  - live          # sends a real email OTP / SMS / opens an OAuth browser
+  - destructive   # claims a tag, edits the profile, or signs out
+  - offline       # needs the network to be toggled off mid-run

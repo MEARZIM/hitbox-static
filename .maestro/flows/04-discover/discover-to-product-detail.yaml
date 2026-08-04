@@ -1,0 +1,24 @@
+# AGENTS.md §4, §12.8 — discover cards push /marketplace/<id>. That route is
+# named [tourId] for historical reasons but carries a PRODUCT id, and the detail
+# screen fetches GET /products/:id itself (the cards are lightweight).
+appId: ${APP_ID}
+name: A discover card opens the product detail screen
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- assertVisible: "Trending Now"
+# Trending cards expose "<rank>, <name>, <points> pts" as their label.
+- tapOn: "1, .*pts"
+# GET /products/:id — AboutSection renders these three facts for every product.
+- extendedWaitUntil:
+    visible: "Rarity"
+    timeout: 25000
+- assertVisible: "Supply"
+- assertVisible: "Minted"
+- takeScreenshot: product-detail
+- back
+- assertVisible: "Trending Now"

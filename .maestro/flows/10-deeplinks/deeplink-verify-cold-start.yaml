@@ -1,0 +1,25 @@
+# The read-only counterpart of the claim deep link — hitboxstatic://verify/<TAGID>
+# must resolve to the authenticity check from a cold start, signed out.
+appId: ${APP_ID}
+name: Verify deep link resolves from a cold start
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+  TAG_UNREGISTERED: "00000000DEAD01"
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+# The URL has to BE the launch intent: delivered to an app that is already
+# starting up, the index.tsx redirect races it and wins.
+- stopApp
+- openLink: ${APP_SCHEME}://verify/${TAG_UNREGISTERED}
+- extendedWaitUntil:
+    visible: "Authenticity check"
+    timeout: 45000
+- assertVisible: ${TAG_UNREGISTERED}
+- takeScreenshot: deeplink-verify

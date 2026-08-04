@@ -1,0 +1,39 @@
+# SettingsScreen is a single route with an internal tab state; the back control
+# steps back through the sections before it pops the route. "Personal Information"
+# is the exception — it pushes (routes)/edit-profile.
+appId: ${APP_ID}
+name: Settings sections open and step back correctly
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn:
+    point: 92%, 9%
+- extendedWaitUntil:
+    visible: "Account Settings"
+    timeout: 25000
+- tapOn: "Security & Password"
+- extendedWaitUntil:
+    visible: "Security Settings"
+    timeout: 20000
+- back
+- assertVisible: "Account Settings"
+- tapOn: "Notifications"
+- extendedWaitUntil:
+    visible: "Notification Prefs"
+    timeout: 20000
+- back
+- assertVisible: "Account Settings"
+- tapOn: "Personal Information"
+- extendedWaitUntil:
+    visible: "Edit Profile"
+    timeout: 25000
+- takeScreenshot: settings-sections

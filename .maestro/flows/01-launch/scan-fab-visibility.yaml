@@ -1,0 +1,26 @@
+# AGENTS.md §8 — ScanFab is mounted once as a sibling of the navigator so it
+# survives route changes, and hides itself on the routes listed in HIDDEN_ON
+# (scan, claim, verify, login, register, forget-password, sso-callback).
+appId: ${APP_ID}
+name: Scan FAB shows on tabs and hides on scan/auth routes
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+# On /register the button must be hidden.
+- assertNotVisible:
+    text: "Scan an NFC tag"
+- runFlow: ../../common/skip-registration.yaml
+# On a tab route it is visible and clears the tab bar.
+- assertVisible:
+    text: "Scan an NFC tag"
+- runFlow: ../../common/open-scan.yaml
+# On /scan it hides again — scanning already happens here.
+- assertNotVisible:
+    text: "Scan an NFC tag"
+- back
+- assertVisible:
+    text: "Scan an NFC tag"

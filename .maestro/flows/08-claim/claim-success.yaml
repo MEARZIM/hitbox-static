@@ -1,0 +1,46 @@
+# AGENTS.md §8 — the happy path end to end: verified + unclaimed → press Claim →
+# POST /claims/:tagId/confirm → SucessfulClaimScreen, which renders only when the
+# response is outcome: 'CLAIMED'. This is the ledger write.
+#
+# DESTRUCTIVE: it permanently claims TAG_UNCLAIMED for the EMAIL account on the
+# backend and appends a CLAIM row to the provenance ledger. It cannot be re-run
+# against the same tag — a second run lands on the owned card instead.
+appId: ${APP_ID}
+name: Claiming a verified unclaimed tag reaches the success screen
+tags:
+  - needs-tag
+  - signed-in
+  - destructive
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_UNCLAIMED: ""
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_UNCLAIMED}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "Claim My Item"
+    timeout: 30000
+# Signed in → the subtitle promises the claim instead of asking for sign-in.
+- assertVisible: "Add this item to my collection"
+- tapOn: "Claim My Item"
+- extendedWaitUntil:
+    visible: "Go to My Collection"
+    timeout: 45000
+- assertVisible: "Tap Another Item"
+- takeScreenshot: claim-success
+# The claimed item lands in the collection.
+- tapOn: "Go to My Collection"
+- extendedWaitUntil:
+    visible: "Welcome to your HitBox collection."
+    timeout: 40000

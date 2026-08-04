@@ -1,0 +1,32 @@
+# AGENTS.md §8 — ClaimScreen is the state machine and owns every error state. A
+# tag that carries no product resolves to NotRegisteredCard via the public reads
+# (CLAIMS_TAG_NOT_FOUND / PRODUCTS_NOT_FOUND, branched on by code per §6).
+#
+# Works signed out: verification is public and nothing is claimed on entry.
+appId: ${APP_ID}
+name: Claiming an unregistered tag shows the not-registered card
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_UNREGISTERED: "00000000DEAD01"
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_UNREGISTERED}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "Product is not registered"
+    timeout: 30000
+- assertVisible: ".*isn't linked to any HitBox product.*"
+- assertVisible: "Scanned tag"
+- assertVisible: ${TAG_UNREGISTERED}
+# No claim UI at all for a tag with no product.
+- assertNotVisible: "Claim My Item"
+- takeScreenshot: claim-not-registered
+- tapOn: "Done"
+- assertVisible: "Or enter a tag id"

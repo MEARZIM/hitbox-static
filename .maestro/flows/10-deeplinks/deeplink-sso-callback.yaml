@@ -1,0 +1,35 @@
+# AGENTS.md §7 — sso-callback must NOT redirect to login. Clerk finishes creating
+# the session asynchronously after the browser redirect lands, so isSignedIn is
+# still false on first render; the route polls for it instead. Bouncing to login
+# here caused a sign-in loop.
+#
+# Landing on it with no OAuth in flight is the worst case: it must show
+# "Finishing sign-in…", wait out its 15s budget, and then fall through to
+# discover — never to the login screen.
+appId: ${APP_ID}
+name: SSO callback waits for the session, then falls through to discover
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+# Cold start from the URL — this is how the OAuth browser hands control back.
+- stopApp
+- openLink: ${APP_SCHEME}://sso-callback
+- extendedWaitUntil:
+    visible: ".*Finishing sign-in.*"
+    timeout: 45000
+- takeScreenshot: sso-callback-waiting
+# No session ever arrives, so after MAX_WAIT_MS it lands on discover (there is no
+# pending claim to resume) — and never on the login screen.
+- extendedWaitUntil:
+    visible: "Explore collections, creators and exclusive experiences."
+    timeout: 40000
+- assertNotVisible: "OR CONTINUE WITH"
+- assertNotVisible: "Sign In with Email"

@@ -1,0 +1,50 @@
+# AGENTS.md §7 — SignInPopup is the inline sign-in surface. It offers SSO plus an
+# email sub-form, and the links that genuinely need a full screen (register,
+# password reset) close the popup and navigate.
+#
+# Note: Android's back button dismisses the whole dialog, it does NOT step back
+# from the email sub-form to the options list — that is what the chevron in the
+# dialog header is for, and it is icon-only with no label, so it isn't tapped here.
+appId: ${APP_ID}
+name: Sign-in popup switches methods and leaves for full screens
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- tapOn: "My Collections"
+- extendedWaitUntil:
+    visible: "OR CONTINUE WITH"
+    timeout: 20000
+- assertVisible: "Continue with Google"
+- assertVisible: "Continue with Apple"
+- assertVisible: ".*Terms of Service.*Privacy Policy.*"
+# options → email sub-form
+- tapOn: "Continue with Email"
+- assertVisible: "Sign In with Email"
+- assertVisible: "Enter your email"
+- assertVisible: ".*Forgot Password.*"
+- takeScreenshot: signin-popup-email
+# Back dismisses the popup entirely and leaves the discover tab untouched.
+- back
+- extendedWaitUntil:
+    notVisible: "Sign In with Email"
+    timeout: 20000
+- assertVisible: "Trending Now"
+# Reopening starts from the options list again (the popup resets its method).
+- tapOn: "My Collections"
+- extendedWaitUntil:
+    visible: "OR CONTINUE WITH"
+    timeout: 20000
+# "Sign Up" leaves the popup for the registration screen. It has to be scoped to
+# the popup's own footer row: MainHeader also renders a "Sign Up" button while
+# signed out, and that one sits behind the dialog overlay.
+- tapOn:
+    text: "Sign Up"
+    below:
+      text: "OR CONTINUE WITH"
+- extendedWaitUntil:
+    visible: "CREATE YOUR ACCOUNT"
+    timeout: 20000

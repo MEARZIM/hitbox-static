@@ -1,0 +1,28 @@
+# AGENTS.md §5, §9 — the collections tab loads GET /collections/me and
+# /collections/me/stats once a session exists. The empty state is a valid pass:
+# a fresh account owns nothing yet.
+#
+# §7 note: the first authed call can return 401 AUTH_ACCOUNT_NOT_FOUND until the
+# Clerk user.created webhook lands; retryAuthAware absorbs that, so the generous
+# timeout below is expected, not slack.
+appId: ${APP_ID}
+name: Collections tab loads for a signed-in user
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn: "My Collections"
+- extendedWaitUntil:
+    visible: "Welcome to your HitBox collection."
+    timeout: 40000
+- assertVisible: "Items Owned"
+- assertVisible: "Rewards"
+- takeScreenshot: collections-signed-in

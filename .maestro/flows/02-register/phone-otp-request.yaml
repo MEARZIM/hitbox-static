@@ -1,0 +1,25 @@
+# AGENTS.md §7 — the phone path auto-signs-up unknown numbers. Sends a real
+# SMS through Clerk, hence `live`.
+appId: ${APP_ID}
+name: Register with phone requests an SMS code
+tags:
+  - live
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  PHONE: "5550000000"
+---
+- runFlow: ../../common/launch-clean.yaml
+- tapOn: "Continue with Phone Number"
+- assertVisible: "Verify Phone Number"
+- tapOn: "555 000-0000"
+- inputText: ${PHONE}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn: "Send Code"
+- extendedWaitUntil:
+    visible: "Enter Security Code"
+    timeout: 30000
+- assertVisible: "Submit OTP"
+- assertVisible: "Change Number"

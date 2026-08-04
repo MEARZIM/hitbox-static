@@ -1,0 +1,33 @@
+# AGENTS.md §8 — OwnedCard distinguishes "you already own this item" from
+# "already claimed by <someone>" by comparing the verify owner id with GET
+# /users/me, so this only works signed in as the owner.
+#
+# Needs TAG_OWNED_BY_ME — a tag already claimed by the EMAIL account. Read-only.
+appId: ${APP_ID}
+name: A tag you already own shows the you-own-this card
+tags:
+  - needs-tag
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_OWNED_BY_ME: ""
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_OWNED_BY_ME}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "You already own this item"
+    timeout: 40000
+- assertVisible: ".*already in your collection.*"
+- assertNotVisible: "Claim My Item"
+- takeScreenshot: claim-owned-by-you

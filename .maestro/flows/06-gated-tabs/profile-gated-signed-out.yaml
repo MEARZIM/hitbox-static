@@ -1,0 +1,16 @@
+# AGENTS.md §4 — same gate as collections, with the profile copy.
+appId: ${APP_ID}
+name: Profile tab asks a guest to sign in instead of loading
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Sign in to view your profile"
+    timeout: 20000
+- assertVisible: ".*manage your HitBox profile, rewards and settings.*"
+- takeScreenshot: profile-gated

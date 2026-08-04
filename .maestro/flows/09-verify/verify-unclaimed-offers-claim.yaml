@@ -1,0 +1,32 @@
+# AGENTS.md §8 — verify is read-only, but when the product is still unclaimed the
+# screen offers a route into the claim flow. Following it must land on the claim
+# screen for the SAME tag without claiming anything.
+#
+# Needs TAG_UNCLAIMED. Read-only: it stops at the claim button.
+appId: ${APP_ID}
+name: Verifying an unclaimed tag offers to claim it
+tags:
+  - needs-tag
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_UNCLAIMED: ""
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_UNCLAIMED}
+      ACTION: Verify
+- extendedWaitUntil:
+    visible: "GENUINE HITBOX PRODUCT"
+    timeout: 30000
+- assertVisible: ".*Not claimed yet.*"
+- assertVisible: "Claim this product"
+- tapOn: "Claim this product"
+- extendedWaitUntil:
+    visible: "Claim My Item"
+    timeout: 30000
+# Still nothing claimed — the button was never pressed.
+- assertNotVisible: "Go to My Collection"

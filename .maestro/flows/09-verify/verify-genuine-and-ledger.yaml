@@ -1,0 +1,46 @@
+# AGENTS.md §8, §9 — verify is public (GET /verify/:tagId + GET /ledger/:tagId) and
+# shows provenance: is it genuine, who owns it, and the full ledger with the
+# Product Id / Tag # / Owner Id / Hash / Claim History rows.
+#
+# TAG_CLAIMED must be a registered tag with at least one ledger record — the ledger
+# section only renders when GET /ledger/:tagId returns rows. The default is the demo
+# tag from AGENTS.md §8, but its claim state on the QA backend FLIPS (it went from
+# CLAIMED with a ledger row to UNCLAIMED with none within one afternoon), so this
+# flow is opt-in. Read-only.
+appId: ${APP_ID}
+name: Verifying a genuine tag shows ownership and the blockchain ledger
+tags:
+  - needs-tag
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_CLAIMED: "534A70C1610001"
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_CLAIMED}
+      ACTION: Verify
+- extendedWaitUntil:
+    visible: "GENUINE HITBOX PRODUCT"
+    timeout: 30000
+- assertVisible: "Status"
+- assertVisible: "Ledger records"
+- assertVisible: "Verified at"
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Blockchain Ledger"
+# The ledger rows sit below the section header — Product Id · Tag # · Owner Id ·
+# DateTime · Hash · Claim History (AGENTS.md §8).
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Owner Id"
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Claim History"
+- takeScreenshot: verify-genuine-ledger

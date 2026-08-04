@@ -1,0 +1,63 @@
+# AGENTS.md §7 — signUp.create + email OTP. Because the Clerk instance has the
+# username/name attributes disabled, those fields travel in unsafeMetadata.
+#
+# Sends a REAL verification email, so this is tagged `live`. Use a fresh address
+# each run — Clerk rejects an address that already has an account.
+appId: ${APP_ID}
+name: Register with email reaches the OTP step
+tags:
+  - live
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  FIRST_NAME: Maestro
+  LAST_NAME: Tester
+  USERNAME: maestro_tester
+  EMAIL: ""
+  PASSWORD: ""
+  PHONE: "5550000000"
+---
+- runFlow: ../../common/launch-clean.yaml
+- tapOn: "Continue with Email"
+- tapOn: "John"
+- inputText: ${FIRST_NAME}
+- tapOn: "Doe"
+- inputText: ${LAST_NAME}
+- tapOn: "johndoe123"
+- inputText: ${USERNAME}
+- tapOn: "john@example.com"
+- inputText: ${EMAIL}
+- tapOn: "At least 8 characters"
+- inputText: ${PASSWORD}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      text: "1234567890"
+    direction: DOWN
+- tapOn: "1234567890"
+- inputText: ${PHONE}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+# The form is taller than the screen; scroll slowly so a fling doesn't overshoot
+# past the submit button.
+- scrollUntilVisible:
+    element:
+      text: ".*Terms and Conditions.*"
+    direction: DOWN
+    speed: 30
+    timeout: 40000
+- scrollUntilVisible:
+    element:
+      text: "Submit"
+    direction: DOWN
+    speed: 30
+    timeout: 40000
+- tapOn: "Submit"
+- extendedWaitUntil:
+    visible: "Verify your email"
+    timeout: 30000
+- assertVisible: "Verify & Create Account"
+- assertVisible: "Resend code"

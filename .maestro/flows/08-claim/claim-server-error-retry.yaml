@@ -1,0 +1,35 @@
+# AGENTS.md §8 — when the public verify read itself fails (server or network), the
+# state machine must land on ErrorCard with a "Try again" action, not on a blank
+# screen and not on the claim button.
+#
+# Airplane mode is toggled to force the failure, so this needs a device it is
+# allowed to reconfigure — hence the `offline` tag.
+appId: ${APP_ID}
+name: A failed verify shows the error card with a retry
+tags:
+  - offline
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_ANY: "534A70C1610001"
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- setAirplaneMode: enabled
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_ANY}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "Something went wrong"
+    timeout: 40000
+- assertVisible: "Try again"
+- assertNotVisible: "Claim My Item"
+- takeScreenshot: claim-error-card
+# Back online, the retry re-runs both public reads.
+- setAirplaneMode: disabled
+- tapOn: "Try again"
+- extendedWaitUntil:
+    notVisible: "Something went wrong"
+    timeout: 60000

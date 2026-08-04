@@ -1,0 +1,28 @@
+# AGENTS.md §5, §9 — marketplace is public and wired to GET /api/v1/marketplace.
+# The two feed sections only render on the untouched "All Items" view; a category
+# tab or a search term switches to the paginated /marketplace/listings endpoint.
+appId: ${APP_ID}
+name: Marketplace renders its public feed sections
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- tapOn: "Marketplace"
+- extendedWaitUntil:
+    visible: ".*Buy, sell and trade with collectors worldwide.*"
+    timeout: 25000
+- assertVisible: "All Items"
+# Left-edge scrolling — the listing rows are horizontal FlatLists that swallow a
+# centre swipe (see common/scroll-to.yaml).
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Featured Listings"
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "New Listings"
+- takeScreenshot: marketplace-sections

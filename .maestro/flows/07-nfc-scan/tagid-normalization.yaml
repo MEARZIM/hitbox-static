@@ -1,0 +1,36 @@
+# AGENTS.md §8 "Tag id normalization" — normalizeTagId() strips separators and
+# upper-cases, so a chip read as 53:4a:70:c1:61:00:01 must become
+# 534A70C1610001 before it is used or shown. It has to be applied on EVERY path,
+# route params included, because it must match Product.tagId exactly.
+#
+# Both screens echo the normalized id back, which is what makes this observable.
+appId: ${APP_ID}
+name: Tag ids are normalized on the manual and deep-link paths
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+  RAW_TAG: "53:4a:70:c1:61:00:01"
+  NORMALIZED_TAG: "534A70C1610001"
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+# Manual entry → verify (read-only, so this is safe on any tag).
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${RAW_TAG}
+      ACTION: Verify
+- extendedWaitUntil:
+    visible: "Authenticity check"
+    timeout: 25000
+- assertVisible: ${NORMALIZED_TAG}
+# Route params take the same path — normalizeTagId() runs in the route wrapper.
+- openLink: ${APP_SCHEME}://verify/${RAW_TAG}
+- extendedWaitUntil:
+    visible: "Authenticity check"
+    timeout: 25000
+- assertVisible: ${NORMALIZED_TAG}
+- takeScreenshot: tagid-normalized

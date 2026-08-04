@@ -1,0 +1,21 @@
+# Cold start with a clean slate and sign in with EMAIL/PASSWORD, ending on the
+# discover tab. Used by every `signed-in` tagged flow.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  # EMAIL and PASSWORD are NOT defaulted here on purpose: a default declared in a
+  # subflow overrides the value the caller passes through runFlow env.
+---
+- runFlow: launch-clean.yaml
+# Step2Footer → "Already have an account? Sign In" pushes (auth)/login.
+- scrollUntilVisible:
+    element:
+      text: ".*have an account.*"
+    direction: DOWN
+- tapOn: "Sign In"
+- assertVisible: "OR CONTINUE WITH"
+- runFlow:
+    file: sign-in-from-login-screen.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}

@@ -1,0 +1,20 @@
+# AGENTS.md §5 — (routes)/artists/[artistId] is UI only; there is no backend
+# endpoint for it yet, so it renders from static data. This flow just pins that the
+# route resolves and doesn't crash, so it fails loudly when the feature is wired up.
+appId: ${APP_ID}
+name: Artist profile route resolves
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+  ARTIST_ID: "1"
+---
+- runFlow: ../../common/goto-discover.yaml
+- openLink: ${APP_SCHEME}://artists/${ARTIST_ID}
+# The tab bar is gone — this is a pushed full-screen route, not a tab.
+- extendedWaitUntil:
+    notVisible: "Explore collections, creators and exclusive experiences."
+    timeout: 25000
+- takeScreenshot: artist-profile

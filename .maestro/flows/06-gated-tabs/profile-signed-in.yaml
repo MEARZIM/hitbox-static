@@ -1,0 +1,22 @@
+# AGENTS.md §5, §9 — the profile tab loads GET /users/me. MainHeader swaps its
+# signed-out "Sign Up" shortcut for the settings button once a session exists.
+appId: ${APP_ID}
+name: Profile tab loads for a signed-in user
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn: "Profile"
+- extendedWaitUntil:
+    notVisible: "Sign in to view your profile"
+    timeout: 40000
+- assertNotVisible: "Sign Up"
+- takeScreenshot: profile-signed-in

@@ -1,0 +1,29 @@
+# AGENTS.md §4 — (tabs)/collections/view-collection is the paginated "all
+# collections" screen, backed by the infinite variant of GET /collections/me.
+appId: ${APP_ID}
+name: Collections "view all" opens the paginated list
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn: "My Collections"
+- extendedWaitUntil:
+    visible: "Welcome to your HitBox collection."
+    timeout: 40000
+- scrollUntilVisible:
+    element:
+      text: "See All"
+    direction: DOWN
+- tapOn: "See All"
+- extendedWaitUntil:
+    visible: "All Collections"
+    timeout: 30000
+- takeScreenshot: collections-view-all

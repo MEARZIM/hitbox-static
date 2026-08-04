@@ -1,0 +1,29 @@
+# AGENTS.md §7 — phone SMS OTP on the login screen; unknown numbers are signed
+# up automatically by Clerk. Sends a real SMS, hence `live`.
+appId: ${APP_ID}
+name: Login with phone requests an SMS code
+tags:
+  - live
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  PHONE: "5550000000"
+---
+- runFlow: ../../common/launch-clean.yaml
+- scrollUntilVisible:
+    element:
+      text: ".*have an account.*"
+    direction: DOWN
+- tapOn: "Sign In"
+- tapOn: "Continue with Phone Number"
+- assertVisible: "Verify Phone Number"
+- tapOn: "555 000-0000"
+- inputText: ${PHONE}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn: "Send Code"
+- extendedWaitUntil:
+    visible: "Enter Security Code"
+    timeout: 30000
+- assertVisible: "Submit OTP"

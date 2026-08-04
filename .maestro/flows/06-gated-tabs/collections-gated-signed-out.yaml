@@ -1,0 +1,21 @@
+# AGENTS.md §4 — collections is protected. The tab stays visible while signed out
+# so a guest can see what the app offers; pressing it is swallowed by the
+# tabPress listener in (tabs)/_layout.tsx, which opens SignInPopup with the
+# collections copy instead of loading the screen.
+appId: ${APP_ID}
+name: Collections tab asks a guest to sign in instead of loading
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- tapOn: "My Collections"
+- extendedWaitUntil:
+    visible: "Sign in to see your collection"
+    timeout: 20000
+- assertVisible: ".*Every item you claim lands in your collection.*"
+# The screen behind must NOT have loaded.
+- assertNotVisible: "Welcome to your HitBox collection."
+- takeScreenshot: collections-gated

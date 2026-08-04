@@ -1,0 +1,18 @@
+# Step2Footer — "Already have an account? Sign In" pushes (auth)/login.
+appId: ${APP_ID}
+name: Registration links to the sign-in screen
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- scrollUntilVisible:
+    element:
+      text: ".*have an account.*"
+    direction: DOWN
+- tapOn: "Sign In"
+- assertVisible: "OR CONTINUE WITH"
+- assertVisible: "Continue with Email"
+- assertVisible: "Continue with Phone Number"

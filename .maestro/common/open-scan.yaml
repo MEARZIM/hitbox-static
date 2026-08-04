@@ -1,0 +1,14 @@
+# Tap the floating scan button — the app-wide entry point into (routes)/scan.
+# It is rendered once in src/app/_layout.tsx, so it is reachable from any
+# non-hidden route (AGENTS.md §8). It carries no visible label of its own, so it
+# is matched on its accessibilityLabel (Maestro's `text` selector also matches
+# the Android content-description).
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- tapOn:
+    text: "Scan an NFC tag"
+- extendedWaitUntil:
+    visible: "NFC claim & verify"
+    timeout: 20000

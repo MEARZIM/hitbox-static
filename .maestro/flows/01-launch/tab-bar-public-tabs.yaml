@@ -1,0 +1,15 @@
+# AGENTS.md §4 — all four tabs stay VISIBLE while signed out; collections and
+# profile are gated on press, not hidden (see GATED_TABS in (tabs)/_layout.tsx).
+appId: ${APP_ID}
+name: Tab bar shows all four tabs while signed out
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- assertVisible: "My Collections"
+- assertVisible: "Marketplace"
+- assertVisible: "Profile"
+- takeScreenshot: tab-bar-signed-out

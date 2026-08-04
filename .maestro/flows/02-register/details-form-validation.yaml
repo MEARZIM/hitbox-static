@@ -1,0 +1,35 @@
+# AGENTS.md §7 — the email path goes through RegistrationDetailsForm, validated
+# by the Zod schema in features/auth/register/validation. Submitting it empty
+# must surface field errors and must NOT reach the Clerk email-OTP step.
+appId: ${APP_ID}
+name: Register details form rejects an empty submission
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- tapOn: "Continue with Email"
+- assertVisible: "First Name"
+- assertVisible: "Last Name"
+- assertVisible: "Username"
+- assertVisible: "Password"
+# The form is taller than the screen; scroll slowly so a fling doesn't overshoot
+# past the submit button.
+- scrollUntilVisible:
+    element:
+      text: ".*Terms and Conditions.*"
+    direction: DOWN
+    speed: 30
+    timeout: 40000
+- scrollUntilVisible:
+    element:
+      text: "Submit"
+    direction: DOWN
+    speed: 30
+    timeout: 40000
+- tapOn: "Submit"
+# Still on the form — the email-OTP step must not have been reached.
+- assertNotVisible: "Verify your email"
+- takeScreenshot: register-details-validation

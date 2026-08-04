@@ -1,0 +1,17 @@
+# AGENTS.md §4 — Step2Header's Skip is the guest escape hatch. Without it a
+# signed-out user has no route into the public app, because index.tsx always
+# lands them on registration.
+appId: ${APP_ID}
+name: Registration Skip reaches the public discover tab
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- assertVisible:
+    text: "Skip sign up and browse"
+- runFlow: ../../common/skip-registration.yaml
+- assertVisible: "Trending Now"
+- takeScreenshot: discover-as-guest

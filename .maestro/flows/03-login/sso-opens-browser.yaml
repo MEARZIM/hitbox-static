@@ -1,0 +1,27 @@
+# AGENTS.md §7 — SSO goes through Clerk's useSSO with redirectUrl =
+# Linking.createURL('/') (no hardcoded scheme, so it resolves to hitboxstatic://
+# in a real build and exp:// in Expo Go). Pressing the button must hand off to the
+# system browser; SSO cannot work in Expo Go at all (§12.5).
+#
+# `live` because it opens a real Google consent page. It stops at the hand-off —
+# it does not sign in.
+appId: ${APP_ID}
+name: SSO button hands off to the browser
+tags:
+  - live
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- tapOn: "Continue with Google"
+# The in-app browser takes over — the registration screen is no longer on top.
+- extendedWaitUntil:
+    notVisible: "CREATE YOUR ACCOUNT"
+    timeout: 40000
+- takeScreenshot: sso-browser
+# Cancelling returns to the app with no session created.
+- back
+- extendedWaitUntil:
+    visible: "CREATE YOUR ACCOUNT"
+    timeout: 30000

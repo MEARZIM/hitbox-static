@@ -1,0 +1,31 @@
+# AGENTS.md §4 — (auth)/item-not-authenticated is the "couldn't read the tag"
+# screen: NFC off, damaged tag, phone moved too fast, unsupported tag. It is not
+# pushed by any current code path, so a deep link is the only way to exercise it.
+appId: ${APP_ID}
+name: Unreadable-tag screen renders its guidance and actions
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+# The URL has to BE the launch intent: delivered to an app that is already
+# starting up, the index.tsx redirect races it and wins.
+- stopApp
+- openLink: ${APP_SCHEME}://item-not-authenticated
+- extendedWaitUntil:
+    visible: "Unable to Read NFC Tag"
+    timeout: 45000
+- assertVisible: "Possible Reasons"
+- assertVisible: "NFC is turned off"
+- assertVisible: "Tag is damaged or not working"
+- assertVisible: "Phone moved too quickly"
+- assertVisible: "Unsupported or invalid tag"
+- assertVisible: "Try Again"
+- assertVisible: "Get Help"
+- takeScreenshot: item-not-authenticated

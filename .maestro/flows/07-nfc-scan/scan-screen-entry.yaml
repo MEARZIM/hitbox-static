@@ -1,0 +1,21 @@
+# AGENTS.md §8 — scanning is scoped to (routes)/scan only; there is deliberately
+# no app-wide tag listener. The user presses the FAB, lands here, and taps.
+#
+# On an emulator getNfcStatus() reports unsupported, so the screen must fall back
+# to the manual-entry hint instead of dead-ending (§12.5).
+appId: ${APP_ID}
+name: Scan screen opens from the FAB and handles missing NFC hardware
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- assertVisible: "Tap to claim"
+- assertVisible: ".*Hold the top-back of your phone.*"
+- assertVisible: "Or enter a tag id"
+# Emulators have no NFC radio — the screen says so rather than pretending.
+- assertVisible: ".*available on this build.*"
+- takeScreenshot: scan-screen

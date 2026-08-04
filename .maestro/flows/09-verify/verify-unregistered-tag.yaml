@@ -1,0 +1,28 @@
+# AGENTS.md §8 — (routes)/verify/:tagId is the read-only authenticity check: no
+# sign-in, nothing claimed. An unknown tag (CLAIMS_TAG_NOT_FOUND) must render the
+# not-registered card and must NOT offer to claim.
+appId: ${APP_ID}
+name: Verifying an unregistered tag shows the not-registered card
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_UNREGISTERED: "00000000DEAD01"
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_UNREGISTERED}
+      ACTION: Verify
+- extendedWaitUntil:
+    visible: "Product is not registered"
+    timeout: 30000
+- assertVisible: "Authenticity check"
+- assertVisible: ${TAG_UNREGISTERED}
+- assertNotVisible: "Claim this product"
+- takeScreenshot: verify-not-registered
+- tapOn: "Done"
+- assertVisible: "Or enter a tag id"

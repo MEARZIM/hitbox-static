@@ -1,0 +1,23 @@
+# AGENTS.md §8 — the Claim/Verify toggle decides where a tap takes you: claim is
+# the write path, verify is read-only. The heading must follow the toggle so the
+# user knows which one a tap will trigger.
+appId: ${APP_ID}
+name: Scan screen toggle switches between claim and verify
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- assertVisible: "Tap to claim"
+# index 0 is the mode toggle at the top; index 1 is the manual-entry button.
+- tapOn:
+    text: "Verify"
+    index: 0
+- assertVisible: "Tap to verify"
+- tapOn:
+    text: "Claim"
+    index: 0
+- assertVisible: "Tap to claim"

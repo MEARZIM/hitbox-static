@@ -1,0 +1,7 @@
+# Signed-out cold start straight through to the discover tab.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: launch-clean.yaml
+- runFlow: skip-registration.yaml

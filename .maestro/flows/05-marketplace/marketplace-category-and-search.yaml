@@ -1,0 +1,33 @@
+# AGENTS.md §9 — picking a category tab or typing a term switches the screen from
+# the curated feed (GET /marketplace) to the paginated listings endpoint
+# (GET /marketplace/listings?category=&search=).
+appId: ${APP_ID}
+name: Marketplace category tab and search switch to the listings endpoint
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  NO_MATCH_TERM: zzqqxx
+---
+- runFlow: ../../common/goto-discover.yaml
+- tapOn: "Marketplace"
+- extendedWaitUntil:
+    visible: "All Items"
+    timeout: 25000
+# A category tab leaves the "All Items" feed view.
+- tapOn: "Cards"
+- extendedWaitUntil:
+    notVisible: "Featured Listings"
+    timeout: 20000
+- tapOn: "All Items"
+# A search term does the same, from any tab.
+- tapOn: "Search listings..."
+- inputText: ${NO_MATCH_TERM}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- extendedWaitUntil:
+    notVisible: "Featured Listings"
+    timeout: 20000
+- takeScreenshot: marketplace-search

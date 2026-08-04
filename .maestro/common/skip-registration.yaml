@@ -1,0 +1,14 @@
+# Registration → "Skip" → the public discover tab.
+#
+# This is the only way a guest reaches the public part of the app: index.tsx
+# sends every signed-out cold start to (auth)/register (AGENTS.md §4, §7), and
+# Step2Header's Skip is the single escape hatch out of it.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- tapOn:
+    text: "Skip sign up and browse"
+- extendedWaitUntil:
+    visible: "Explore collections, creators and exclusive experiences."
+    timeout: 30000

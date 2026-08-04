@@ -98,7 +98,10 @@
     "lint": "expo lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "e2e": "maestro test .maestro",
+    "e2e:report": "maestro test .maestro --format HTML-DETAILED --output .maestro/reports/report.html",
+    "e2e:junit": "maestro test .maestro --format JUNIT --output .maestro/reports/junit.xml"
   },
   "jest": {
     "preset": "jest-expo",

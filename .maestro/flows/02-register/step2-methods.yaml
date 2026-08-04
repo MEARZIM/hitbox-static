@@ -1,0 +1,24 @@
+# AGENTS.md §7 — every sign-up path the Clerk instance is configured for must be
+# offered: Google / Apple / Facebook SSO, email (→ details form + email OTP),
+# and phone SMS (which auto-signs-up unknown numbers).
+appId: ${APP_ID}
+name: Registration offers every sign-up method
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- assertVisible: "Continue with Google"
+- assertVisible: "Continue with Apple"
+- assertVisible: "Continue with Facebook"
+- assertVisible: "Continue with Email"
+- assertVisible: "Continue with Phone Number"
+- assertVisible: "We'll send you a verification code"
+# The legal line is one Text node with nested spans, so it arrives as a single
+# string — matched with a regex rather than the exact copy.
+- scrollUntilVisible:
+    element:
+      text: ".*Terms of Service.*Privacy Policy.*"
+    direction: DOWN

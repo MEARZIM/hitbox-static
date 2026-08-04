@@ -1,0 +1,33 @@
+# AGENTS.md §8 — sign-in is requested at CLAIM time, not on entry. Pressing Claim
+# while signed out opens SignInPopup *over* ClaimScreen rather than pushing
+# (auth)/login, because that route finishes by replacing to the discover tab,
+# which would drop the tag the user just tapped.
+appId: ${APP_ID}
+name: Claim button asks a signed-out user to sign in over the claim screen
+tags:
+  - needs-tag
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_UNCLAIMED: ""
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_UNCLAIMED}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "Claim My Item"
+    timeout: 30000
+- tapOn: "Claim My Item"
+- extendedWaitUntil:
+    visible: "Sign in to claim"
+    timeout: 20000
+- assertVisible: "OR CONTINUE WITH"
+- takeScreenshot: claim-asks-signin
+# Dismissing the popup returns to the very same verified product screen.
+- back
+- assertVisible: "Claim My Item"
+- assertNotVisible: "Go to My Collection"

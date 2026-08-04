@@ -1,0 +1,21 @@
+# Sign in on the full (auth)/login screen. On success EmailLogin replaces the
+# route with (tabs)/discover.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  # EMAIL and PASSWORD are NOT defaulted here on purpose: a default declared in a
+  # subflow overrides the value the caller passes through runFlow env.
+---
+- tapOn: "Continue with Email"
+- assertVisible: "Sign In with Email"
+- tapOn: "Enter your email"
+- inputText: ${EMAIL}
+- tapOn: "Enter your password"
+- inputText: ${PASSWORD}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn: "Sign In"
+- extendedWaitUntil:
+    visible: "Explore collections, creators and exclusive experiences."
+    timeout: 30000

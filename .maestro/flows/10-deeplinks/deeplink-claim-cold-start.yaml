@@ -1,0 +1,35 @@
+# AGENTS.md §8 "Tap-to-launch" — a chip carries an NDEF URI record
+# hitboxstatic://claim/<TAGID>, so the app must resolve that URL from a cold start
+# straight to the claim state machine.
+#
+# openLink fires an ACTION_VIEW intent, which is the filter app.json/the manifest
+# actually declares. A REAL tap dispatches ACTION_NDEF_DISCOVERED instead, and that
+# filter is a hand edit to android/app/src/main/AndroidManifest.xml that prebuild
+# wipes — it is MISSING from the manifest right now, so this flow passing does NOT
+# prove tap-to-launch works. See the README.
+appId: ${APP_ID}
+name: Claim deep link resolves from a cold start
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+  TAG_UNREGISTERED: "00000000DEAD01"
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+# The URL has to BE the launch intent: delivered to an app that is already
+# starting up, the index.tsx redirect races it and wins.
+- stopApp
+- openLink: ${APP_SCHEME}://claim/${TAG_UNREGISTERED}
+- extendedWaitUntil:
+    visible: "NFC Tag"
+    timeout: 45000
+- assertVisible: ${TAG_UNREGISTERED}
+- extendedWaitUntil:
+    visible: "Product is not registered"
+    timeout: 30000
+- takeScreenshot: deeplink-claim

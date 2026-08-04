@@ -1,0 +1,29 @@
+# AGENTS.md §4, §5 — (routes)/settings is reached from MainHeader's settings
+# button, which only exists once signed in (signed out that slot holds Sign Up).
+appId: ${APP_ID}
+name: Settings opens from the header and lists every account section
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+# The settings button is icon-only; it is the header control that replaces
+# "Sign Up" when a session exists.
+- tapOn:
+    point: 92%, 9%
+- extendedWaitUntil:
+    visible: "Account Settings"
+    timeout: 25000
+- assertVisible: "Settings"
+- assertVisible: "Personal Information"
+- assertVisible: "Security & Password"
+- assertVisible: "Notifications"
+- assertVisible: "Sign Out"
+- takeScreenshot: settings-menu

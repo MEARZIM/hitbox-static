@@ -45,3 +45,6 @@ example
 # generated native folders
 /ios
 /android
+
+# maestro test artifacts (reports + screenshots are per-run)
+.maestro/reports/

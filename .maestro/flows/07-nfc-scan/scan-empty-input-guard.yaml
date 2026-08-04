@@ -1,0 +1,27 @@
+# The manual Claim/Verify buttons are disabled while normalizeTagId() yields an
+# empty string, so pressing them with nothing typed (or with only separators)
+# must not navigate anywhere.
+appId: ${APP_ID}
+name: Scan screen ignores manual claim/verify with no usable tag id
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- tapOn:
+    text: "Claim"
+    index: 1
+- assertVisible: "Or enter a tag id"
+# Separators alone normalize to "" — still no navigation.
+- tapOn: "534A70C1610001"
+- inputText: "::--::"
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn:
+    text: "Verify"
+    index: 1
+- assertVisible: "Or enter a tag id"

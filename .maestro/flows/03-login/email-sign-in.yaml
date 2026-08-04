@@ -1,0 +1,20 @@
+# AGENTS.md §7 — email+password sign-in. On success EmailLogin replaces the
+# route with (tabs)/discover, and the header swaps its Sign Up button for the
+# settings button (MainHeader reads isSignedIn).
+appId: ${APP_ID}
+name: Email sign-in lands on discover as a signed-in user
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+# Signed in → the sign-up shortcut in the header is gone.
+- assertNotVisible: "Sign Up"
+- takeScreenshot: signed-in-discover

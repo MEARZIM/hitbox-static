@@ -1,0 +1,32 @@
+# AGENTS.md §9 — typing in the search bar swaps the feed for
+# GET /discover/products?search=…, debounced by useDebouncedValue. A term with no
+# matches must render the empty state, not an error.
+appId: ${APP_ID}
+name: Discover search swaps the feed for search results
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  NO_MATCH_TERM: zzqqxx
+---
+- runFlow: ../../common/goto-discover.yaml
+- tapOn: "Search artists, albums..."
+- inputText: ${NO_MATCH_TERM}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+# Debounce + request; the feed sections are replaced by the results section.
+- extendedWaitUntil:
+    visible: ".*No products match.*"
+    timeout: 20000
+- assertNotVisible: "Trending Now"
+- takeScreenshot: discover-search-empty
+# Clearing the term restores the feed. The field has to be re-focused first —
+# pressKey above dismissed the keyboard and dropped focus, so a bare eraseText
+# would have nothing to erase.
+- tapOn: ".*${NO_MATCH_TERM}.*"
+- eraseText
+- extendedWaitUntil:
+    visible: "Trending Now"
+    timeout: 20000

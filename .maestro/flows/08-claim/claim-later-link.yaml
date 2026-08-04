@@ -1,0 +1,27 @@
+# Step3ActionCtx — "I'll do this later" replaces the route with (tabs)/collections
+# instead of claiming. Signed out that tab is gated, so the sign-in popup is the
+# expected destination (AGENTS.md §4).
+appId: ${APP_ID}
+name: Claim screen "do this later" leaves without claiming
+tags:
+  - needs-tag
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_UNCLAIMED: ""
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_UNCLAIMED}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "Claim My Item"
+    timeout: 30000
+- tapOn: ".*do this later.*"
+- extendedWaitUntil:
+    notVisible: "Claim My Item"
+    timeout: 20000
+- assertNotVisible: "Go to My Collection"

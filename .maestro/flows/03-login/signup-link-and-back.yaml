@@ -1,0 +1,25 @@
+# LoginFooter — "Don't have an account? Sign Up" goes back to registration, and
+# the chevron in SignInScreen's header pops the route.
+appId: ${APP_ID}
+name: Login screen links back to registration
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- scrollUntilVisible:
+    element:
+      text: ".*have an account.*"
+    direction: DOWN
+- tapOn: "Sign In"
+- assertVisible: "OR CONTINUE WITH"
+- scrollUntilVisible:
+    element:
+      text: ".*have an account.*"
+    direction: DOWN
+- tapOn: "Sign Up"
+- extendedWaitUntil:
+    visible: "CREATE YOUR ACCOUNT"
+    timeout: 20000

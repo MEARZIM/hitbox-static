@@ -1,0 +1,45 @@
+# MenuSection's Sign Out calls Clerk signOut(), clears the TanStack Query cache so
+# the next account can't read stale data, and replaces the route with "/" — which
+# index.tsx then redirects to registration because there is no session left
+# (AGENTS.md §4, §7).
+#
+# DESTRUCTIVE only in the sense that it ends the session this run created.
+appId: ${APP_ID}
+name: Sign out clears the session and returns to registration
+tags:
+  - signed-in
+  - destructive
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn:
+    point: 92%, 9%
+- extendedWaitUntil:
+    visible: "Account Settings"
+    timeout: 25000
+- scrollUntilVisible:
+    element:
+      text: "Sign Out"
+    direction: DOWN
+- tapOn: "Sign Out"
+- extendedWaitUntil:
+    visible: "CREATE YOUR ACCOUNT"
+    timeout: 30000
+# The gated tabs are locked again.
+- tapOn:
+    text: "Skip sign up and browse"
+- extendedWaitUntil:
+    visible: "Trending Now"
+    timeout: 30000
+- tapOn: "My Collections"
+- extendedWaitUntil:
+    visible: "Sign in to see your collection"
+    timeout: 20000
+- takeScreenshot: signed-out-again

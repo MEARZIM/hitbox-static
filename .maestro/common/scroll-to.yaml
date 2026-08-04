@@ -1,0 +1,22 @@
+# Scroll down until TARGET is visible, swiping along the LEFT EDGE.
+#
+# `scrollUntilVisible` swipes down the middle of the screen, which on the feed
+# screens lands on a horizontal FlatList of cards — that list swallows the pan and
+# the page never moves, so the search fails intermittently depending on where the
+# card rows happen to sit. Swiping at x=5% stays clear of them.
+#
+# Callers MUST pass TARGET (a text selector); it is not defaulted here because a
+# subflow's own env default overrides the value the caller passes.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- repeat:
+    times: 12
+    while:
+      notVisible: ${TARGET}
+    commands:
+      - swipe:
+          start: 5%, 80%
+          end: 5%, 25%
+- assertVisible: ${TARGET}

@@ -1,0 +1,37 @@
+# AGENTS.md §8 — a tag whose product is already CLAIMED resolves to the owned
+# card, never to ProductVerifiedScreen and never to the success screen. Read-only,
+# so it is safe to re-run.
+#
+# TAG_CLAIMED must be a registered tag that is already owned. The default is the
+# demo tag from AGENTS.md §8, but its claim state on the QA backend FLIPS (it was
+# CLAIMED and then UNCLAIMED within one afternoon), which is why this flow is
+# opt-in rather than part of the default suite — check the tag first, or point
+# TAG_CLAIMED at one you control.
+#
+# Signed out the app cannot tell "you own this" from "someone else owns this" (that
+# comparison needs GET /users/me), so this asserts the generic owned card.
+appId: ${APP_ID}
+name: An already-claimed tag shows the owned card
+tags:
+  - needs-tag
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  TAG_CLAIMED: "534A70C1610001"
+---
+- runFlow: ../../common/goto-discover.yaml
+- runFlow: ../../common/open-scan.yaml
+- runFlow:
+    file: ../../common/scan-manual-tag.yaml
+    env:
+      TAG_ID: ${TAG_CLAIMED}
+      ACTION: Claim
+- extendedWaitUntil:
+    visible: "Already claimed"
+    timeout: 30000
+- assertVisible: "Owner"
+- assertVisible: ${TAG_CLAIMED}
+# The claim button must not be offered, and nothing may look like a fresh claim.
+- assertNotVisible: "Claim My Item"
+- assertNotVisible: "Go to My Collection"
+- takeScreenshot: claim-already-claimed

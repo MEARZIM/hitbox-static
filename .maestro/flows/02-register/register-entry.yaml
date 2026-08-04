@@ -1,0 +1,28 @@
+# AGENTS.md §4 lists (auth)/register/index.tsx as registration "step 1" and
+# register/step2.tsx as the social + email choice.
+#
+# That has drifted: register/index.tsx now renders Step2Screen (the Step1Screen
+# import is commented out), so BOTH routes render the same screen and Step1Screen
+# — the "EXTRAORDINARY" hero with "Continue with Tap" / "Enter Code Manually" —
+# is unreachable dead code. This flow pins the behaviour that actually ships, so
+# it fails loudly if step 1 is ever wired back up.
+appId: ${APP_ID}
+name: Both /register and /register/step2 render the sign-up choice screen
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+# /register — reached by the index.tsx redirect.
+- assertVisible: "CREATE YOUR ACCOUNT"
+- assertNotVisible: "EXTRAORDINARY"
+- assertNotVisible: "Continue with Tap"
+# /register/step2 — the explicit route.
+- openLink: ${APP_SCHEME}://register/step2
+- extendedWaitUntil:
+    visible: "CREATE YOUR ACCOUNT"
+    timeout: 20000
+- assertVisible: "Continue with Email"

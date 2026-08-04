@@ -1,0 +1,19 @@
+# The discover feed is a TanStack Query with a RefreshControl wired to refetch().
+# Pulling down must re-request and leave the sections intact rather than blanking
+# the screen.
+appId: ${APP_ID}
+name: Discover pull-to-refresh keeps the feed rendered
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- assertVisible: "Trending Now"
+- swipe:
+    start: 50%, 40%
+    end: 50%, 90%
+- extendedWaitUntil:
+    visible: "Trending Now"
+    timeout: 20000

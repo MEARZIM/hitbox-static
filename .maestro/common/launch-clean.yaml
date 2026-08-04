@@ -1,0 +1,19 @@
+# Cold start with app data wiped — no Clerk session in SecureStore, so the app
+# behaves exactly like a first install. Every signed-out flow starts here.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+# src/app/index.tsx redirects a signed-out cold start to (auth)/register, and
+# _layout.tsx holds the navigator behind a spinner until Clerk restores state.
+#
+# NOTE: (auth)/register/index.tsx currently renders Step2Screen — Step1Screen is
+# commented out — so /register IS the "Let's get you in" screen. AGENTS.md §4
+# still calls it step 1; see flows/02-register/register-entry.yaml.
+- extendedWaitUntil:
+    visible: "CREATE YOUR ACCOUNT"
+    timeout: 45000

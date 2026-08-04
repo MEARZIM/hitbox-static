@@ -1,0 +1,18 @@
+# AGENTS.md §4 — src/app/index.tsx redirects a signed-out cold start to
+# (auth)/register, and _layout.tsx keeps the navigator behind a spinner until
+# Clerk reports isLoaded, so the user is never bounced off a route.
+appId: ${APP_ID}
+name: Cold start (signed out) lands on registration
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/launch-clean.yaml
+- assertVisible: ".*Create your account to claim your item.*"
+- assertVisible: "CREATE YOUR ACCOUNT"
+- assertVisible: "Continue with Email"
+- assertVisible:
+    text: "Skip sign up and browse"
+- takeScreenshot: cold-start-registration

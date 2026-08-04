@@ -1,0 +1,22 @@
+# AGENTS.md §4, §9 — /marketplace/<productId> is the product detail route, fed by
+# the public GET /products/:id. An id that doesn't exist must render the
+# not-found card with a Go Back action, NOT a crash or a blank screen
+# (PRODUCTS_NOT_FOUND is branched on by code, per §6).
+appId: ${APP_ID}
+name: Product detail deep link handles a missing product
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  APP_SCHEME: hitboxstatic
+  MISSING_PRODUCT_ID: 00000000-0000-0000-0000-000000000000
+---
+- runFlow: ../../common/goto-discover.yaml
+- openLink: ${APP_SCHEME}://marketplace/${MISSING_PRODUCT_ID}
+- extendedWaitUntil:
+    visible: "Go Back"
+    timeout: 30000
+- assertVisible: ".*no longer available.*"
+- takeScreenshot: product-detail-not-found
+- tapOn: "Go Back"

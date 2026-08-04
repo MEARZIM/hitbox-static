@@ -1,0 +1,25 @@
+# Sign in through SignInPopup — the inline dialog that gated tabs and the claim
+# button open. It keeps the calling screen mounted and hands control back via
+# onSignedIn, so nothing navigates away (AGENTS.md §7, §8).
+#
+# Assumes the popup is already open.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  # EMAIL and PASSWORD are NOT defaulted here on purpose: a default declared in a
+  # subflow overrides the value the caller passes through runFlow env.
+---
+- assertVisible: "OR CONTINUE WITH"
+- tapOn: "Continue with Email"
+- tapOn: "Enter your email"
+- inputText: ${EMAIL}
+- tapOn: "Enter your password"
+- inputText: ${PASSWORD}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn: "Sign In"
+# The popup closes itself the moment Clerk's setActive resolves.
+- extendedWaitUntil:
+    notVisible: "Sign In"
+    timeout: 30000

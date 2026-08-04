@@ -1,0 +1,24 @@
+# Type a tag id on the scan screen and route to Claim or Verify.
+#
+# The emulator has no NFC hardware, so manual entry is the only way to drive
+# the tap outcome. ScanScreen normalizes whatever is typed through
+# normalizeTagId() before navigating, which is the same code path a real tap
+# takes (AGENTS.md §8).
+#
+# Callers MUST pass TAG_ID and ACTION (Claim | Verify) through runFlow env. They
+# are deliberately not defaulted here: a default declared in a subflow's own
+# `env:` block WINS over the value the caller passes, which silently ignores the
+# caller.
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- tapOn: "Or enter a tag id"
+- tapOn: "534A70C1610001"      # the placeholder of the manual-entry field
+- inputText: ${TAG_ID}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn:
+    text: ${ACTION}
+    index: 1                   # 0 is the Claim/Verify mode toggle at the top

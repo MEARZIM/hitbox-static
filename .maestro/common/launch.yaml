@@ -1,0 +1,9 @@
+# Cold start that KEEPS the existing session (used by signed-in flows so they
+# don't have to sign in again for every assertion).
+appId: ${APP_ID}
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- launchApp:
+    permissions:
+      all: allow

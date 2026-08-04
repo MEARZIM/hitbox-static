@@ -1,0 +1,27 @@
+# AGENTS.md §5, §9 — discover is fully wired to GET /api/v1/discover and is
+# PUBLIC, so all three feed sections must render for a signed-out guest:
+# Trending Now (unitsSold desc), Top Creators, Latest Releases (createdAt desc).
+appId: ${APP_ID}
+name: Discover renders every public feed section
+tags:
+  - smoke
+  - signed-out
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+---
+- runFlow: ../../common/goto-discover.yaml
+- assertVisible: "Discover"
+- assertVisible: "Explore collections, creators and exclusive experiences."
+# Category chips + hero banner come from the same feed payload.
+- assertVisible: "Trending Now"
+# Each section's cards are a horizontal FlatList, so the scroll has to hug the left
+# edge — see common/scroll-to.yaml.
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Top Creators"
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Latest Releases"
+- takeScreenshot: discover-sections

@@ -1,0 +1,41 @@
+# AGENTS.md §5, §6, §9 — a valid edit PATCHes /users/me and shows the success
+# banner. USERS_USERNAME_TAKEN is branched on by code, so a colliding username
+# surfaces as a field error rather than a generic failure.
+#
+# DESTRUCTIVE: it permanently changes the EMAIL account's profile on the backend.
+appId: ${APP_ID}
+name: Edit profile saves a valid change
+tags:
+  - signed-in
+  - destructive
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+  NEW_FIRST_NAME: Maestro
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn:
+    point: 92%, 9%
+- extendedWaitUntil:
+    visible: "Account Settings"
+    timeout: 25000
+- tapOn: "Personal Information"
+- extendedWaitUntil:
+    visible: "Edit Profile"
+    timeout: 25000
+- tapOn: "John"
+- eraseText
+- inputText: ${NEW_FIRST_NAME}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn: "Save Changes"
+- extendedWaitUntil:
+    visible: "Profile updated"
+    timeout: 30000
+- takeScreenshot: edit-profile-saved

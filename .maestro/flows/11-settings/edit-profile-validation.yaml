@@ -1,0 +1,38 @@
+# AGENTS.md §5, §9 — (routes)/edit-profile is wired to PATCH /users/me and
+# validated by features/profile/validation/editProfile. A username that breaks the
+# schema must be rejected client-side, so no request is sent.
+appId: ${APP_ID}
+name: Edit profile rejects an invalid username without saving
+tags:
+  - signed-in
+env:
+  APP_ID: com.subratadasdev1.hitboxstatic
+  EMAIL: ""
+  PASSWORD: ""
+  BAD_USERNAME: "a"
+---
+- runFlow:
+    file: ../../common/ensure-signed-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: ${PASSWORD}
+- tapOn:
+    point: 92%, 9%
+- extendedWaitUntil:
+    visible: "Account Settings"
+    timeout: 25000
+- tapOn: "Personal Information"
+- extendedWaitUntil:
+    visible: "Edit Profile"
+    timeout: 25000
+- tapOn: "johndoe123"
+- eraseText
+- inputText: ${BAD_USERNAME}
+# Enter dismisses the keyboard; `hideKeyboard` presses BACK on Android, which
+# pops the route or closes the dialog underneath.
+- pressKey: Enter
+- tapOn: "Save Changes"
+# Still on the form, and no success banner.
+- assertVisible: "Save Changes"
+- assertNotVisible: "Profile updated"
+- takeScreenshot: edit-profile-validation
