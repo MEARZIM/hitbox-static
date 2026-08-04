@@ -2,10 +2,11 @@ import { router } from "expo-router";
 import {
     ArrowRight,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
+    LayoutChangeEvent,
     RefreshControl,
     ScrollView,
     Text,
@@ -17,13 +18,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MainHeader from "@/components/mainHeader";
 import MainSearchBar from "@/components/mainsearch";
 import { useDiscoverFeed } from "../api/getDiscoverFeed";
-import CategoriesSection from "../components/CategoriesSection";
+import CategoriesSection, { DiscoverCategoryId } from "../components/CategoriesSection";
+import ComingSoonRow from "../components/ComingSoonRow";
 import HeroBanner from "../components/HeroBanner";
 import ReleaseCard from "../components/ReleaseCard";
 import SearchResultsSection from "../components/SearchResultsSection";
 import TrendingCard from "../components/TrendingCard";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 import { DiscoverProductItem } from "../types/discover";
+
+/** Breathing room left above a section title after a chip jump. */
+const SCROLL_GAP = 12;
 
 export default function DiscoverScreen() {
 
@@ -35,6 +40,28 @@ export default function DiscoverScreen() {
     // console.log("feed:", feed)
     // console.log("isLoading:", isLoading)
     // console.log("isError:", error)
+
+    const [activeCategory, setActiveCategory] = useState<DiscoverCategoryId>("trending");
+    const scrollRef = useRef<ScrollView>(null);
+    /**
+     * Each section reports its y offset within the scroll content as it lays out;
+     * a chip press then just scrolls there. Measuring on layout (rather than
+     * hardcoding heights) keeps it correct as sections grow, empty out, or get
+     * replaced by a placeholder.
+     */
+    const sectionY = useRef<Partial<Record<DiscoverCategoryId, number>>>({});
+
+    const registerSection = (id: DiscoverCategoryId) => (event: LayoutChangeEvent) => {
+        sectionY.current[id] = event.nativeEvent.layout.y;
+    };
+
+    const handleCategorySelect = (id: DiscoverCategoryId) => {
+        setActiveCategory(id);
+        const y = sectionY.current[id];
+        // Undefined only while the feed is still loading and nothing has laid out.
+        if (y == null) return;
+        scrollRef.current?.scrollTo({ y: Math.max(0, y - SCROLL_GAP), animated: true });
+    };
 
     const handleProductPress = (item: DiscoverProductItem) => {
         // Cards are lightweight — the detail screen fetches GET /products/:id
@@ -48,6 +75,7 @@ export default function DiscoverScreen() {
             className="flex-1 bg-black "
         >
             <ScrollView
+                ref={scrollRef}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
                     paddingBottom: 0,
@@ -80,7 +108,10 @@ export default function DiscoverScreen() {
                 ) : (
                     <>
                         <View className="mt-5 mx-4 flex-row items-center justify-between">
-                            <CategoriesSection />
+                            <CategoriesSection
+                                activeId={activeCategory}
+                                onSelect={handleCategorySelect}
+                            />
                         </View>
 
                         {/* HERO SECTION — featured (≤5) from the discover feed */}
@@ -106,10 +137,10 @@ export default function DiscoverScreen() {
                         {feed && (
                             <>
                                 {/* TRENDING — unitsSold desc */}
-                                {feed.trending.length > 0 && (
-                                    <>
-                                        <SectionHeader title="Trending Now" />
-                                        <View className="mt-4 mx-4">
+                                <View onLayout={registerSection("trending")}>
+                                    <SectionHeader title="Trending Now" />
+                                    <View className="mt-4 mx-4">
+                                        {feed.trending.length > 0 ? (
                                             <FlatList
                                                 horizontal
                                                 data={feed.trending}
@@ -123,15 +154,18 @@ export default function DiscoverScreen() {
                                                 )}
                                                 showsHorizontalScrollIndicator={false}
                                             />
-                                        </View>
-                                    </>
-                                )}
+                                        ) : (
+                                            // <ComingSoonRow note="No trending items right now — pull to refresh." />
+                                            <></>
+                                        )}
+                                    </View>
+                                </View>
 
                                 {/* TOP CREATORS — unitsSold desc */}
-                                {feed.topCreators.length > 0 && (
-                                    <>
-                                        <SectionHeader title="Top Creators" />
-                                        <View className="mt-4 mx-4">
+                                <View onLayout={registerSection("topCreators")}>
+                                    <SectionHeader title="Top Creators" />
+                                    <View className="mt-4 mx-4">
+                                        {feed.topCreators.length > 0 ? (
                                             <FlatList
                                                 horizontal
                                                 data={feed.topCreators}
@@ -146,15 +180,17 @@ export default function DiscoverScreen() {
                                                 ItemSeparatorComponent={() => <View className="w-4" />}
                                                 showsHorizontalScrollIndicator={false}
                                             />
-                                        </View>
-                                    </>
-                                )}
+                                        ) : (
+                                            <ComingSoonRow note="No creator picks yet — pull to refresh." />
+                                        )}
+                                    </View>
+                                </View>
 
                                 {/* NEW RELEASES — createdAt desc */}
-                                {feed.newReleases.length > 0 && (
-                                    <>
-                                        <SectionHeader title="Latest Releases" />
-                                        <View className="mt-4 mx-4 mb-4">
+                                <View onLayout={registerSection("newReleases")}>
+                                    <SectionHeader title="Latest Releases" />
+                                    <View className="mt-4 mx-4 mb-4">
+                                        {feed.newReleases.length > 0 ? (
                                             <FlatList
                                                 horizontal
                                                 data={feed.newReleases}
@@ -168,11 +204,34 @@ export default function DiscoverScreen() {
                                                 ItemSeparatorComponent={() => <View className="w-4" />}
                                                 showsHorizontalScrollIndicator={false}
                                             />
-                                        </View>
-                                    </>
-                                )}
+                                        ) : (
+                                            <ComingSoonRow note="No new releases yet — pull to refresh." />
+                                        )}
+                                    </View>
+                                </View>
                             </>
                         )}
+
+                        {/*
+                         Experience and Tour Section
+                        */}
+                        {/* {!isLoading && (
+                            <>
+                                <View onLayout={registerSection("experiences")}>
+                                    <SectionHeader title="Experiences" />
+                                    <View className="mt-4 mx-4">
+                                        <ComingSoonRow note="Exclusive experiences unlock here once your items are claimed." />
+                                    </View>
+                                </View>
+
+                                <View onLayout={registerSection("onTour")} className="mb-6">
+                                    <SectionHeader title="On Tour" />
+                                    <View className="mt-4 mx-4">
+                                        <ComingSoonRow note="Tour dates and venue drops are on the way." />
+                                    </View>
+                                </View>
+                            </>
+                        )} */}
                     </>
                 )}
 
