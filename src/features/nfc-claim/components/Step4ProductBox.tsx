@@ -1,9 +1,24 @@
-import { Box, Calendar, Check, CheckCircle2, Gift, Hash, ShieldCheck, ShoppingBag, Star, Ticket, User } from 'lucide-react-native'
+import { Box, Calendar, Check, CheckCircle2, Gift, Hash, ShieldCheck, ShoppingBag, Ticket, User } from 'lucide-react-native'
 import { MotiView } from 'moti'
 import React from 'react'
-import { ImageBackground, Text, View } from 'react-native'
+import { Image, ImageBackground, Text, View } from 'react-native'
 
-export default function Step4ProductBox() {
+import { ClaimResult } from '../types/claim'
+
+const PLACEHOLDER =
+    'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop'
+
+export default function Step4ProductBox({ result }: { result?: ClaimResult }) {
+    const product = result?.product
+    const ownerName = result?.owner?.displayName ?? result?.owner?.username ?? 'You'
+    const claimedOn = result?.claimedAt
+        ? new Date(result.claimedAt).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        })
+        : '—'
+
     return (
         <View>
             <MotiView
@@ -15,19 +30,31 @@ export default function Step4ProductBox() {
                 {/* Left Box Image Graphic */}
                 <View className="w-[42%] aspect-[9/16] bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden justify-end items-center relative">
                     <ImageBackground
-                        source={{ uri: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop' }}
+                        source={{ uri: PLACEHOLDER }}
                         className="absolute inset-0 opacity-50 justify-end p-3"
                     />
                     <View className="absolute top-2 left-2 flex-row justify-between w-full pr-4">
+                        <View className="flex items-center justify-center">
+                            <Image
+                                source={require("@/assets/images/HitBoxLogo.png")}
+                                resizeMode="contain"
+                                style={{
+                                    width: 20,
+                                    height: 20,
+                                }}
+                                className='mix-blend-multiply'
+                            />
+                        </View>
                         <Text className="text-[7px] font-black text-white tracking-widest">HITBOX</Text>
-                        <View className="w-2 h-2 bg-white/20 rounded-sm" />
                     </View>
 
-                    <View className="items-center pb-4 z-10">
-                        <Text className="text-white text-sm font-black italic tracking-tighter text-center leading-4">
-                            PIERCE{'\n'}THE VEIL
+                    <View className="items-center pb-4 z-10 px-2">
+                        <Text
+                            className="text-white text-sm font-black italic tracking-tighter text-center leading-4"
+                            numberOfLines={3}
+                        >
+                            {product?.name?.toUpperCase() ?? 'HITBOX ITEM'}
                         </Text>
-                        <Text className="text-primary text-[9px] font-bold tracking-widest mt-1">WARPED TOUR 2026</Text>
                     </View>
 
                     {/* Little Floating Checked Badge over artwork bottom right */}
@@ -44,52 +71,39 @@ export default function Step4ProductBox() {
                     </View>
 
                     <View className="mt-1">
-                        <Text className="text-white text-lg font-black tracking-tight">Pierce The Veil</Text>
-                        <Text className="text-primary text-xs font-bold mt-0.5">Warped Tour 2026</Text>
-                        <Text className="text-neutral-500 text-[10px] font-medium mt-0.5">Signature Series Card</Text>
+                        <Text className="text-white text-lg font-black tracking-tight" numberOfLines={2}>
+                            {product?.name ?? 'Your Item'}
+                        </Text>
+                        <Text className="text-primary text-xs font-bold mt-0.5">
+                            {product?.productCode ?? '—'}
+                        </Text>
                     </View>
 
                     {/* Matrix Spec List */}
                     <View className="gap-y-1.5 mt-3">
-                        <View className="flex-row justify-between items-center">
-                            <View className="flex-row items-center gap-x-1.5">
-                                <Hash size={12} color="#737373" />
-                                <Text className="text-neutral-400 text-xs">Card Number</Text>
-                            </View>
-                            <Text className="text-white text-xs font-semibold">#18 / 100</Text>
-                        </View>
+                        <Row icon={<Hash size={12} color="#737373" />} label="Claim Code">
+                            <Text className="text-white text-xs font-semibold" numberOfLines={1}>
+                                {result?.claim?.claimCode ?? '—'}
+                            </Text>
+                        </Row>
 
-                        <View className="flex-row justify-between items-center">
-                            <View className="flex-row items-center gap-x-1.5">
-                                <Star size={12} color="#737373" />
-                                <Text className="text-neutral-400 text-xs">Rarity</Text>
-                            </View>
-                            <Text className="text-primary text-xs font-bold">Rare</Text>
-                        </View>
+                        <Row icon={<ShieldCheck size={12} color="#737373" />} label="Status">
+                            <Text className="text-emerald-500 text-xs font-bold">
+                                {product?.claimedStatus === 'CLAIMED' ? 'Owned' : (product?.claimedStatus ?? '—')}
+                            </Text>
+                        </Row>
 
-                        <View className="flex-row justify-between items-center">
-                            <View className="flex-row items-center gap-x-1.5">
-                                <ShieldCheck size={12} color="#737373" />
-                                <Text className="text-neutral-400 text-xs">Status</Text>
-                            </View>
-                            <Text className="text-emerald-500 text-xs font-bold">Owned</Text>
-                        </View>
+                        <Row icon={<User size={12} color="#737373" />} label="Owner">
+                            <Text className="text-white text-xs font-semibold" numberOfLines={1}>
+                                {ownerName} (you)
+                            </Text>
+                        </Row>
 
-                        <View className="flex-row justify-between items-center">
-                            <View className="flex-row items-center gap-x-1.5">
-                                <User size={12} color="#737373" />
-                                <Text className="text-neutral-400 text-xs">Owner</Text>
-                            </View>
-                            <Text className="text-white text-xs font-semibold">You</Text>
-                        </View>
-
-                        <View className="flex-row justify-between items-center">
-                            <View className="flex-row items-center gap-x-1.5">
-                                <Calendar size={12} color="#737373" />
-                                <Text className="text-neutral-400 text-xs">Claimed On</Text>
-                            </View>
-                            <Text className="text-white text-xs font-semibold">May 18, 2026</Text>
-                        </View>
+                        <Row icon={<Calendar size={12} color="#737373" />} label="Claimed On">
+                            <Text className="text-white text-xs font-semibold" numberOfLines={1}>
+                                {claimedOn}
+                            </Text>
+                        </Row>
                     </View>
                 </View>
             </MotiView>
@@ -131,6 +145,26 @@ export default function Step4ProductBox() {
                     <Text className="text-neutral-500 text-[8px] text-center mt-1 leading-3">Buy, sell, or trade with other fans</Text>
                 </View>
             </View>
+        </View>
+    )
+}
+
+function Row({
+    icon,
+    label,
+    children,
+}: {
+    icon: React.ReactNode
+    label: string
+    children: React.ReactNode
+}) {
+    return (
+        <View className="flex-row justify-between items-center gap-x-2">
+            <View className="flex-row items-center gap-x-1.5 shrink-0">
+                {icon}
+                <Text className="text-neutral-400 text-xs">{label}</Text>
+            </View>
+            <View className="flex-1 items-end">{children}</View>
         </View>
     )
 }

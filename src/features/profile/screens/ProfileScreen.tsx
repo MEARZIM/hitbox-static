@@ -12,7 +12,7 @@ import MainHeader from '@/components/mainHeader';
 import CollectionSection from '../components/CollectionSection';
 import StatsCard from '../components/StatsCard';
 import UserHeroSection from '../components/UserHeroSection';
-import VipBannerCard from '../components/VipBannerCard';
+// import VipBannerCard from '../components/VipBannerCard';
 
 export default function ProfileScreen() {
     const { signOut } = useClerk();
@@ -25,7 +25,11 @@ export default function ProfileScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
+        <SafeAreaView
+            // No bottom edge: the tab bar already reserves the safe area below.
+            edges={['top', 'left', 'right']}
+            className="flex-1 bg-background"
+        >
             <ScrollView
                 showsVerticalScrollIndicator={false}
             >
@@ -41,7 +45,7 @@ export default function ProfileScreen() {
 
 
                 {/* VIP BANNER */}
-                <VipBannerCard />
+                {/* <VipBannerCard /> */}
 
 
                 {/* COLLECTION HIGHLIGHTS CONTAINER */}

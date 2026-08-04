@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import React, { useRef } from 'react';
 import { Dimensions, ImageBackground, ScrollView, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -6,14 +5,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Step4ActionCtx from '../components/Step4ActionCtx';
 import Step4Header from '../components/Step4Header';
+import Step4Nav from '../components/Step4Nav';
 import Step4ProductBox from '../components/Step4ProductBox';
-import StepProgressHeader from '../components/StepProgressHeader';
+import { ClaimResult } from '../types/claim';
 
-
-export default function Step4Screen() {
+/**
+ * Shown **only** after a successful claim — i.e. `POST /claims/:tagId/confirm`
+ * returned `outcome: 'CLAIMED'`. Renders the real claim result (claim code,
+ * owner, claimed-at) so nothing here is invented.
+ */
+export default function SucessfulClaimScreen({ result }: { result?: ClaimResult }) {
     const confettiRef = useRef(null);
     const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 
     return (
         <View className="flex-1 bg-background">
@@ -35,27 +38,22 @@ export default function Step4Screen() {
             />
 
             <SafeAreaView className="flex-1">
-                {/* Navigation Indicator Header */}
-                <StepProgressHeader currentStep={4} onBackPress={() => router.back()} />
-
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
                 >
+                    <Step4Nav />
 
                     {/* Confetti Success Header Section */}
-                    <Step4Header />
+                    <Step4Header message={result?.message} />
 
-                    {/* Main Showcase Item Metadata Split Container & Progress Status Bar Widget Box */}
-                    <Step4ProductBox />
+                    {/* Main Showcase Item Metadata Split Container */}
+                    <Step4ProductBox result={result} />
 
                     {/* Action CTAs Stack */}
                     <Step4ActionCtx />
-
                 </ScrollView>
             </SafeAreaView>
-
-
         </View>
     );
 }

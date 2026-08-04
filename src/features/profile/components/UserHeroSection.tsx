@@ -1,11 +1,11 @@
 import { useUser } from '@clerk/clerk-expo'
-import { Calendar, CheckCircle2, ChevronRight, Gem, ShieldCheck } from 'lucide-react-native'
+import { router } from 'expo-router'
+import { Calendar, CheckCircle2, ChevronRight, Gem, Pencil } from 'lucide-react-native'
 import { MotiText, MotiView } from 'moti'
 import React from 'react'
 import { TouchableOpacity, View } from 'react-native'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Text } from '@/components/ui/text'
 import { useMe } from '../api/getProfile'
 
@@ -33,7 +33,9 @@ export default function UserHeroSection() {
         || user?.primaryEmailAddress?.emailAddress
         || 'HitBox Collector'
     const username = me?.username ?? user?.username ?? meta.username ?? null
-    const avatarUrl = me?.avatarUrl ?? user?.imageUrl
+    // Clerk first: setProfileImage() updates user.imageUrl instantly, so a new
+    // upload shows here immediately (the backend row catches up via PATCH/webhook).
+    const avatarUrl = user?.imageUrl ?? me?.avatarUrl
     const initials = displayName
         .split(' ')
         .map((part) => part[0])
@@ -60,17 +62,28 @@ export default function UserHeroSection() {
                     transition={{ type: 'spring', damping: 15 }}
                     className="p-[3px] rounded-full border-2 border-primary shadow-lg shadow-primary/30"
                 >
-                    <Avatar className="w-20 h-20 border border-black/40" alt={'Profile'}>
-                        {avatarUrl ? (
-                            <AvatarImage
-                                source={{ uri: avatarUrl }}
-                                className='w-full h-full'
-                            />
-                        ) : null}
-                        <AvatarFallback>
-                            <Text className="text-white font-bold text-lg">{initials}</Text>
-                        </AvatarFallback>
-                    </Avatar>
+                    {/* Tap the avatar to edit the profile */}
+                    <TouchableOpacity
+                        activeOpacity={0.85}
+                        onPress={() => router.push('/(routes)/edit-profile')}
+                        className="relative"
+                    >
+                        <Avatar className="w-20 h-20 border border-black/40" alt={'Profile'}>
+                            {avatarUrl ? (
+                                <AvatarImage
+                                    source={{ uri: avatarUrl }}
+                                    className='w-full h-full'
+                                />
+                            ) : null}
+                            <AvatarFallback>
+                                <Text className="text-white font-bold text-lg">{initials}</Text>
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <View className="absolute -bottom-0.5 -right-0.5 bg-primary p-1.5 rounded-full border-2 border-background">
+                            <Pencil size={11} color="#fff" />
+                        </View>
+                    </TouchableOpacity>
                 </MotiView>
 
                 {/* TEXT DETAILS */}
@@ -88,7 +101,8 @@ export default function UserHeroSection() {
                         </Text>
                     )}
 
-                    <Badge
+                    {/* Comment out Collector Level Badge for Demo */}
+                    {/* <Badge
                         variant="secondary"
                         className="flex-row items-center gap-1.5 bg-secondary border border-border/10 px-2.5 py-1 rounded-lg self-start mt-0.5"
                     >
@@ -96,7 +110,7 @@ export default function UserHeroSection() {
                         <Text className="text-foreground text-xs font-semibold">
                             Collector Level 4
                         </Text>
-                    </Badge>
+                    </Badge> */}
 
                     {/* Join Date Row */}
                     {memberSince && (
@@ -110,7 +124,7 @@ export default function UserHeroSection() {
                 </View>
             </View>
 
-            {/* RIGHT SIDE: HITBOX POINTS BOX (Occupies 1 out of 3 columns) */}
+            {/* RIGHT SIDE: HIT POINTS BOX (Occupies 1 out of 3 columns) */}
             <MotiView
                 from={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -125,7 +139,7 @@ export default function UserHeroSection() {
                         <View className="flex-row items-center gap-1">
                             <Gem size={12} color="#6d28d9" />
                             <Text className="text-muted-foreground text-xs font-bold tracking-wider uppercase" numberOfLines={1}>
-                                HitBox Points
+                                HIT Points
                             </Text>
                         </View>
                         <MotiText

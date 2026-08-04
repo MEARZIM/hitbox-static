@@ -18,6 +18,7 @@ import {
   formatRewardPoints,
   PRODUCT_PLACEHOLDER_IMAGE,
 } from "@/features/products/utils/format";
+import { shareProduct } from "@/features/products/utils/share";
 import { ApiRequestError } from "@/lib/api";
 
 
@@ -39,10 +40,21 @@ export default function TourScreen({ tourId }: TourScreenProps) {
     ? Math.min(100, Math.round((product.unitsSold / product.inventoryUnit) * 100))
     : 0;
 
+  /** Opens the OS share sheet — used by the nav icon and the Share Item tile. */
+  const handleShare = () => {
+    if (!product) return;
+    void shareProduct(product);
+  };
+
   return (
     // flex-1 is required all the way down — without it the containers have
     // zero height and the screen renders blank
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView
+      // No bottom edge: this route lives under (tabs), and the tab bar already
+      // reserves the safe area below.
+      edges={["top", "left", "right"]}
+      className="flex-1 bg-background"
+    >
 
       <View className="flex-1 bg-background">
 
@@ -58,7 +70,14 @@ export default function TourScreen({ tourId }: TourScreenProps) {
           </TouchableOpacity>
 
           <View className="flex-row gap-2">
-            <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-black/40 border border-white/5 active:bg-black/60">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Share this item"
+              // Nothing to share until the product has loaded.
+              disabled={!product}
+              onPress={handleShare}
+              className={`h-10 w-10 items-center justify-center rounded-full bg-black/40 border border-white/5 active:bg-black/60 ${product ? '' : 'opacity-40'}`}
+            >
               <Share2 size={16} color="white" />
             </TouchableOpacity>
             <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-black/40 border border-white/5 active:bg-black/60">
@@ -138,7 +157,7 @@ export default function TourScreen({ tourId }: TourScreenProps) {
                   />
 
                   {/* Action grid (Experience, Rewards, List, etc) */}
-                  <ActionGrid />
+                  <ActionGrid onShare={handleShare} />
                 </View>
               )}
             />

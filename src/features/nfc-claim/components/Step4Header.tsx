@@ -3,7 +3,7 @@ import { MotiView } from 'moti'
 import React from 'react'
 import { Text, View } from 'react-native'
 
-export default function Step4Header() {
+export default function Step4Header({ message }: { message?: string }) {
     return (
         <MotiView
             from={{ opacity: 0, scale: 0.9 }}
@@ -18,7 +18,7 @@ export default function Step4Header() {
                 You Did It!{'\n'}Item <Text className="text-primary">Claimed</Text>
             </Text>
             <Text className="text-neutral-400 text-center text-xs mt-2 px-6 leading-5">
-                Pierce The Veil Card #18 is now part of{'\n'}your HitBox collection.
+                {message ?? 'This item is now part of your HitBox collection.'}
             </Text>
         </MotiView>
     )

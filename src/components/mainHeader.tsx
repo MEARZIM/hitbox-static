@@ -1,7 +1,8 @@
+import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { Bell, Settings } from "lucide-react-native";
+import { Bell, Settings, UserPlus } from "lucide-react-native";
 import React from "react";
 import {
   Image,
@@ -14,29 +15,57 @@ import {
 interface MainHeaderProps {
   title: string;
   subtitle?: string;
+  /** Overrides the live unread count from `useNotifications()`. */
   notificationCount?: number;
+  /** Overrides the default push to `/(routes)/notifications`. */
   onNotificationPress?: () => void;
   onSettingsPress?: () => void;
+  /** Overrides the default push to `/(auth)/register` on the signed-out button. */
+  onSignUpPress?: () => void;
   className?: string;
+  /** 'compact' shows the title inline with the icons (no logo row), subtitle below. */
+  variant?: "default" | "compact";
 }
 
 const MainHeader: React.FC<MainHeaderProps> = ({
   title,
   subtitle,
-  notificationCount = 0,
+  notificationCount,
   onNotificationPress,
   onSettingsPress,
+  onSignUpPress,
   className,
+  variant = "default",
 }) => {
   const { width } = useWindowDimensions();
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { unreadCount } = useNotifications();
+
+  // Callers may pin a count; otherwise the badge follows the real feed.
+  const badgeCount = notificationCount ?? unreadCount;
+
+  const handleNotificationPress = () => {
+    if (onNotificationPress) {
+      onNotificationPress();
+    } else {
+      router.push("/(routes)/notifications");
+    }
+  };
 
   const handleSettingsPress = () => {
     if (onSettingsPress) {
       onSettingsPress();
     } else {
       router.push("/(routes)/settings");
+    }
+  };
+
+  const handleSignUpPress = () => {
+    if (onSignUpPress) {
+      onSignUpPress();
+    } else {
+      router.push("/(auth)/register");
     }
   };
 
@@ -60,22 +89,42 @@ const MainHeader: React.FC<MainHeaderProps> = ({
     >
       {/* Top Row */}
       <View className="flex-row items-center justify-between">
-        <Image
-          source={require("@/assets/images/HitBoxLogo.png")}
-          resizeMode="contain"
-          style={{
-            width: logoWidth,
-            height: logoHeight,
-            marginLeft: -60,
-          }}
-        />
+        {variant === "compact" ? (
+          <Text
+            numberOfLines={1}
+            style={{
+              flex: 1,
+              fontSize: isTablet ? 38 : isSmall ? 26 : 32,
+              fontWeight: "900",
+              color: "white",
+              letterSpacing: -1,
+              marginRight: 12,
+            }}
+          >
+            {title}
+          </Text>
+        ) : (
+          <Image
+            source={require("@/assets/images/HitBoxLogo.png")}
+            resizeMode="contain"
+            style={{
+              width: logoWidth,
+              height: logoHeight,
+              marginLeft: -60,
+            }}
+          />
+        )}
 
         <View className="flex-row items-center">
 
           {/* Notifications */}
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onNotificationPress}
+            accessibilityRole="button"
+            accessibilityLabel={
+              badgeCount > 0 ? `Notifications, ${badgeCount} unread` : "Notifications"
+            }
+            onPress={handleNotificationPress}
             style={{
               width: buttonSize,
               height: buttonSize,
@@ -83,6 +132,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({
               backgroundColor: "#18181B",
               justifyContent: "center",
               alignItems: "center",
+              marginRight: 12,
+
             }}
           >
             <Bell
@@ -91,7 +142,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
               strokeWidth={2}
             />
 
-            {notificationCount > 0 && (
+            {badgeCount > 0 && (
               <View
                 style={{
                   position: "absolute",
@@ -113,65 +164,95 @@ const MainHeader: React.FC<MainHeaderProps> = ({
                     fontWeight: "700",
                   }}
                 >
-                  {notificationCount > 99
+                  {badgeCount > 99
                     ? "99+"
-                    : notificationCount}
+                    : badgeCount}
                 </Text>
               </View>
             )}
           </TouchableOpacity>
 
-          {/* Settings */}
-          {
-            isSignedIn && (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleSettingsPress}
+          {/* Settings when signed in, Sign Up when not — same slot either way */}
+          {isSignedIn ? (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleSettingsPress}
+              style={{
+                width: buttonSize,
+                height: buttonSize,
+                borderRadius: buttonSize / 2,
+                backgroundColor: "#18181B",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Settings
+                size={iconSize}
+                color="white"
+                strokeWidth={2}
+              />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              onPress={handleSignUpPress}
+              style={{
+                height: buttonSize,
+                borderRadius: buttonSize / 2,
+                backgroundColor: "#7C3AED",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+                paddingHorizontal: isTablet ? 20 : 16,
+              }}
+            >
+              <UserPlus
+                size={iconSize - 3}
+                color="white"
+                strokeWidth={2.5}
+              />
+              <Text
                 style={{
-                  width: buttonSize,
-                  height: buttonSize,
-                  borderRadius: buttonSize / 2,
-                  backgroundColor: "#18181B",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginRight: 12,
+                  color: "white",
+                  fontWeight: "700",
+                  fontSize: isTablet ? 15 : 13,
+                  marginLeft: 6,
                 }}
               >
-                <Settings
-                  size={iconSize}
-                  color="white"
-                  strokeWidth={2}
-                />
-              </TouchableOpacity>
-            )
-          }
+                Sign Up
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
       {/* Header Content */}
       <View
         style={{
-          marginTop: isTablet ? 30 : 22,
+          marginTop: variant === "compact" ? 6 : isTablet ? 30 : 22,
         }}
       >
-        <Text
-          style={{
-            fontSize: titleSize,
-            fontWeight: "900",
-            color: "white",
-            letterSpacing: -1,
-          }}
-        >
-          {title}
-        </Text>
+        {variant !== "compact" && (
+          <Text
+            style={{
+              fontSize: titleSize,
+              fontWeight: "900",
+              color: "white",
+              letterSpacing: -1,
+            }}
+          >
+            {title}
+          </Text>
+        )}
 
         {subtitle && (
           <Text
             style={{
-              marginTop: 8,
-              fontSize: isTablet ? 17 : 15,
+              marginTop: variant === "compact" ? 0 : 8,
+              fontSize: isTablet ? 17 : variant === "compact" ? 13 : 15,
               color: "#A1A1AA",
-              lineHeight: 24,
+              lineHeight: variant === "compact" ? 18 : 24,
               maxWidth: "92%",
             }}
           >

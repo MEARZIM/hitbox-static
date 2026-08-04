@@ -8,6 +8,7 @@ import {
     Smartphone,
     WifiOff
 } from 'lucide-react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { View as MotiView } from 'moti';
 import React from 'react';
 import {
@@ -20,6 +21,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ItemNotAuthenticated() {
+    // Set when we arrive here from a failed NFC tag lookup.
+    const { tagId } = useLocalSearchParams<{ tagId?: string }>();
+
+    const onTryAgain = () => {
+        if (tagId) router.replace(`/(routes)/claim/${tagId}` as never);
+        else router.back();
+    };
+
     return (
         <SafeAreaView className={`flex-1 bg-[#050507]`}>
             <StatusBar className="light-content" />
@@ -61,6 +70,13 @@ export default function ItemNotAuthenticated() {
                             We couldn't validate this product because the{' '}
                             <Text className="text-neutral-200 font-semibold">NFC tag</Text> could not be read safely.
                         </Text>
+
+                        {tagId ? (
+                            <View className="mt-4 bg-[#0F0F13] border border-[#1F1F24] rounded-xl px-4 py-2.5">
+                                <Text className="text-[11px] text-neutral-500 font-medium uppercase tracking-wider">Scanned tag</Text>
+                                <Text className="text-neutral-200 text-sm font-bold tracking-wide">{tagId}</Text>
+                            </View>
+                        ) : null}
                     </MotiView>
                 </View>
 
@@ -162,6 +178,7 @@ export default function ItemNotAuthenticated() {
                 <TouchableOpacity
                     className={`bg-[#E52B2B] rounded-xl h-14 flex-row gap-2 items-center justify-center mb-3 shadow-lg`}
                     activeOpacity={0.8}
+                    onPress={onTryAgain}
                 >
                     <RefreshCw color="#FFF" size={18} />
                     <Text className={`text-white text-base font-bold`}>Try Again</Text>
@@ -170,6 +187,7 @@ export default function ItemNotAuthenticated() {
                 <TouchableOpacity
                     className={`bg-transparent border gap-2 border-destructive rounded-xl h-14 flex-row items-center justify-center`}
                     activeOpacity={0.8}
+                    onPress={() => router.replace('/(tabs)/discover' as never)}
                 >
                     <Headphones color="#FF3B30" size={18} />
                     <Text className={`text-destructive text-base font-bold`}>Get Help</Text>

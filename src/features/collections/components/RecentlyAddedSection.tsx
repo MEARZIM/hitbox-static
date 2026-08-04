@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import React from "react";
 import {
@@ -6,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
+import { collectionData } from "../data/CollectionData";
 import recentCollections from "../data/Recentsection";
 import RecentCards from "./RecentCards";
 
@@ -28,7 +29,7 @@ export default function RecentlyAddedSection() {
         <TouchableOpacity
           activeOpacity={0.8}
           className="flex-row items-center"
-          onPress={() => console.log("See All")}
+          onPress={() => router.push("/collections/view-collection")}
         >
           <Text className="mr-1 font-semibold text-violet-500">
             See All
@@ -50,7 +51,19 @@ export default function RecentlyAddedSection() {
         renderItem={({ item }) => (
           <RecentCards
             item={item}
-            onPress={() => console.log(item.title)}
+            onPress={() => {
+              const matched = collectionData.find(
+                (c) =>
+                  item.subtitle.toLowerCase().includes(c.title.toLowerCase()) ||
+                  item.subtitle.toLowerCase().includes(c.subtitle.toLowerCase()) ||
+                  c.title.toLowerCase().includes(item.subtitle.toLowerCase()) ||
+                  c.subtitle.toLowerCase().includes(item.subtitle.toLowerCase())
+              );
+              router.push({
+                pathname: "/collections/view-collection",
+                params: { id: matched ? matched.id : "1" },
+              });
+            }}
           />
         )}
         showsHorizontalScrollIndicator={false}

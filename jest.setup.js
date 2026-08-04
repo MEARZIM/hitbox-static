@@ -1,6 +1,10 @@
 /* Jest setup — global mocks shared across the test suites. */
 
 // @testing-library/react-native v13 registers its matchers automatically.
+/* Jest setup — global mocks shared by the auth (login + registration) suites. */
+
+// @testing-library/react-native v13 registers its matchers automatically —
+// no explicit extend-expect import needed.
 
 // Silence the reanimated animation runtime in tests.
 jest.mock("react-native-reanimated", () =>

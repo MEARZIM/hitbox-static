@@ -36,7 +36,14 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "HitBox uses NFC to scan and claim your collectibles."
+        }
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

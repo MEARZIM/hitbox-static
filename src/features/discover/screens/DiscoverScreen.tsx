@@ -42,7 +42,11 @@ export default function DiscoverScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-black ">
+        <SafeAreaView
+            // No bottom edge: the tab bar already reserves the safe area below.
+            edges={["top", "left", "right"]}
+            className="flex-1 bg-black "
+        >
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
@@ -59,8 +63,6 @@ export default function DiscoverScreen() {
                 <MainHeader
                     title="Discover"
                     subtitle="Explore collections, creators and exclusive experiences."
-                    notificationCount={3}
-                    onNotificationPress={() => console.log("Notifications")}
                     className='px-4 py-2'
                 />
 

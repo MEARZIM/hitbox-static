@@ -6,6 +6,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { PortalHost } from '@rn-primitives/portal';
+import ScanFab from '@/components/ScanFab';
 import '../global.css';
 
 const queryClient = new QueryClient({
@@ -45,15 +46,14 @@ function RootNavigator() {
           headerShown: false,
         }}
       />
-      {/* Login/registration is only reachable while signed out */}
-      <Stack.Protected guard={!isSignedIn}>
-        <Stack.Screen
-          name="(auth)"
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack.Protected>
+      {/* Auth screens stay navigable in any state; the private routes
+          (profile, collections) are protected in (tabs)/_layout.tsx. */}
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="(routes)"
         options={{
@@ -64,7 +64,7 @@ function RootNavigator() {
     </Stack>
   );
 }
-console.log(process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY)
+
 export default function RootLayout() {
   return (
     <View className="flex-1">
@@ -74,6 +74,8 @@ export default function RootLayout() {
       >
         <QueryClientProvider client={queryClient}>
           <RootNavigator />
+          {/* Floats over every screen; before PortalHost so dialogs sit above it. */}
+          <ScanFab />
           <PortalHost />
         </QueryClientProvider>
       </ClerkProvider>

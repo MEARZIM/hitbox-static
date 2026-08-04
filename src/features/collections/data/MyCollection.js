@@ -7,6 +7,11 @@ const myCollections = [
     owned: 18,
     total: 25,
     featured: true,
+    type: "Artist",
+    brand: "HitBox",
+    genre: "Rock",
+    artist: "Pierce The Veil",
+    date: 20260710,
   },
   {
     id: "2",
@@ -16,6 +21,11 @@ const myCollections = [
     owned: 7,
     total: 25,
     featured: false,
+    type: "Artist",
+    brand: "HitBox",
+    genre: "Rock",
+    artist: "Sleeping With Sirens",
+    date: 20260709,
   },
   {
     id: "3",
@@ -25,6 +35,11 @@ const myCollections = [
     owned: 11,
     total: 50,
     featured: false,
+    type: "Brand",
+    brand: "Warped Tour",
+    genre: "Alternative",
+    artist: "Various Artists",
+    date: 20260708,
   },
   {
     id: "4",
@@ -34,6 +49,11 @@ const myCollections = [
     owned: 4,
     total: 15,
     featured: false,
+    type: "Artist",
+    brand: "Fearless Records",
+    genre: "Rock",
+    artist: "Pierce The Veil",
+    date: 20260701,
   },
   {
     id: "5",
@@ -43,6 +63,11 @@ const myCollections = [
     owned: 2,
     total: 12,
     featured: false,
+    type: "Genre", // Categorized under Anime genre
+    brand: "Bandai",
+    genre: "Anime",
+    artist: "Masashi Kishimoto",
+    date: 20260705,
   },
   {
     id: "6",
@@ -52,6 +77,11 @@ const myCollections = [
     owned: 1,
     total: 8,
     featured: false,
+    type: "Brand",
+    brand: "Funko",
+    genre: "Pop Culture",
+    artist: "Funko",
+    date: 20260706,
   },
 ];
 

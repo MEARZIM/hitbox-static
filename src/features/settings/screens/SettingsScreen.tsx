@@ -15,7 +15,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import MenuSection from '../components/MenuSection';
 import NotificationScreen from '../components/NotificationScreen';
-import PersonalInfoSection from '../components/PersonalInfoSection';
 import SecuritySection from '../components/SecuritySection';
 
 interface SettingsScreenProps {
@@ -104,9 +103,9 @@ export default function SettingsScreen({ initialTab = 'menu' }: SettingsScreenPr
           )}
 
           {/* PERSONAL INFORMATION SCREEN */}
-          {activeTab === 'personal' && (
-            <PersonalInfoSection triggerSuccess={triggerSuccess} />
-          )}
+          {activeTab === 'personal'
+            // Router Chnage 
+          }
 
           {/* SECURITY SCREEN */}
           {activeTab === 'security' && (

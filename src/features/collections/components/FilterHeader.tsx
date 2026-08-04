@@ -1,40 +1,19 @@
-import {
-    ChevronDown,
-    SlidersHorizontal,
-} from "lucide-react-native";
+import { SlidersHorizontal } from "lucide-react-native";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface Props {
-  selectedSort?: string;
-  onSortPress?: () => void;
   onFilterPress?: () => void;
 }
 
 const FilterHeader: React.FC<Props> = ({
-  selectedSort = "Recent",
-  onSortPress,
   onFilterPress,
 }) => {
   return (
-    <View className="w-full flex-row items-center justify-between">
-      {/* Left */}
-      <TouchableOpacity
-        onPress={onSortPress}
-        className="flex-row items-center"
-      >
-        <Text className="text-white text-[18px] font-semibold">
-          {selectedSort}
-        </Text>
+    <View className="w-full flex-row items-center justify-end">
+     
 
-        <ChevronDown
-          size={18}
-          color="#9CA3AF"
-          style={{ marginLeft: 6 }}
-        />
-      </TouchableOpacity>
-
-      {/* Right */}
+      {/* Right: filter dropdown trigger */}
       <TouchableOpacity
         onPress={onFilterPress}
         className="flex-row items-center"
