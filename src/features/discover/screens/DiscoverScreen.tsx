@@ -25,7 +25,7 @@ import ReleaseCard from "../components/ReleaseCard";
 import SearchResultsSection from "../components/SearchResultsSection";
 import TrendingCard from "../components/TrendingCard";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
-import { DiscoverProductItem } from "../types/discover";
+import { DiscoverProductItem, DiscoverSection } from "../types/discover";
 
 /** Breathing room left above a section title after a chip jump. */
 const SCROLL_GAP = 12;
@@ -66,6 +66,18 @@ export default function DiscoverScreen() {
     const handleProductPress = (item: DiscoverProductItem) => {
         // Cards are lightweight — the detail screen fetches GET /products/:id
         router.push(`/marketplace/${item.id}`);
+    };
+
+    /**
+     * "See All" → the paginated view of that section
+     * (`GET /api/v1/discover/products?section=…`). `section` uses the API's
+     * snake_case values, not the chip ids.
+     */
+    const handleSeeAll = (section: DiscoverSection, title: string) => {
+        router.push({
+            pathname: '/(tabs)/discover/see-all',
+            params: { section, title },
+        });
     };
 
     return (
@@ -138,7 +150,10 @@ export default function DiscoverScreen() {
                             <>
                                 {/* TRENDING — unitsSold desc */}
                                 <View onLayout={registerSection("trending")}>
-                                    <SectionHeader title="Trending Now" />
+                                    <SectionHeader
+                                        title="Trending Now"
+                                        onSeeAllPress={() => handleSeeAll('trending', 'Trending Now')}
+                                    />
                                     <View className="mt-4 mx-4">
                                         {feed.trending.length > 0 ? (
                                             <FlatList
@@ -163,7 +178,10 @@ export default function DiscoverScreen() {
 
                                 {/* TOP CREATORS — unitsSold desc */}
                                 <View onLayout={registerSection("topCreators")}>
-                                    <SectionHeader title="Top Creators" />
+                                    <SectionHeader
+                                        title="Top Creators"
+                                        onSeeAllPress={() => handleSeeAll('top_creators', 'Top Creators')}
+                                    />
                                     <View className="mt-4 mx-4">
                                         {feed.topCreators.length > 0 ? (
                                             <FlatList
@@ -188,7 +206,10 @@ export default function DiscoverScreen() {
 
                                 {/* NEW RELEASES — createdAt desc */}
                                 <View onLayout={registerSection("newReleases")}>
-                                    <SectionHeader title="Latest Releases" />
+                                    <SectionHeader
+                                        title="Latest Releases"
+                                        onSeeAllPress={() => handleSeeAll('new_releases', 'Latest Releases')}
+                                    />
                                     <View className="mt-4 mx-4 mb-4">
                                         {feed.newReleases.length > 0 ? (
                                             <FlatList
