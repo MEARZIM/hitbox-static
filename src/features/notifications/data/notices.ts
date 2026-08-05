@@ -31,7 +31,7 @@ export const NOTICES: NotificationSeed[] = [
         title: 'Tap before you trust',
         body: 'Every HitBox item carries an NFC tag. Tap it to confirm the item is genuine — no account needed to check.',
         ageMinutes: 96,
-        href: '/(routes)/scan',
+        href: '/scan',
     },
     {
         id: 'guest.first-tap-claims',
@@ -58,7 +58,7 @@ export const NOTICES: NotificationSeed[] = [
         title: 'Claim your next item',
         body: 'Tap an unclaimed NFC tag and confirm the claim to add the item to your collection.',
         ageMinutes: 38,
-        href: '/(routes)/scan',
+        href: '/scan',
     },
     {
         id: 'member.ledger',
@@ -75,7 +75,7 @@ export const NOTICES: NotificationSeed[] = [
         title: 'Finish your profile',
         body: 'Add a display name and avatar so other collectors recognise you on the items you own.',
         ageMinutes: 2_640,
-        href: '/(routes)/edit-profile',
+        href: '/edit-profile',
     },
 
     // ── Both ────────────────────────────────────────────────────────────────

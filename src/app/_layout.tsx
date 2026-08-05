@@ -54,6 +54,9 @@ function RootNavigator() {
           headerShown: false,
         }}
       />
+      {/* Full-screen pushes with no tab bar: claim + verify. The ones that keep
+          the tab bar (scan, settings, edit-profile, artists, notifications) live
+          in (tabs)/(details) instead. */}
       <Stack.Screen
         name="(routes)"
         options={{

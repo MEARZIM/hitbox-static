@@ -17,7 +17,7 @@ interface MainHeaderProps {
   subtitle?: string;
   /** Overrides the live unread count from `useNotifications()`. */
   notificationCount?: number;
-  /** Overrides the default push to `/(routes)/notifications`. */
+  /** Overrides the default push to `/notifications`. */
   onNotificationPress?: () => void;
   onSettingsPress?: () => void;
   /** Overrides the default push to `/(auth)/register` on the signed-out button. */
@@ -49,7 +49,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
     if (onNotificationPress) {
       onNotificationPress();
     } else {
-      router.push("/(routes)/notifications");
+      router.push("/notifications");
     }
   };
 
@@ -57,7 +57,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
     if (onSettingsPress) {
       onSettingsPress();
     } else {
-      router.push("/(routes)/settings");
+      router.push("/settings");
     }
   };
 

@@ -103,6 +103,10 @@ export default function TabLayout() {
   return (
     <>
       <Tabs
+        // Pushed screens now live inside this navigator, so back from one has to
+        // return to the tab it was opened from. The default ("firstRoute") would
+        // send every back press to Discover instead.
+        backBehavior="history"
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
@@ -148,6 +152,13 @@ export default function TabLayout() {
               ),
             }}
           />
+
+          {/*
+            Pushed screens that keep the tab bar (scan, settings, edit-profile,
+            artists, notifications). `href: null` keeps the group out of the bar —
+            it's navigated to by URL, not by a tab button.
+          */}
+          <Tabs.Screen name="(details)" options={{ href: null }} />
 
           <Tabs.Screen
             name="profile"
