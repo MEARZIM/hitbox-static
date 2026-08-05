@@ -1,0 +1,556 @@
+[
+ {
+  "group": "01-launch",
+  "base": "cold-start-signed-out.yaml",
+  "file": "01-launch/cold-start-signed-out.yaml",
+  "name": "Cold start (signed out) lands on registration",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "01-launch",
+  "base": "scan-fab-visibility.yaml",
+  "file": "01-launch/scan-fab-visibility.yaml",
+  "name": "Scan FAB shows on tabs and hides on scan/auth routes",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "01-launch",
+  "base": "tab-bar-public-tabs.yaml",
+  "file": "01-launch/tab-bar-public-tabs.yaml",
+  "name": "Tab bar shows all four tabs while signed out",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "details-email-signup.yaml",
+  "file": "02-register/details-email-signup.yaml",
+  "name": "Register with email reaches the OTP step",
+  "tags": [
+   "live",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "details-form-validation.yaml",
+  "file": "02-register/details-form-validation.yaml",
+  "name": "Register details form rejects an empty submission",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "phone-otp-request.yaml",
+  "file": "02-register/phone-otp-request.yaml",
+  "name": "Register with phone requests an SMS code",
+  "tags": [
+   "live",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "register-entry.yaml",
+  "file": "02-register/register-entry.yaml",
+  "name": "Both /register and /register/step2 render the sign-up choice screen",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "step2-methods.yaml",
+  "file": "02-register/step2-methods.yaml",
+  "name": "Registration offers every sign-up method",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "step2-signin-link.yaml",
+  "file": "02-register/step2-signin-link.yaml",
+  "name": "Registration links to the sign-in screen",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "02-register",
+  "base": "step2-skip-to-discover.yaml",
+  "file": "02-register/step2-skip-to-discover.yaml",
+  "name": "Registration Skip reaches the public discover tab",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "email-invalid-credentials.yaml",
+  "file": "03-login/email-invalid-credentials.yaml",
+  "name": "Login with an unknown email keeps the dialog open and shows an error",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "email-sign-in.yaml",
+  "file": "03-login/email-sign-in.yaml",
+  "name": "Email sign-in lands on discover as a signed-in user",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "forgot-password-send-code.yaml",
+  "file": "03-login/forgot-password-send-code.yaml",
+  "name": "Forgot password sends a reset code and shows the OTP step",
+  "tags": [
+   "live",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "forgot-password.yaml",
+  "file": "03-login/forgot-password.yaml",
+  "name": "Forgot password is reachable from the sign-in dialog",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "login-screen-options.yaml",
+  "file": "03-login/login-screen-options.yaml",
+  "name": "Login screen offers every sign-in option",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "phone-sign-in-request.yaml",
+  "file": "03-login/phone-sign-in-request.yaml",
+  "name": "Login with phone requests an SMS code",
+  "tags": [
+   "live",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "signup-link-and-back.yaml",
+  "file": "03-login/signup-link-and-back.yaml",
+  "name": "Login screen links back to registration",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "03-login",
+  "base": "sso-opens-browser.yaml",
+  "file": "03-login/sso-opens-browser.yaml",
+  "name": "SSO button hands off to the browser",
+  "tags": [
+   "live",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "04-discover",
+  "base": "discover-pull-to-refresh.yaml",
+  "file": "04-discover/discover-pull-to-refresh.yaml",
+  "name": "Discover pull-to-refresh keeps the feed rendered",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "04-discover",
+  "base": "discover-search.yaml",
+  "file": "04-discover/discover-search.yaml",
+  "name": "Discover search swaps the feed for search results",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "04-discover",
+  "base": "discover-sections.yaml",
+  "file": "04-discover/discover-sections.yaml",
+  "name": "Discover renders every public feed section",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "04-discover",
+  "base": "discover-to-product-detail.yaml",
+  "file": "04-discover/discover-to-product-detail.yaml",
+  "name": "A discover card opens the product detail screen",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "05-marketplace",
+  "base": "marketplace-category-and-search.yaml",
+  "file": "05-marketplace/marketplace-category-and-search.yaml",
+  "name": "Marketplace category tab and search switch to the listings endpoint",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "05-marketplace",
+  "base": "marketplace-product-detail-deeplink.yaml",
+  "file": "05-marketplace/marketplace-product-detail-deeplink.yaml",
+  "name": "Product detail deep link handles a missing product",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "05-marketplace",
+  "base": "marketplace-sections.yaml",
+  "file": "05-marketplace/marketplace-sections.yaml",
+  "name": "Marketplace renders its public feed sections",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "06-gated-tabs",
+  "base": "collections-gated-signed-out.yaml",
+  "file": "06-gated-tabs/collections-gated-signed-out.yaml",
+  "name": "Collections tab asks a guest to sign in instead of loading",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "06-gated-tabs",
+  "base": "collections-signed-in.yaml",
+  "file": "06-gated-tabs/collections-signed-in.yaml",
+  "name": "Collections tab loads for a signed-in user",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "06-gated-tabs",
+  "base": "collections-view-all.yaml",
+  "file": "06-gated-tabs/collections-view-all.yaml",
+  "name": "Collections view-all opens the paginated list",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "06-gated-tabs",
+  "base": "profile-gated-signed-out.yaml",
+  "file": "06-gated-tabs/profile-gated-signed-out.yaml",
+  "name": "Profile tab asks a guest to sign in instead of loading",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "06-gated-tabs",
+  "base": "profile-signed-in.yaml",
+  "file": "06-gated-tabs/profile-signed-in.yaml",
+  "name": "Profile tab loads for a signed-in user",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "06-gated-tabs",
+  "base": "signin-popup-navigation.yaml",
+  "file": "06-gated-tabs/signin-popup-navigation.yaml",
+  "name": "Sign-in popup switches methods and leaves for full screens",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "07-nfc-scan",
+  "base": "scan-claim-verify-toggle.yaml",
+  "file": "07-nfc-scan/scan-claim-verify-toggle.yaml",
+  "name": "Scan screen toggle switches between claim and verify",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "07-nfc-scan",
+  "base": "scan-empty-input-guard.yaml",
+  "file": "07-nfc-scan/scan-empty-input-guard.yaml",
+  "name": "Scan screen ignores manual claim/verify with no usable tag id",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "07-nfc-scan",
+  "base": "scan-screen-entry.yaml",
+  "file": "07-nfc-scan/scan-screen-entry.yaml",
+  "name": "Scan screen opens from the FAB and handles missing NFC hardware",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "07-nfc-scan",
+  "base": "tagid-normalization.yaml",
+  "file": "07-nfc-scan/tagid-normalization.yaml",
+  "name": "Tag ids are normalized on the manual and deep-link paths",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-already-claimed.yaml",
+  "file": "08-claim/claim-already-claimed.yaml",
+  "name": "An already-claimed tag shows the owned card",
+  "tags": [
+   "needs-tag",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-later-link.yaml",
+  "file": "08-claim/claim-later-link.yaml",
+  "name": "Claim screen do-this-later link leaves without claiming",
+  "tags": [
+   "needs-tag",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-owned-by-you.yaml",
+  "file": "08-claim/claim-owned-by-you.yaml",
+  "name": "A tag you already own shows the you-own-this card",
+  "tags": [
+   "needs-tag",
+   "signed-in"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-server-error-retry.yaml",
+  "file": "08-claim/claim-server-error-retry.yaml",
+  "name": "A failed verify shows the error card with a retry",
+  "tags": [
+   "offline",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-signed-out-asks-signin.yaml",
+  "file": "08-claim/claim-signed-out-asks-signin.yaml",
+  "name": "Claim button asks a signed-out user to sign in over the claim screen",
+  "tags": [
+   "needs-tag",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-success.yaml",
+  "file": "08-claim/claim-success.yaml",
+  "name": "Claiming a verified unclaimed tag reaches the success screen",
+  "tags": [
+   "needs-tag",
+   "signed-in",
+   "destructive"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-unregistered-tag.yaml",
+  "file": "08-claim/claim-unregistered-tag.yaml",
+  "name": "Claiming an unregistered tag shows the not-registered card",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "08-claim",
+  "base": "claim-verified-unclaimed.yaml",
+  "file": "08-claim/claim-verified-unclaimed.yaml",
+  "name": "A verified unclaimed tag shows the claim screen without claiming",
+  "tags": [
+   "needs-tag",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "09-verify",
+  "base": "verify-genuine-and-ledger.yaml",
+  "file": "09-verify/verify-genuine-and-ledger.yaml",
+  "name": "Verifying a genuine tag shows ownership and the blockchain ledger",
+  "tags": [
+   "needs-tag",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "09-verify",
+  "base": "verify-unclaimed-offers-claim.yaml",
+  "file": "09-verify/verify-unclaimed-offers-claim.yaml",
+  "name": "Verifying an unclaimed tag offers to claim it",
+  "tags": [
+   "needs-tag",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "09-verify",
+  "base": "verify-unregistered-tag.yaml",
+  "file": "09-verify/verify-unregistered-tag.yaml",
+  "name": "Verifying an unregistered tag shows the not-registered card",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "10-deeplinks",
+  "base": "deeplink-artist-profile.yaml",
+  "file": "10-deeplinks/deeplink-artist-profile.yaml",
+  "name": "Artist profile route resolves",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "10-deeplinks",
+  "base": "deeplink-claim-cold-start.yaml",
+  "file": "10-deeplinks/deeplink-claim-cold-start.yaml",
+  "name": "Claim deep link resolves from a cold start",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "10-deeplinks",
+  "base": "deeplink-item-not-authenticated.yaml",
+  "file": "10-deeplinks/deeplink-item-not-authenticated.yaml",
+  "name": "Unreadable-tag screen renders its guidance and actions",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "10-deeplinks",
+  "base": "deeplink-sso-callback.yaml",
+  "file": "10-deeplinks/deeplink-sso-callback.yaml",
+  "name": "SSO callback waits for the session, then falls through to discover",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "10-deeplinks",
+  "base": "deeplink-verify-cold-start.yaml",
+  "file": "10-deeplinks/deeplink-verify-cold-start.yaml",
+  "name": "Verify deep link resolves from a cold start",
+  "tags": [
+   "smoke",
+   "signed-out"
+  ]
+ },
+ {
+  "group": "11-settings",
+  "base": "edit-profile-save.yaml",
+  "file": "11-settings/edit-profile-save.yaml",
+  "name": "Edit profile saves a valid change",
+  "tags": [
+   "signed-in",
+   "destructive"
+  ]
+ },
+ {
+  "group": "11-settings",
+  "base": "edit-profile-validation.yaml",
+  "file": "11-settings/edit-profile-validation.yaml",
+  "name": "Edit profile rejects an invalid username without saving",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "11-settings",
+  "base": "settings-menu.yaml",
+  "file": "11-settings/settings-menu.yaml",
+  "name": "Settings opens from the header and lists every account section",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "11-settings",
+  "base": "settings-sections.yaml",
+  "file": "11-settings/settings-sections.yaml",
+  "name": "Settings sections open and step back correctly",
+  "tags": [
+   "signed-in"
+  ]
+ },
+ {
+  "group": "11-settings",
+  "base": "sign-out.yaml",
+  "file": "11-settings/sign-out.yaml",
+  "name": "Sign out clears the session and returns to registration",
+  "tags": [
+   "signed-in",
+   "destructive"
+  ]
+ }
+]

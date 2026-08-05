@@ -48,3 +48,6 @@ example
 
 # maestro test artifacts (reports + screenshots are per-run)
 .maestro/reports/
+
+# maestro test artifacts (reports + screenshots are per-run)
+.maestro/reports/

@@ -10,8 +10,6 @@ tags:
   - destructive
 env:
   APP_ID: com.subratadasdev1.hitboxstatic
-  EMAIL: ""
-  PASSWORD: ""
   NEW_FIRST_NAME: Maestro
 ---
 - runFlow:

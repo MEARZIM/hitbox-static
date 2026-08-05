@@ -13,9 +13,6 @@ tags:
   - destructive
 env:
   APP_ID: com.subratadasdev1.hitboxstatic
-  TAG_UNCLAIMED: ""
-  EMAIL: ""
-  PASSWORD: ""
 ---
 - runFlow:
     file: ../../common/ensure-signed-in.yaml
@@ -29,8 +26,13 @@ env:
       TAG_ID: ${TAG_UNCLAIMED}
       ACTION: Claim
 - extendedWaitUntil:
-    visible: "Claim My Item"
+    visible: ".*ready to be added to your collection.*"
     timeout: 30000
+# The Claim button sits below the feature grid, off the first screenful.
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Claim My Item"
 # Signed in → the subtitle promises the claim instead of asking for sign-in.
 - assertVisible: "Add this item to my collection"
 - tapOn: "Claim My Item"

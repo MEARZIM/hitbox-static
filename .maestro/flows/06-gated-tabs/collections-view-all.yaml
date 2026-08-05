@@ -1,13 +1,11 @@
 # AGENTS.md §4 — (tabs)/collections/view-collection is the paginated "all
 # collections" screen, backed by the infinite variant of GET /collections/me.
 appId: ${APP_ID}
-name: Collections "view all" opens the paginated list
+name: Collections view-all opens the paginated list
 tags:
   - signed-in
 env:
   APP_ID: com.subratadasdev1.hitboxstatic
-  EMAIL: ""
-  PASSWORD: ""
 ---
 - runFlow:
     file: ../../common/ensure-signed-in.yaml

@@ -10,7 +10,6 @@ tags:
   - signed-out
 env:
   APP_ID: com.subratadasdev1.hitboxstatic
-  TAG_UNCLAIMED: ""
 ---
 - runFlow: ../../common/goto-discover.yaml
 - runFlow: ../../common/open-scan.yaml
@@ -20,13 +19,19 @@ env:
       TAG_ID: ${TAG_UNCLAIMED}
       ACTION: Claim
 - extendedWaitUntil:
-    visible: "Claim My Item"
+    visible: ".*ready to be added to your collection.*"
     timeout: 30000
-- assertVisible: ".*ready to be added to your collection.*"
+- assertVisible: "Verification"
+- assertVisible: "Authentic"
+- assertNotVisible: "Already claimed"
+# The Claim button sits below the feature grid, off the first screenful.
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Claim My Item"
 # Signed out, the button subtitle asks for sign-in rather than promising a claim.
 - assertVisible: "Sign in to claim this item"
 - assertVisible: ".*do this later.*"
 # Nothing was claimed by merely arriving here.
 - assertNotVisible: "Go to My Collection"
-- assertNotVisible: "Already claimed"
 - takeScreenshot: claim-verified-unclaimed

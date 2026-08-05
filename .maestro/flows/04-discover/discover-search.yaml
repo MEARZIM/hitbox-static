@@ -26,7 +26,15 @@ env:
 # pressKey above dismissed the keyboard and dropped focus, so a bare eraseText
 # would have nothing to erase.
 - tapOn: ".*${NO_MATCH_TERM}.*"
-- eraseText
+- eraseText:
+    charactersToErase: 20
+- pressKey: Enter
+# The placeholder returning is the proof the field is actually empty; without it a
+# partially-erased term leaves the search request in flight and the feed never
+# comes back, which read as a flake.
+- extendedWaitUntil:
+    visible: "Search artists, albums..."
+    timeout: 20000
 - extendedWaitUntil:
     visible: "Trending Now"
-    timeout: 20000
+    timeout: 30000

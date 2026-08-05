@@ -10,7 +10,6 @@ tags:
   - signed-out
 env:
   APP_ID: com.subratadasdev1.hitboxstatic
-  TAG_UNCLAIMED: ""
 ---
 - runFlow: ../../common/goto-discover.yaml
 - runFlow: ../../common/open-scan.yaml
@@ -26,7 +25,11 @@ env:
 - assertVisible: "Claim this product"
 - tapOn: "Claim this product"
 - extendedWaitUntil:
-    visible: "Claim My Item"
+    visible: ".*ready to be added to your collection.*"
     timeout: 30000
+- runFlow:
+    file: ../../common/scroll-to.yaml
+    env:
+      TARGET: "Claim My Item"
 # Still nothing claimed — the button was never pressed.
 - assertNotVisible: "Go to My Collection"

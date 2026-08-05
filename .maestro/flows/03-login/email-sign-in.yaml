@@ -7,8 +7,6 @@ tags:
   - signed-in
 env:
   APP_ID: com.subratadasdev1.hitboxstatic
-  EMAIL: ""
-  PASSWORD: ""
 ---
 - runFlow:
     file: ../../common/ensure-signed-in.yaml

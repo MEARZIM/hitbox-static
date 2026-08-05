@@ -13,8 +13,6 @@ env:
   FIRST_NAME: Maestro
   LAST_NAME: Tester
   USERNAME: maestro_tester
-  EMAIL: ""
-  PASSWORD: ""
   PHONE: "5550000000"
 ---
 - runFlow: ../../common/launch-clean.yaml
