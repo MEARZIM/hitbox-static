@@ -17,14 +17,14 @@ import {
 export function goToClaim(tagId: string) {
     const id = normalizeTagId(tagId);
     if (!id) return;
-    router.push(`/(routes)/claim/${id}` as never);
+    router.push(`/claim/${id}` as never);
 }
 
 /** Navigate to the read-only verify page for a (normalized) tag id. */
 export function goToVerify(tagId: string) {
     const id = normalizeTagId(tagId);
     if (!id) return;
-    router.push(`/(routes)/verify/${id}` as never);
+    router.push(`/verify/${id}` as never);
 }
 
 type Action = 'claim' | 'verify';
@@ -68,7 +68,12 @@ export default function ScanScreen() {
     const canGo = normalized.length > 0;
 
     return (
-        <SafeAreaView className="flex-1 bg-[#050507]">
+        <SafeAreaView
+            // No bottom edge: these routes render inside (tabs), so the tab bar
+            // already reserves the safe area below.
+            edges={["top", "left", "right"]}
+            className="flex-1 bg-[#050507]"
+        >
             <StatusBar barStyle="light-content" />
             <ScrollView className="px-5 pt-3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
                 <MotiView from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} className="items-center my-2">

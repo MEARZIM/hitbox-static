@@ -13,7 +13,7 @@ import { AppNotification } from '../types/notification';
 const AUTO_READ_DELAY_MS = 2_000;
 
 /**
- * `/(routes)/notifications` — the full feed.
+ * `/notifications` — the full feed.
  *
  * Read state is per account and lives on the device (see `utils/seen.ts`), so a
  * notice a user has already looked at doesn't come back unread on the next
@@ -45,7 +45,12 @@ export default function NotificationsScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-[#050507]">
+        <SafeAreaView
+            // No bottom edge: this route renders inside (tabs), so the tab bar
+            // already reserves the safe area below.
+            edges={["top", "left", "right"]}
+            className="flex-1 bg-[#050507]"
+        >
             <StatusBar barStyle="light-content" />
 
             {/* Header */}

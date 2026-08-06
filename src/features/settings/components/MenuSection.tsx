@@ -39,7 +39,7 @@ export default function MenuSection({
                 <TouchableOpacity
                     onPress={() => {
                         setActiveTab('personal');
-                        router.push('/(routes)/edit-profile');
+                        router.push('/edit-profile');
                     }}
                     activeOpacity={0.7}
                     className="flex-row items-center justify-between p-4 border-b border-border/30"
