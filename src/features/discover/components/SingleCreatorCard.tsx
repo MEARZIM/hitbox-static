@@ -1,12 +1,13 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
 import { BlurView } from "expo-blur";
+import { router } from "expo-router";
 import { BadgeCheck } from "lucide-react-native";
+import React from "react";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 
 
 interface CreatorCardProps {
   item: {
-    id: string; 
+    id: string;
     name: string;
     username: string;
     followers: string;
@@ -16,11 +17,12 @@ interface CreatorCardProps {
 }
 
 
-export default function SingleCreatorCard({ item } : CreatorCardProps) {
+export default function SingleCreatorCard({ item }: CreatorCardProps) {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       className="w-32 overflow-hidden rounded-3xl"
+      onPress={() => router.push(`/(routes)/artists/${item.id}`)}
     >
       <BlurView
         intensity={10}
@@ -30,10 +32,8 @@ export default function SingleCreatorCard({ item } : CreatorCardProps) {
         <View
           style={{
             backgroundColor: "rgba(255,255,255,0.05)",
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.08)",
           }}
-          className="items-center rounded-3xl px-3 py-5"
+          className="items-center rounded-3xl px-3 py-5 border border-primary-40"
         >
           {/* Avatar */}
           <Image
@@ -54,8 +54,8 @@ export default function SingleCreatorCard({ item } : CreatorCardProps) {
             {item.verified && (
               <BadgeCheck
                 size={13}
-                color="#A855F7"
-                fill="#A855F7"
+                color="#ffffff"
+                fill="#6d28d9"
                 style={{ marginLeft: 4 }}
               />
             )}

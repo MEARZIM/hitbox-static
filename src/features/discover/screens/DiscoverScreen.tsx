@@ -1,211 +1,203 @@
-import React, { useState } from "react";
-import MainHeader from "@/components/mainHeader";
-import MainSearchBar from "@/components/mainsearch";
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    TextInput,
-    ScrollView,
-    ImageBackground,
-    FlatList,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import {
     ArrowRight,
-    Bell,
-    Search,
-    SlidersHorizontal,
 } from "lucide-react-native";
-import { trendingData } from "../data/trendingData";
-import { creatorsData } from "../data/creatorsData";
-import { releaseData } from "../data/releaseData"
-import TrendingCard from "../../../features/discover/components/TrendingCard";
-import CreatorsCard from "../components/SingleCreatorCard"
-import ReleaseCard from "../../../features/discover/components/ReleaseCard"
-import CategoriesSection from "../components/CategoriesSection"
-import CategoryCard from "../../../features/discover/components/CategoryCard";
+import React, { useState } from "react";
+import {
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import MainHeader from "@/components/mainHeader";
+import MainSearchBar from "@/components/mainsearch";
+import { useDiscoverFeed } from "../api/getDiscoverFeed";
+import CategoriesSection from "../components/CategoriesSection";
+import HeroBanner from "../components/HeroBanner";
+import ReleaseCard from "../components/ReleaseCard";
+import SearchResultsSection from "../components/SearchResultsSection";
+import TrendingCard from "../components/TrendingCard";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { DiscoverProductItem } from "../types/discover";
+
 export default function DiscoverScreen() {
     const insets = useSafeAreaInsets();
     const [search, setSearch] = useState("");
+    const debouncedSearch = useDebouncedValue(search.trim());
+    const isSearching = debouncedSearch.length > 0;
 
+    const { data: feed, isLoading, isError, error, refetch, isRefetching } = useDiscoverFeed();
+    // console.log("feed:", feed)
+    // console.log("isLoading:", isLoading)
+    // console.log("isError:", error)
+
+    const handleProductPress = (item: DiscoverProductItem) => {
+        // Cards are lightweight — the detail screen fetches GET /products/:id
+        router.push(`/marketplace/${item.id}`);
+    };
 
     return (
         <View className="flex-1 bg-black ">
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
-                    paddingTop: insets.top + 16,
-                    paddingHorizontal: 24,
+                    paddingTop: insets.top,
                     paddingBottom: insets.bottom + 24,
                 }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={refetch}
+                        tintColor="#8B5CF6"
+                    />
+                }
             >
                 <MainHeader
                     title="Discover"
                     subtitle="Explore collections, creators and exclusive experiences."
                     notificationCount={3}
                     onNotificationPress={() => console.log("Notifications")}
-                    onFilterPress={() => console.log("Filter")}
+                    className='py-2 mx-4'
                 />
 
-                {/* Search Bar */}
+                {/* Search Bar — backed by GET /api/v1/discover/products?search= */}
+                <MainSearchBar
+                    value={search}
+                    onChangeText={setSearch}
+                    placeholder="Search artists, albums..."
+                    onVoicePress={() => console.log("Voice")}
+                    classname="my-2"
+                />
 
-                <View className="mt-5">
-                    <MainSearchBar
-                        value={search}
-                        onChangeText={setSearch}
-                        placeholder="Search artists, albums..."
-                        onVoicePress={() => console.log("Voice")}
-                        
-                    />
-                </View>
-
-                <View className="mt-5 flex-row items-center justify-between">
-                    <CategoriesSection />
-                </View>
-
-                {/* <HeroBanner /> */}
-
-                <ImageBackground
-                    source={{
-                        uri: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200",
-                    }}
-                    resizeMode="cover"
-                    imageStyle={{ borderRadius: 20 }}
-                    className="mt-5 h-52 overflow-hidden rounded-xl"
-                >
-                    {/* Dark Overlay */}
-                    <View className="flex-1 rounded-xl bg-black/40 p-5 justify-between">
-                        {/* Badge */}
-                        <View className="self-start rounded-md bg-violet-600 px-3 py-1">
-                            <Text className="text-[10px] font-bold tracking-wider text-white">
-                                FEATURED
-                            </Text>
+                {isSearching ? (
+                    <SearchResultsSection search={debouncedSearch} onItemPress={handleProductPress} />
+                ) : (
+                    <>
+                        <View className="mt-5 mx-4 flex-row items-center justify-between">
+                            <CategoriesSection />
                         </View>
 
-                        {/* Content */}
-                        <View>
-                            <Text className="text-3xl font-bold text-white">
-                                Warped Tour 2026
-                            </Text>
+                        {/* HERO SECTION — featured (≤5) from the discover feed */}
+                        <HeroBanner items={feed?.featured} onItemPress={handleProductPress} />
 
-                            <Text className="mt-2 text-base text-gray-200">
-                                Relive the moments. Own the legacy.
-                            </Text>
+                        {isLoading && (
+                            <View className="mt-16 items-center">
+                                <ActivityIndicator size="large" color="#8B5CF6" />
+                            </View>
+                        )}
 
-                            <TouchableOpacity className="mt-5 self-start rounded-xl bg-violet-600 px-6 py-3">
-                                <Text className="font-semibold text-white">
-                                    Explore Collection
+                        {isError && !isLoading && (
+                            <View className="mt-16 items-center px-8">
+                                <Text className="text-zinc-400 text-sm text-center">
+                                    Couldn't load the Discover feed. Check your connection.
                                 </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {/* Pagination Dots */}
-                        <View className="flex-row justify-center">
-                            <View className="mx-1 h-2 w-6 rounded-full bg-violet-500" />
-                            <View className="mx-1 h-2 w-2 rounded-full bg-gray-500" />
-                            <View className="mx-1 h-2 w-2 rounded-full bg-gray-500" />
-                        </View>
-                    </View>
-                </ImageBackground>
-                <View className="mt-8 flex-row items-center justify-between">
-                    <Text className="text-2xl font-bold text-white">
-                        Trending Now
-                    </Text>
-
-                    <TouchableOpacity className="flex-row items-center">
-                        <Text className="mr-1 font-semibold text-violet-500">
-                            See All
-                        </Text>
-
-                        <ArrowRight
-                            size={18}
-                            color="#8B5CF6"
-                        />
-                    </TouchableOpacity>
-                </View>
-                <View className="mt-4">
-                    <FlatList
-                        horizontal
-                        data={trendingData}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item, index }) => (
-                            <TrendingCard
-                                item={item}
-                                index={index + 1}
-                            />
+                                <TouchableOpacity onPress={() => refetch()} className="mt-3 bg-primary px-4 py-2 rounded-xl">
+                                    <Text className="text-white font-semibold text-sm">Retry</Text>
+                                </TouchableOpacity>
+                            </View>
                         )}
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
 
-                <View className="mt-8 flex-row items-center justify-between">
-                    <Text className="text-2xl font-bold text-white">
-                        Top Creators
-                    </Text>
+                        {feed && (
+                            <>
+                                {/* TRENDING — unitsSold desc */}
+                                {feed.trending.length > 0 && (
+                                    <>
+                                        <SectionHeader title="Trending Now" />
+                                        <View className="mt-4 mx-4">
+                                            <FlatList
+                                                horizontal
+                                                data={feed.trending}
+                                                keyExtractor={(item) => item.id}
+                                                renderItem={({ item, index }) => (
+                                                    <TrendingCard
+                                                        item={item}
+                                                        index={index + 1}
+                                                        onPress={() => handleProductPress(item)}
+                                                    />
+                                                )}
+                                                showsHorizontalScrollIndicator={false}
+                                            />
+                                        </View>
+                                    </>
+                                )}
 
-                    <TouchableOpacity className="flex-row items-center">
-                        <Text className="mr-1 font-semibold text-violet-500">
-                            See All
-                        </Text>
+                                {/* TOP CREATORS — unitsSold desc */}
+                                {feed.topCreators.length > 0 && (
+                                    <>
+                                        <SectionHeader title="Top Creators" />
+                                        <View className="mt-4 mx-4">
+                                            <FlatList
+                                                horizontal
+                                                data={feed.topCreators}
+                                                keyExtractor={(item) => item.id}
+                                                renderItem={({ item }) => (
+                                                    <ReleaseCard
+                                                        item={item}
+                                                        showNewBadge={false}
+                                                        onPress={() => handleProductPress(item)}
+                                                    />
+                                                )}
+                                                ItemSeparatorComponent={() => <View className="w-4" />}
+                                                showsHorizontalScrollIndicator={false}
+                                            />
+                                        </View>
+                                    </>
+                                )}
 
-                        <ArrowRight
-                            size={18}
-                            color="#8B5CF6"
-                        />
-                    </TouchableOpacity>
-                </View>
-                {/* Categories */}
-                {/* <CategoryList /> */}
-
-                {/* Trending */}
-                {/* <TrendingSection /> */}
-
-                <View className="mt-4">
-                    <FlatList
-                        horizontal
-                        data={creatorsData}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                            <CreatorsCard item={item} />
+                                {/* NEW RELEASES — createdAt desc */}
+                                {feed.newReleases.length > 0 && (
+                                    <>
+                                        <SectionHeader title="Latest Releases" />
+                                        <View className="mt-4 mx-4 mb-4">
+                                            <FlatList
+                                                horizontal
+                                                data={feed.newReleases}
+                                                keyExtractor={(item) => item.id}
+                                                renderItem={({ item }) => (
+                                                    <ReleaseCard
+                                                        item={item}
+                                                        onPress={() => handleProductPress(item)}
+                                                    />
+                                                )}
+                                                ItemSeparatorComponent={() => <View className="w-4" />}
+                                                showsHorizontalScrollIndicator={false}
+                                            />
+                                        </View>
+                                    </>
+                                )}
+                            </>
                         )}
-                        ItemSeparatorComponent={() => <View className="w-4" />}
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
-
-                <View className="mt-8 flex-row items-center justify-between">
-                    <Text className="text-2xl font-bold text-white">
-                        Latest Releases
-                    </Text>
-
-                    <TouchableOpacity className="flex-row items-center">
-                        <Text className="mr-1 font-semibold text-violet-500">
-                            See All
-                        </Text>
-
-                        <ArrowRight
-                            size={18}
-                            color="#8B5CF6"
-                        />
-                    </TouchableOpacity>
-                </View>
-
-                <View className="mt-8">
-                    <FlatList
-                        horizontal
-                        data={releaseData}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                            <ReleaseCard item={item} />
-                        )}
-                        ItemSeparatorComponent={() => <View className="w-4" />}
-                        showsHorizontalScrollIndicator={false}
-                    />
-                </View>
+                    </>
+                )}
 
             </ScrollView>
 
+        </View>
+    );
+}
+
+function SectionHeader({ title, onSeeAllPress }: { title: string; onSeeAllPress?: () => void }) {
+    return (
+        <View className="mt-8 flex-row items-center justify-between mx-4">
+            <Text className="text-2xl font-bold text-white">
+                {title}
+            </Text>
+
+            <TouchableOpacity className="flex-row items-center" onPress={onSeeAllPress}>
+                <Text className="mr-1 font-semibold text-violet-500">
+                    See All
+                </Text>
+
+                <ArrowRight
+                    size={18}
+                    color="#8B5CF6"
+                />
+            </TouchableOpacity>
         </View>
     );
 }

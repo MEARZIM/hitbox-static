@@ -1,0 +1,58 @@
+const myCollections = [
+  {
+    id: "1",
+    title: "Pierce The Veil",
+    subtitle: "Signature Series",
+    image: { uri: "https://picsum.photos/400/600?random=1" },
+    owned: 18,
+    total: 25,
+    featured: true,
+  },
+  {
+    id: "2",
+    title: "Sleeping With Sirens",
+    subtitle: "Collection",
+    image: { uri: "https://picsum.photos/400/600?random=2" },
+    owned: 7,
+    total: 25,
+    featured: false,
+  },
+  {
+    id: "3",
+    title: "Warped Tour 2026",
+    subtitle: "Event Collection",
+    image: { uri: "https://picsum.photos/400/600?random=3" },
+    owned: 11,
+    total: 50,
+    featured: false,
+  },
+  {
+    id: "4",
+    title: "PTV Misadventures",
+    subtitle: "Album Collection",
+    image: { uri: "https://picsum.photos/400/600?random=4" },
+    owned: 4,
+    total: 15,
+    featured: false,
+  },
+  {
+    id: "5",
+    title: "Naruto Shippuden",
+    subtitle: "Premium Cards",
+    image: { uri: "https://picsum.photos/400/600?random=5" },
+    owned: 2,
+    total: 12,
+    featured: false,
+  },
+  {
+    id: "6",
+    title: "Funko Pop!",
+    subtitle: "Limited Edition",
+    image: { uri: "https://picsum.photos/400/600?random=6" },
+    owned: 1,
+    total: 8,
+    featured: false,
+  },
+];
+
+export default myCollections;

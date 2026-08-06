@@ -1,12 +1,12 @@
-import React from "react";
-import { FlatList } from "react-native";
 import {
-  TrendingUp,
-  Star,
-  Ticket,
   CalendarDays,
   LucideIcon,
+  Star,
+  Ticket,
+  TrendingUp,
 } from "lucide-react-native";
+import React from "react";
+import { FlatList } from "react-native";
 
 import CategoryCard from "./CategoryCard";
 
@@ -22,7 +22,6 @@ const categories: Category[] = [
     id: "1",
     title: "Trending",
     icon: TrendingUp,
-    active: true,
   },
   {
     id: "2",
@@ -47,22 +46,28 @@ const categories: Category[] = [
 ];
 
 const CategoriesSection: React.FC = () => {
+  const [activeCategory, setActiveCategory] = React.useState('1');
+
   return (
     <FlatList
       horizontal
       data={categories}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <CategoryCard
-          title={item.title}
-          Icon={item.icon}
-          active={item.active}
-        />
-      )}
+      renderItem={({ item }) => {
+        const isActive = activeCategory === item.id;
+        return (
+          <CategoryCard
+            title={item.title}
+            Icon={item.icon}
+            active={isActive}
+            onPress={() => setActiveCategory(item.id)}
+          />
+        );
+      }}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
         paddingVertical: 6,
-        paddingRight: 20,
+        paddingHorizontal: 16,
       }}
     />
   );
