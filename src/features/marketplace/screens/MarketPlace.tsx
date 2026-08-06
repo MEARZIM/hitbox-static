@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import {
     CreditCard,
     Frame,
@@ -7,7 +8,6 @@ import {
     Shirt,
     ToyBrick,
 } from 'lucide-react-native';
-import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +18,6 @@ import { useMarketplaceFeed } from '../api/getMarketplaceFeed';
 import CategorySection, { CategoryTabId } from '../components/CategorySection';
 import ListingsResultsSection from '../components/ListingsResultsSection';
 import ListingsSection from '../components/ListingsSection';
-import PromoBannerSection from '../components/PromoBannerSection';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { MarketplaceSort } from '../types/marketplace';
 
@@ -95,7 +94,7 @@ const MarketPlaceScreen = () => {
                 />
 
                 {/* --- PROMO BANNER --- */}
-                <PromoBannerSection />
+                {/* <PromoBannerSection /> */}
 
                 {/* --- CATEGORY TABS --- */}
                 <CategorySection
