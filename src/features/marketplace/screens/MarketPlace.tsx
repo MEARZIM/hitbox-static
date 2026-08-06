@@ -7,7 +7,6 @@ import MainHeader from '@/components/mainHeader';
 import MainSearchBar from '@/components/mainsearch';
 import CategorySection from '../components/CategorySection';
 import ListingsSection from '../components/ListingsSection';
-import PromoBannerSection from '../components/PromoBannerSection';
 
 
 
@@ -95,7 +94,7 @@ const MarketPlaceScreen = () => {
                 <MainSearchBar />
 
                 {/* --- PROMO BANNER --- */}
-                <PromoBannerSection />
+                {/* <PromoBannerSection /> */}
 
                 {/* --- CATEGORIES --- */}
                 <CategorySection CATEGORIES={CATEGORIES} />
