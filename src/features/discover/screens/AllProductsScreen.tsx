@@ -25,8 +25,8 @@ interface AllProductsScreenProps {
  * "See All" for a Discover section — `GET /api/v1/discover/products?section=…`,
  * paginated 20 at a time.
  *
- * Cards stay lightweight here too: tapping one opens
- * `marketplace/[tourId]`, which fetches the full `GET /products/:id`.
+ * Cards stay lightweight here too: tapping one opens Discover's own
+ * `discover/[productId]`, which fetches the full `GET /products/:id`.
  */
 export default function AllProductsScreen({ section, title }: AllProductsScreenProps) {
     const {
@@ -43,7 +43,10 @@ export default function AllProductsScreen({ section, title }: AllProductsScreenP
     const items = data?.pages.flatMap((page) => page.data) ?? [];
     const total = data?.pages[0]?.meta.total ?? 0;
 
-    const openProduct = (item: DiscoverProductItem) => router.push(`/marketplace/${item.id}`);
+    // Stays inside the Discover tab — see the route's own comment for why the
+    // detail screen is mounted in both stacks.
+    const openProduct = (item: DiscoverProductItem) =>
+        router.push({ pathname: '/discover/[productId]', params: { productId: item.id } });
 
     return (
         <SafeAreaView

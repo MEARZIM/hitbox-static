@@ -64,8 +64,10 @@ export default function DiscoverScreen() {
     };
 
     const handleProductPress = (item: DiscoverProductItem) => {
-        // Cards are lightweight — the detail screen fetches GET /products/:id
-        router.push(`/marketplace/${item.id}`);
+        // Cards are lightweight — the detail screen fetches GET /products/:id.
+        // Opens Discover's own copy of the detail route: pushing the
+        // marketplace one would switch the active tab to Marketplace.
+        router.push({ pathname: '/discover/[productId]', params: { productId: item.id } });
     };
 
     /**
