@@ -34,7 +34,7 @@ const categories: Category[] = [
   },
   {
     id: "newReleases",
-    title: "New Releases",
+    title: "Latest Releases",
     icon: Star,
   },
   {
