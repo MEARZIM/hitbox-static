@@ -112,7 +112,6 @@
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|nativewind|react-native-css-interop|moti|@clerk/.*|lucide-react-native))"
     ],
     "collectCoverageFrom": [
-      "src/features/profile/**/*.{ts,tsx}",
       "src/features/marketplace/**/*.{ts,tsx}",
       "src/features/collections/**/*.{ts,tsx}",
       "src/features/discover/**/*.{ts,tsx}",

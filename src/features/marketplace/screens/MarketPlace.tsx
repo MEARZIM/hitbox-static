@@ -18,7 +18,6 @@ import { useMarketplaceFeed } from '../api/getMarketplaceFeed';
 import CategorySection, { CategoryTabId } from '../components/CategorySection';
 import ListingsResultsSection from '../components/ListingsResultsSection';
 import ListingsSection from '../components/ListingsSection';
-import PromoBannerSection from '../components/PromoBannerSection';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { MarketplaceSort } from '../types/marketplace';
 
@@ -95,7 +94,7 @@ const MarketPlaceScreen = () => {
                 />
 
                 {/* --- PROMO BANNER --- */}
-                <PromoBannerSection />
+                {/* <PromoBannerSection /> */}
 
                 {/* --- CATEGORY TABS --- */}
                 <CategorySection
