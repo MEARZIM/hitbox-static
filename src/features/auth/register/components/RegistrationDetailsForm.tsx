@@ -472,7 +472,15 @@ export default function RegistrationDetailsForm() {
                 />
                 <View className="flex-1">
                     <Text id="privacy-label" className="text-gray-300 text-sm leading-5">
-                        I accept the <Text className="text-purple-400 font-medium">Privacy Policy</Text>
+                        I accept the{' '}
+                        {/* Read-only detour: the checkbox above stays the acceptance control. */}
+                        <Text
+                            accessibilityRole="link"
+                            onPress={() => router.push('/privacy-policy')}
+                            className="text-purple-400 font-medium underline"
+                        >
+                            Privacy Policy
+                        </Text>
                     </Text>
                     {errors.acceptPrivacyPolicy && (
                         <Text className="text-red-400 text-xs mt-1">{errors.acceptPrivacyPolicy.message}</Text>
