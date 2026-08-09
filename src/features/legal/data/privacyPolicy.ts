@@ -7,27 +7,16 @@
  * query hook.
  */
 
-export type PolicyBlock =
-    | { kind: 'subheading'; text: string }
-    | { kind: 'paragraph'; text: string }
-    /** A labelled line in the contact block; `href` makes it tappable. */
-    | { kind: 'contact'; label: string; value: string; href?: string }
+import type { LegalDocumentMeta, LegalSection } from '../types/legal'
 
-export type PolicySection = {
-    /** Section number as printed in the source document. */
-    number: string
-    title: string
-    blocks: PolicyBlock[]
-}
-
-export const PRIVACY_POLICY_META = {
+export const PRIVACY_POLICY_META: LegalDocumentMeta = {
     company: 'HitBox Collectibles LLC',
     title: 'Privacy Policy',
     effectiveDate: 'July 29, 2026',
     lastUpdated: 'July 29, 2026',
-} as const
+}
 
-export const PRIVACY_POLICY_SECTIONS: PolicySection[] = [
+export const PRIVACY_POLICY_SECTIONS: LegalSection[] = [
     {
         number: '1',
         title: 'Introduction',

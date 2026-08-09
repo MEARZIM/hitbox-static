@@ -19,7 +19,8 @@ const HIDDEN_ON = [
     '/register',
     '/forget-password',
     '/sso-callback',
-    '/privacy-policy',  // long read reached mid-sign-up — the button just covers text
+    '/privacy-policy',  // long reads reached mid-sign-up — the button just covers text
+    '/terms-of-use',
 ];
 
 /**

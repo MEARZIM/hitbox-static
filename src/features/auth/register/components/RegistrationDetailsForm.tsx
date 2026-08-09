@@ -444,7 +444,15 @@ export default function RegistrationDetailsForm() {
                 />
                 <View className="flex-1">
                     <Text id="terms-label" className="text-gray-300 text-sm leading-5">
-                        I agree to the <Text className="text-purple-400 font-medium">Terms and Conditions</Text>
+                        I agree to the{' '}
+                        {/* Read-only detour: the checkbox above stays the acceptance control. */}
+                        <Text
+                            accessibilityRole="link"
+                            onPress={() => router.push('/terms-of-use')}
+                            className="text-purple-400 font-medium underline"
+                        >
+                            Terms and Conditions
+                        </Text>
                     </Text>
                     {errors.acceptTermsAndConditions && (
                         <Text className="text-red-400 text-xs mt-1">{errors.acceptTermsAndConditions.message}</Text>
