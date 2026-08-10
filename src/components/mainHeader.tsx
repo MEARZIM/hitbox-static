@@ -2,7 +2,7 @@ import { useNotifications } from "@/features/notifications/hooks/useNotification
 import { cn } from "@/lib/utils";
 import { useAuth } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
-import { Bell, Settings, UserPlus } from "lucide-react-native";
+import { Bell, HandHelping, Settings, UserPlus } from "lucide-react-native";
 import React from "react";
 import {
   Image,
@@ -20,6 +20,8 @@ interface MainHeaderProps {
   /** Overrides the default push to `/notifications`. */
   onNotificationPress?: () => void;
   onSettingsPress?: () => void;
+  /** Overrides the default push to `/support`. */
+  onSupportPress?: () => void;
   /** Overrides the default push to `/(auth)/register` on the signed-out button. */
   onSignUpPress?: () => void;
   className?: string;
@@ -33,6 +35,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({
   notificationCount,
   onNotificationPress,
   onSettingsPress,
+  onSupportPress,
   onSignUpPress,
   className,
   variant = "default",
@@ -58,6 +61,14 @@ const MainHeader: React.FC<MainHeaderProps> = ({
       onSettingsPress();
     } else {
       router.push("/settings");
+    }
+  };
+
+  const handleSupportPress = () => {
+    if (onSupportPress) {
+      onSupportPress();
+    } else {
+      router.push("/support");
     }
   };
 
@@ -116,6 +127,27 @@ const MainHeader: React.FC<MainHeaderProps> = ({
         )}
 
         <View className="flex-row items-center">
+
+          {/* Support — first in the cluster so Settings / Sign Up keeps the
+              far-right slot users already reach for. Available signed out too:
+              someone who can't get into their account is exactly who needs it. */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Support and contact us"
+            onPress={handleSupportPress}
+            style={{
+              width: buttonSize,
+              height: buttonSize,
+              borderRadius: buttonSize / 2,
+              backgroundColor: "#18181B",
+              justifyContent: "center",
+              alignItems: "center",
+              marginRight: 12,
+            }}
+          >
+            <HandHelping size={iconSize} color="white" strokeWidth={2} />
+          </TouchableOpacity>
 
           {/* Notifications */}
           <TouchableOpacity
