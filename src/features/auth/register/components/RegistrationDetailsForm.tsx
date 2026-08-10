@@ -24,6 +24,29 @@ export default function RegistrationDetailsForm() {
     const [apiError, setApiError] = useState<string | null>(null)
     const [showPassword, setShowPassword] = useState(false)
 
+    // Ticking a box is not evidence the document was read, so opening each one is
+    // its own precondition for submitting. Both screens are pushed on top of this
+    // form rather than replacing it, so the form stays mounted and these survive
+    // the detour.
+    const [termsOpened, setTermsOpened] = useState(false)
+    const [privacyOpened, setPrivacyOpened] = useState(false)
+
+    const openTerms = () => {
+        setTermsOpened(true)
+        router.push('/terms-of-use')
+    }
+
+    const openPrivacy = () => {
+        setPrivacyOpened(true)
+        router.push('/privacy-policy')
+    }
+
+    /** Documents the user still has to open — drives the hint and the gate. */
+    const unopenedDocuments = [
+        !termsOpened && 'Terms and Conditions',
+        !privacyOpened && 'Privacy Policy',
+    ].filter(Boolean) as string[]
+
     const {
         control,
         handleSubmit,
@@ -448,7 +471,7 @@ export default function RegistrationDetailsForm() {
                         {/* Read-only detour: the checkbox above stays the acceptance control. */}
                         <Text
                             accessibilityRole="link"
-                            onPress={() => router.push('/terms-of-use')}
+                            onPress={openTerms}
                             className="text-purple-400 font-medium underline"
                         >
                             Terms and Conditions
@@ -484,7 +507,7 @@ export default function RegistrationDetailsForm() {
                         {/* Read-only detour: the checkbox above stays the acceptance control. */}
                         <Text
                             accessibilityRole="link"
-                            onPress={() => router.push('/privacy-policy')}
+                            onPress={openPrivacy}
                             className="text-purple-400 font-medium underline"
                         >
                             Privacy Policy
@@ -501,11 +524,19 @@ export default function RegistrationDetailsForm() {
                 <Text className="text-red-400 text-sm mb-3 text-center">{apiError}</Text>
             )}
 
+            {/* Says which document is still unopened — a disabled button with no
+                explanation reads as a broken form. */}
+            {unopenedDocuments.length > 0 && (
+                <Text className="text-amber-400 text-xs mb-3 text-center">
+                    Open the {unopenedDocuments.join(' and ')} above to continue.
+                </Text>
+            )}
+
             {/* Submit Button */}
             <TouchableOpacity
                 onPress={handleSubmit(onSubmit)}
-                disabled={isSubmitting}
-                className={`p-4 rounded-xl items-center justify-center mt-2 ${isSubmitting ? 'bg-primary' : 'bg-primary-80'}`}
+                disabled={isSubmitting || unopenedDocuments.length > 0}
+                className={`p-4 rounded-xl items-center justify-center mt-2 ${isSubmitting ? 'bg-primary' : 'bg-primary-80'} ${unopenedDocuments.length > 0 ? 'opacity-40' : ''}`}
             >
                 <Text className="text-white font-semibold text-lg">
                     {isSubmitting ? 'Creating account...' : 'Submit'}
