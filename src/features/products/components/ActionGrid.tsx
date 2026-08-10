@@ -44,7 +44,9 @@ interface ActionGridProps {
 
 export default function ActionGrid({ onShare }: ActionGridProps) {
   return (
-    <View className="mt-6">
+    // No top margin: the parent owns the gap to the section above, so adding one
+    // here doubled it.
+    <View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

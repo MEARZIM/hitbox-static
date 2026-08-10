@@ -10,6 +10,8 @@ import {
 import React from "react";
 import { Text, View } from "react-native";
 
+import { PRODUCT_HERO_HEIGHT } from "./TourCard";
+
 const PURPLE = "#a855f7";
 
 interface InfoRowProps {
@@ -84,7 +86,9 @@ export default function TourHeaderDetails({
   rewardPoints,
 }: TourHeaderDetailsProps) {
   return (
-    <View className="ml-5 flex-1 justify-between h-[288px] pt-0 pb-1">
+    // Matches the image exactly, so `justify-between` spreads the two blocks
+    // across the same height the hero row already has.
+    <View className="ml-5 flex-1 justify-between pt-0 pb-1" style={{ height: PRODUCT_HERO_HEIGHT }}>
       {/* Top Details Block */}
       <View className="gap-y-1">
         {/* Verification Badge */}
@@ -120,7 +124,7 @@ export default function TourHeaderDetails({
       </View>
 
       {/* Bottom Specs Block */}
-      <View className="border-t border-white/5 py-4 gap-y-1">
+      <View className="border-t border-white/5 py-3 gap-y-1">
         <InfoRow
           icon={<Tag size={14} color={PURPLE} />}
           title="Item Type"

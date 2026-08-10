@@ -117,12 +117,14 @@ export default function TourScreen({ tourId }: TourScreenProps) {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingTop: 64, // keeps content clear of the absolute nav header
-              paddingBottom: 60
+              // The tab bar already reserves its own space below; this is just
+              // breathing room under the last tile.
+              paddingBottom: 40,
             }}
             className="flex-1"
           >
             {/* Main Header Split Section */}
-            <View className="flex-row px-5 pt-4 pb-4 items-stretch justify-between bg-[#08060b]">
+            <View className="flex-row px-5 pt-2 pb-4 items-stretch justify-between bg-[#08060b]">
               <TourCard
                 image={product.images[0]?.url ?? PRODUCT_PLACEHOLDER_IMAGE}
               />
@@ -147,7 +149,9 @@ export default function TourScreen({ tourId }: TourScreenProps) {
             <TabSection
               tourId={tourId}
               renderActiveContent={() => (
-                <View className="gap-y-6">
+                // Single source of the gap between About and the action tiles —
+                // ActionGrid used to add its own mt-6 on top of this.
+                <View className="gap-y-5">
                   {/* About and stats section */}
                   <AboutSection
                     aboutText={product.description ?? 'No description available for this item yet.'}
