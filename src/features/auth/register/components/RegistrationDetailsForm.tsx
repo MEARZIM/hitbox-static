@@ -43,7 +43,7 @@ export default function RegistrationDetailsForm() {
 
     /** Documents the user still has to open — drives the hint and the gate. */
     const unopenedDocuments = [
-        !termsOpened && 'Terms and Conditions',
+        !termsOpened && 'Terms of Use',
         !privacyOpened && 'Privacy Policy',
     ].filter(Boolean) as string[]
 
@@ -447,7 +447,7 @@ export default function RegistrationDetailsForm() {
                 {errors.phoneNumber && <Text className="text-red-400 text-sm mt-1">{errors.phoneNumber.message}</Text>}
             </View>
 
-            {/* --- Terms & Conditions Checkbox --- */}
+            {/* --- Terms of Use Checkbox --- */}
             <MotiView
                 animate={{ scale: errors.acceptTermsAndConditions ? [1, 1.02, 1] : 1 }}
                 transition={{ type: 'timing', duration: 250 }}
@@ -474,7 +474,7 @@ export default function RegistrationDetailsForm() {
                             onPress={openTerms}
                             className="text-purple-400 font-medium underline"
                         >
-                            Terms and Conditions
+                            Terms of Use
                         </Text>
                     </Text>
                     {errors.acceptTermsAndConditions && (
