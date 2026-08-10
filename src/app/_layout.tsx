@@ -6,7 +6,6 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { PortalHost } from '@rn-primitives/portal';
-import ScanFab from '@/components/ScanFab';
 import '../global.css';
 
 const queryClient = new QueryClient({
@@ -77,8 +76,9 @@ export default function RootLayout() {
       >
         <QueryClientProvider client={queryClient}>
           <RootNavigator />
-          {/* Floats over every screen; before PortalHost so dialogs sit above it. */}
-          <ScanFab />
+          {/* Scanning is reached from the Scan tab now, so there is no floating
+              button here — one hovering over its own tab button read as a
+              duplicate. `src/components/ScanFab.tsx` is kept but unused. */}
           <PortalHost />
         </QueryClientProvider>
       </ClerkProvider>

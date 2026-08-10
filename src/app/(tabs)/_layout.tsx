@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { router, Tabs, usePathname } from "expo-router";
-import { Box, Compass, Handbag, User } from "lucide-react-native";
+import { Box, Compass, Handbag, ScanLine, User } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -142,6 +142,19 @@ export default function TabLayout() {
               popToTopOnBlur: true,
               tabBarIcon: ({ color, size }) => (
                 <Box color={color} size={size} />
+              ),
+            }}
+          />
+
+          {/* Centre of the five buttons — the app's primary action. Not gated:
+              verifying a tag is public, and the claim screen asks for sign-in
+              itself, at claim time. */}
+          <Tabs.Screen
+            name="scan"
+            options={{
+              title: "Scan",
+              tabBarIcon: ({ color, size }) => (
+                <ScanLine color={color} size={size} />
               ),
             }}
           />
