@@ -8,12 +8,13 @@ import {
     Shirt,
     ToyBrick,
 } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import MainHeader from '@/components/mainHeader';
 import MainSearchBar from '@/components/mainsearch';
+import { useTabScrollReset } from '@/hooks/use-tab-scroll-reset';
 import { useMarketplaceFeed } from '../api/getMarketplaceFeed';
 import CategorySection, { CategoryTabId } from '../components/CategorySection';
 import ListingsResultsSection from '../components/ListingsResultsSection';
@@ -44,6 +45,11 @@ const MarketPlaceScreen = () => {
 
     const { data: feed, isLoading, isError, refetch, isRefetching } = useMarketplaceFeed();
 
+    const scrollRef = useRef<ScrollView>(null);
+    // Reopen the tab at the top. Category and search are left as the user set
+    // them — those are a deliberate query, not a scroll position.
+    useTabScrollReset(scrollRef);
+
     /**
      * "See All" → the paginated view of that section
      * (`GET /api/v1/marketplace/listings`). The category tab is forwarded so the
@@ -68,6 +74,7 @@ const MarketPlaceScreen = () => {
             className="flex-1 bg-background"
         >
             <ScrollView
+                ref={scrollRef}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
                     paddingBottom: 24,

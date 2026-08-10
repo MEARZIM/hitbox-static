@@ -1,5 +1,5 @@
 import { Clock, Music, Tag } from "lucide-react-native";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import MainHeader from "@/components/mainHeader";
+import { useTabScrollReset } from "@/hooks/use-tab-scroll-reset";
 import { useCollectionStats } from "../api/getCollectionStats";
 import { useMyCollection } from "../api/getMyCollection";
 import CategoriesSection from "../components/CategoriesSection";
@@ -47,6 +48,12 @@ export default function CollectionScreen() {
 
   const progress = stats.data?.collectionProgress.percentage ?? 0;
 
+  const scrollRef = useRef<ScrollView>(null);
+  // Reopen the tab on the shelf itself, not wherever the user left it. The
+  // filter menu closes with it — a dropdown hanging open across a tab switch
+  // reads as a glitch.
+  useTabScrollReset(scrollRef, () => setIsFilterOpen(false));
+
   return (
     <SafeAreaView
       // No bottom edge: the tab bar already reserves the safe area below.
@@ -54,6 +61,7 @@ export default function CollectionScreen() {
       className="flex-1 bg-background"
     >
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

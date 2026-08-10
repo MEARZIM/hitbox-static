@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import MainHeader from "@/components/mainHeader";
 import MainSearchBar from "@/components/mainsearch";
+import { useTabScrollReset } from "@/hooks/use-tab-scroll-reset";
 import { useDiscoverFeed } from "../api/getDiscoverFeed";
 import CategoriesSection, { DiscoverCategoryId } from "../components/CategoriesSection";
 import ComingSoonRow from "../components/ComingSoonRow";
@@ -50,6 +51,10 @@ export default function DiscoverScreen() {
      * replaced by a placeholder.
      */
     const sectionY = useRef<Partial<Record<DiscoverCategoryId, number>>>({});
+
+    // Reopen the tab at the top. The chip highlight resets with it, otherwise
+    // the user lands on "Trending" with "Top Creators" still lit up.
+    useTabScrollReset(scrollRef, () => setActiveCategory("trending"));
 
     const registerSection = (id: DiscoverCategoryId) => (event: LayoutChangeEvent) => {
         sectionY.current[id] = event.nativeEvent.layout.y;

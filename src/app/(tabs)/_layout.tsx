@@ -124,6 +124,8 @@ export default function TabLayout() {
             listeners={tabListeners("discover")}
             options={{
               title: "Discover",
+              // Same as Marketplace below: don't reopen on see-all or a product.
+              popToTopOnBlur: true,
               tabBarIcon: ({ color, size }) => (
                 <Compass color={color} size={size} />
               ),
@@ -136,6 +138,8 @@ export default function TabLayout() {
             listeners={tabListeners("collections")}
             options={{
               title: "My Collections",
+              // Same as Marketplace below: don't reopen on view-collection.
+              popToTopOnBlur: true,
               tabBarIcon: ({ color, size }) => (
                 <Box color={color} size={size} />
               ),
@@ -147,6 +151,11 @@ export default function TabLayout() {
             listeners={tabListeners("marketplace")}
             options={{
               title: "Marketplace",
+              // Pop the nested stack when the tab loses focus, so returning to
+              // Marketplace opens the listings rather than the product detail
+              // the user left open. The tabPress handler above only covers a
+              // press made while already inside this tab.
+              popToTopOnBlur: true,
               tabBarIcon: ({ color, size }) => (
                 <Handbag color={color} size={size} />
               ),
