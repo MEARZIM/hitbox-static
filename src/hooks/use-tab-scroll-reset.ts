@@ -1,39 +1,44 @@
-import { useFocusEffect } from 'expo-router';
-import { useCallback, type RefObject } from 'react';
+import { useIsFocused } from 'expo-router';
+import { useEffect, useRef, type RefObject } from 'react';
 import type { ScrollView } from 'react-native';
 
 /**
- * Sends a tab's scroll position back to the top whenever the tab regains focus.
+ * Returns a tab to its opening state whenever it regains focus: scrolled to the
+ * top, plus whatever `onReset` clears.
  *
- * Tab screens stay mounted, so React Navigation hands the ScrollView back with
- * the offset the user left behind and the tab appears to reopen mid-list. The
- * reset runs twice, deliberately:
+ * Tab screens stay mounted, so React Navigation hands them back exactly as the
+ * user left them — scrolled down, with a chip selected or a menu open.
  *
- *  - on the way **in**, deferred one frame — a scroll dispatched while the tab
- *    is still transitioning gets swallowed (Android especially);
- *  - on the way **out**, where the screen is already off-screen, so the jump
- *    cannot be seen and the offset is back at 0 before focus timing can matter.
+ * Driven by `useIsFocused()` rather than `useFocusEffect()` on purpose. These
+ * screens live in a Stack nested inside the Tabs navigator, and `useFocusEffect`
+ * binds to the *nearest* navigator — the inner stack, whose own focus never
+ * changes when you switch tabs. `useIsFocused` folds in every ancestor's focus
+ * state, so it flips on a tab change the way this needs.
  *
- * `onReset` covers transient UI that shouldn't survive a tab switch either —
- * an open filter menu, a stale section highlight. Keep it to state setters;
- * it is intentionally not a dependency, so the effect runs once per focus.
+ * `onReset` is read through a ref so the effect depends only on focus. Callers
+ * can pass an inline arrow without it re-running on every render, and it is
+ * never stale.
  */
 export function useTabScrollReset(
     ref: RefObject<ScrollView | null>,
     onReset?: () => void,
 ) {
-    useFocusEffect(
-        useCallback(() => {
-            const frame = requestAnimationFrame(() => {
-                ref.current?.scrollTo({ y: 0, animated: false });
-            });
-            onReset?.();
+    const isFocused = useIsFocused();
 
-            return () => {
-                cancelAnimationFrame(frame);
-                ref.current?.scrollTo({ y: 0, animated: false });
-            };
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-        }, []),
-    );
+    const onResetRef = useRef(onReset);
+    onResetRef.current = onReset;
+
+    useEffect(() => {
+        if (!isFocused) return;
+
+        onResetRef.current?.();
+
+        // Deferred a frame: a scroll dispatched while the tab is still
+        // transitioning gets swallowed, Android especially.
+        const frame = requestAnimationFrame(() => {
+            ref.current?.scrollTo({ y: 0, animated: false });
+        });
+
+        return () => cancelAnimationFrame(frame);
+    }, [isFocused, ref]);
 }

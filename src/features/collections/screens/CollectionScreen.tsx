@@ -14,7 +14,7 @@ import MainHeader from "@/components/mainHeader";
 import { useTabScrollReset } from "@/hooks/use-tab-scroll-reset";
 import { useCollectionStats } from "../api/getCollectionStats";
 import { useMyCollection } from "../api/getMyCollection";
-import CategoriesSection from "../components/CategoriesSection";
+import CategoriesSection, { DEFAULT_COLLECTION_CATEGORY } from "../components/CategoriesSection";
 import CollectionGrid from "../components/CollectionGrid";
 import CollectionProgress from "../components/CollectionProgress";
 import FilterHeader from "../components/FilterHeader";
@@ -30,6 +30,7 @@ const FILTER_OPTIONS = [
 export default function CollectionScreen() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Latest");
+  const [activeCategory, setActiveCategory] = useState(DEFAULT_COLLECTION_CATEGORY);
 
   const stats = useCollectionStats();
   const {
@@ -49,10 +50,14 @@ export default function CollectionScreen() {
   const progress = stats.data?.collectionProgress.percentage ?? 0;
 
   const scrollRef = useRef<ScrollView>(null);
-  // Reopen the tab on the shelf itself, not wherever the user left it. The
-  // filter menu closes with it — a dropdown hanging open across a tab switch
-  // reads as a glitch.
-  useTabScrollReset(scrollRef, () => setIsFilterOpen(false));
+  // Reopen the tab on the shelf itself, not wherever the user left it: scrolled
+  // back to the top, category chip back on "All", and the filter menu closed —
+  // a selected chip or an open dropdown carried across a tab switch both read
+  // as the screen having been left mid-interaction.
+  useTabScrollReset(scrollRef, () => {
+    setIsFilterOpen(false);
+    setActiveCategory(DEFAULT_COLLECTION_CATEGORY);
+  });
 
   return (
     <SafeAreaView
@@ -92,7 +97,10 @@ export default function CollectionScreen() {
 
         {/* Categories */}
         <View className="mx-4 mt-6">
-          <CategoriesSection />
+          <CategoriesSection
+            selectedId={activeCategory}
+            onSelect={setActiveCategory}
+          />
         </View>
 
         {/* My Collections */}

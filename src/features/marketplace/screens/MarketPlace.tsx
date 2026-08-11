@@ -46,9 +46,15 @@ const MarketPlaceScreen = () => {
     const { data: feed, isLoading, isError, refetch, isRefetching } = useMarketplaceFeed();
 
     const scrollRef = useRef<ScrollView>(null);
-    // Reopen the tab at the top. Category and search are left as the user set
-    // them — those are a deliberate query, not a scroll position.
-    useTabScrollReset(scrollRef);
+    // Reopen the tab on the main feed: top of the page, "All Items" selected and
+    // the search box cleared. Both have to go — `isBrowsing` above swaps the
+    // featured/new sections for the paginated results whenever a category or a
+    // search term is set, so leaving either behind means the tab reopens
+    // mid-search rather than on the listings page.
+    useTabScrollReset(scrollRef, () => {
+        setActiveCategory('all');
+        setSearch('');
+    });
 
     /**
      * "See All" → the paginated view of that section
