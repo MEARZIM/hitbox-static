@@ -8,9 +8,9 @@ import type { SupportChannel } from '../types/support'
 
 /**
  * One support channel: icon + heading, the address/number as a tappable link,
- * and a primary action button. Driven by data rather than existing as three
- * near-identical Email/India/US components — the three cards differ only in
- * their content, so one component keeps them guaranteed consistent.
+ * and a primary action button. Driven by data rather than a component per
+ * channel, so adding one back to `SUPPORT_CHANNELS` needs no new UI and can't
+ * drift from the others.
  *
  * Both the value and the button open the same `href`, so the whole card is
  * actionable however the user reaches for it.

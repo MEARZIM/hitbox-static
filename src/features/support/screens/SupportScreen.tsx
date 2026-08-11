@@ -1,12 +1,13 @@
 import { router } from 'expo-router'
-import { ChevronLeft } from 'lucide-react-native'
+import { ChevronLeft, MessagesSquare } from 'lucide-react-native'
+import { MotiView } from 'moti'
 import React from 'react'
 import { Image, ScrollView, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import SupportContactCard from '../components/SupportContactCard'
 import SupportHeader from '../components/SupportHeader'
-import { SUPPORT_CHANNELS, SUPPORT_PLACEHOLDER_NOTICE } from '../data/support'
+import { SUPPORT_CHANNELS } from '../data/support'
 
 /**
  * Support / Contact Us — email plus the two regional phone lines.
@@ -61,14 +62,38 @@ export default function SupportScreen() {
                 >
                     <SupportHeader />
 
-                    {/* The phone lines are dummies — say so before the cards. */}
-                    <View className="mt-4 rounded-xl border border-primary/40 bg-primary-10 px-4 py-3">
-                        <Text className="text-neutral-200 text-xs leading-5 font-medium">
-                            {SUPPORT_PLACEHOLDER_NOTICE}
-                        </Text>
-                    </View>
+                    {/* Chat first: it triages the problem and then opens the right
+                        channel with the conversation attached, so it's a better
+                        starting point than picking a channel cold. */}
+                    <MotiView
+                        from={{ opacity: 0, translateY: 12 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: 'timing', duration: 300 }}
+                        className="mt-4"
+                    >
+                        <TouchableOpacity
+                            accessibilityRole="button"
+                            accessibilityLabel="Open the support chat"
+                            onPress={() => router.push('/support/chat')}
+                            activeOpacity={0.85}
+                            className="flex-row items-center gap-3 rounded-2xl border border-primary/40 bg-primary-10 p-4 active:opacity-80"
+                        >
+                            <View className="w-10 h-10 rounded-full bg-primary items-center justify-center">
+                                <MessagesSquare size={18} color="#ffffff" />
+                            </View>
 
-                    {/* Stacked on phones; one row of three once there's width for it. */}
+                            <View className="flex-1">
+                                <Text className="text-white text-base font-bold">Chat with support</Text>
+                                <Text className="text-neutral-400 text-xs mt-0.5 leading-4">
+                                    Answer a couple of questions and we&apos;ll route you to the right place.
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    </MotiView>
+
+                    {/* Stacked on phones; a row once there's width for more than
+                        one channel. Email is the only one today, so this renders as
+                        a single card either way. */}
                     <View className={isTablet ? 'mt-6 flex-row gap-4' : 'mt-6 gap-4'}>
                         {SUPPORT_CHANNELS.map((channel, index) => (
                             <SupportContactCard
