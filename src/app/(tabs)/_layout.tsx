@@ -1,7 +1,8 @@
 import { useAuth } from "@clerk/clerk-expo";
 import { router, Tabs, usePathname } from "expo-router";
-import { Box, Compass, Handbag, ScanLine, User } from "lucide-react-native";
+import { Box, Compass, Handbag, ScanQrCode, User } from "lucide-react-native";
 import React, { useRef, useState } from "react";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import SignInPopup from "@/components/auth/SignInPopup";
@@ -113,7 +114,10 @@ export default function TabLayout() {
             height: TabBarBaseHeight + insets.bottom,
             paddingBottom: 2,
             paddingTop: 8,
-            backgroundColor: "#000000"
+            backgroundColor: "#000000",
+            // The Scan button is lifted above the bar with a negative margin;
+            // without this Android clips it at the bar's top edge.
+            overflow: "visible",
           },
           tabBarActiveTintColor: "#6C5CE7",
           tabBarInactiveTintColor: "#999",
@@ -153,8 +157,28 @@ export default function TabLayout() {
             name="scan"
             options={{
               title: "Scan",
-              tabBarIcon: ({ color, size }) => (
-                <ScanLine color={color} size={size} />
+              // Scanning is the app's primary action, so it gets a raised,
+              // filled button rather than another flat icon. The negative
+              // marginTop lifts it clear of the bar (which needs
+              // `overflow: visible` above), leaving the label in its normal row
+              // so it lines up with the others. The active/inactive `color` is
+              // ignored on purpose — a fill that changed on focus would read as
+              // a bug rather than a state.
+              tabBarIcon: () => (
+                <View
+                  className="h-14 w-14 rounded-full bg-primary items-center justify-center border-4 border-background"
+                  style={{
+                    marginTop: -22,
+                    // Purple glow, same treatment as the category chips.
+                    shadowColor: "#7C3AED",
+                    shadowOpacity: 0.5,
+                    shadowRadius: 12,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 8,
+                  }}
+                >
+                  <ScanQrCode color="#FFFFFF" size={26} />
+                </View>
               ),
             }}
           />
