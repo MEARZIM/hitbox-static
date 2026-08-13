@@ -1,4 +1,4 @@
-import { Clock, Music, Tag } from "lucide-react-native";
+import { Clock, Music } from "lucide-react-native";
 import React, { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,7 +22,7 @@ import { toCollectionCard } from "../utils/mapCollectionItem";
 
 const FILTER_OPTIONS = [
   { label: "Artist", value: "Artist", icon: Music },
-  { label: "Brand", value: "Brand", icon: Tag },
+  // Brand removed — there is no brand on a collection item to sort by.
   // { label: "Genre", value: "Genre", icon: Compass },
   { label: "Latest", value: "Latest", icon: Clock },
 ];
