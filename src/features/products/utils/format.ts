@@ -1,4 +1,4 @@
-import { ProductCategory, ProductRarity } from '../types/product'
+import { MarketplaceStatus, ProductCategory, ProductRarity } from '../types/product'
 
 /** Shown when a product has no images. */
 export const PRODUCT_PLACEHOLDER_IMAGE =
@@ -36,6 +36,21 @@ export function formatCategory(category: ProductCategory) {
 /** "LEGENDARY" → "Legendary". */
 export function formatRarity(rarity: ProductRarity) {
     return rarity.charAt(0) + rarity.slice(1).toLowerCase()
+}
+
+/**
+ * The card badge for a product's curation status — the same mapping the
+ * marketplace feed applies server-side (`TRENDING_NOW` → HOT,
+ * `NEW_RELEASE` → NEW), so a product carries the same label wherever it appears.
+ *
+ * The detail screen has to derive it rather than receive it: discover and
+ * marketplace cards are handed a badge by their feed, but `GET /products/:id`
+ * returns the raw `marketplaceStatus`.
+ */
+export function formatMarketplaceBadge(status: MarketplaceStatus | null): string | null {
+    if (status === 'NEW_RELEASE') return 'NEW'
+    if (status === 'TRENDING_NOW') return 'HOT'
+    return null
 }
 
 export function formatDate(iso: string | null | undefined) {

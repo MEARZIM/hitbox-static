@@ -1,7 +1,15 @@
 import { router } from "expo-router";
 import { ArrowLeft, MoreHorizontal, SearchX, Share2 } from "lucide-react-native";
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  type AlertButton,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useProduct } from "@/features/products/api/getProduct";
@@ -13,6 +21,7 @@ import TourHeaderDetails from "@/features/products/components/TourHeaderDetails"
 import {
   formatCategory,
   formatDate,
+  formatMarketplaceBadge,
   formatPrice,
   formatRarity,
   formatRewardPoints,
@@ -44,6 +53,35 @@ export default function TourScreen({ tourId }: TourScreenProps) {
   const handleShare = () => {
     if (!product) return;
     void shareProduct(product);
+  };
+
+  /**
+   * Overflow menu. Built from actions that actually exist rather than a menu of
+   * placeholders: verifying goes to the public authenticity check for this
+   * product's own tag, and help goes to the support screen.
+   */
+  const handleMore = () => {
+    if (!product) return;
+
+    const actions: AlertButton[] = [];
+
+    // Only products that carry an NFC tag can be verified.
+    if (product.tagId) {
+      actions.push({
+        text: "Verify authenticity",
+        onPress: () =>
+          router.push({
+            pathname: "/verify/[tagId]",
+            params: { tagId: product.tagId as string },
+          }),
+      });
+    }
+
+    actions.push({ text: "Share item", onPress: handleShare });
+    actions.push({ text: "Get help with this item", onPress: () => router.push("/support") });
+    actions.push({ text: "Cancel", style: "cancel" });
+
+    Alert.alert(product.name, undefined, actions, { cancelable: true });
   };
 
   return (
@@ -80,7 +118,14 @@ export default function TourScreen({ tourId }: TourScreenProps) {
             >
               <Share2 size={16} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full bg-black/40 border border-white/5 active:bg-black/60">
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="More actions for this item"
+              // Nothing to act on until the product has loaded.
+              disabled={!product}
+              onPress={handleMore}
+              className={`h-10 w-10 items-center justify-center rounded-full bg-black/40 border border-white/5 active:bg-black/60 ${product ? '' : 'opacity-40'}`}
+            >
               <MoreHorizontal size={18} color="white" />
             </TouchableOpacity>
           </View>
@@ -127,6 +172,7 @@ export default function TourScreen({ tourId }: TourScreenProps) {
             <View className="flex-row px-5 pt-2 pb-4 items-stretch justify-between bg-[#08060b]">
               <TourCard
                 image={product.images[0]?.url ?? PRODUCT_PLACEHOLDER_IMAGE}
+                badge={formatMarketplaceBadge(product.marketplaceStatus)}
               />
               <TourHeaderDetails
                 title={product.collection?.artist.name ?? product.name}
