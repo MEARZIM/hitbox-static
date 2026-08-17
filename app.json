@@ -43,6 +43,12 @@
           "nfcPermission": "HitBox uses NFC to scan and claim your collectibles."
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "HitBox uses your location once to show prices in your local currency."
+        }
+      ],
       "expo-secure-store"
     ],
     "experiments": {
