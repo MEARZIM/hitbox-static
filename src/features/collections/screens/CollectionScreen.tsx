@@ -68,6 +68,9 @@ export default function CollectionScreen() {
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 110,
+        }}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}

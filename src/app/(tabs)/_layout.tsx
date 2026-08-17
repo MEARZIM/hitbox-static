@@ -1,12 +1,19 @@
 import { useAuth } from "@clerk/clerk-expo";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, Tabs, usePathname } from "expo-router";
 import { Box, Compass, Handbag, ScanQrCode, User } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import { View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import SignInPopup from "@/components/auth/SignInPopup";
-import { TabBarBaseHeight } from "@/constants/theme";
 
 /**
  * Tabs whose screens can't work without a Clerk session. They stay **visible**
@@ -53,170 +60,267 @@ type NestedTab = keyof typeof NESTED_TABS;
 const isGated = (name: string): name is GatedTab => name in GATED_TABS;
 const isNested = (name: string): name is NestedTab => name in NESTED_TABS;
 
-export default function TabLayout() {
-  const { isSignedIn } = useAuth();
-  // Android's gesture/3-button nav bar sits on top of the tab bar otherwise:
-  // a fixed `height` + `paddingBottom` overrides the inset handling that
-  // React Navigation would normally apply for us.
+const TAB_ITEMS = [
+  { key: "discover", label: "Discover", Icon: Compass },
+  { key: "collections", label: "My Collections", Icon: Box },
+  { key: "scan", label: "Scan", Icon: ScanQrCode },
+  { key: "marketplace", label: "Marketplace", Icon: Handbag },
+  { key: "profile", label: "Profile", Icon: User },
+] as const;
+
+type TabKey = (typeof TAB_ITEMS)[number]["key"];
+
+type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>["tabBar"]>>[0];
+
+interface LiquidGlassTabBarProps extends TabBarProps {
+  onGatedTabPress: (name: GatedTab) => void;
+}
+
+function LiquidGlassTabBar({
+  state,
+  descriptors,
+  navigation,
+  onGatedTabPress,
+}: LiquidGlassTabBarProps) {
   const insets = useSafeAreaInsets();
-
-  const [gatedTab, setGatedTab] = useState<GatedTab | null>(null);
-  // The popup closes itself before calling onSignedIn, so the target is read
-  // from a ref rather than from state that is already being cleared.
-  const targetRef = useRef<GatedTab | null>(null);
-
-  // Read through a ref inside the listener: React Navigation may keep the
-  // handler it was given on mount, and a captured `pathname` would then be
-  // frozen at whatever route was open back then.
+  const { isSignedIn } = useAuth();
   const pathname = usePathname();
   const pathnameRef = useRef(pathname);
   pathnameRef.current = pathname;
 
-  /**
-   * One handler for both things a tab press has to cope with:
-   *   1. a gated tab pressed while signed out asks for sign-in instead;
-   *   2. a tab pressed while one of its nested screens is open returns to that
-   *      tab's root screen rather than doing nothing.
-   */
-  const tabListeners = (name: string) => ({
-    tabPress: (e: { preventDefault: () => void }) => {
-      if (isGated(name) && !isSignedIn) {
-        e.preventDefault();
-        targetRef.current = name;
-        setGatedTab(name);
-        return;
-      }
+  const currentRouteName = state.routes[state.index]?.name ?? "";
+  const bottomInset = Math.max(insets.bottom, 10);
 
-      if (!isNested(name)) return;
+  return (
+    <View
+      pointerEvents="box-none"
+      style={[
+        styles.tabBarWrapper,
+        {
+          bottom: bottomInset,
+        },
+      ]}
+    >
+      {/* Liquid Glass Pill Container */}
+      <View style={styles.glassContainer}>
+        <BlurView
+          intensity={Platform.OS === "ios" ? 75 : 95}
+          tint="dark"
+          style={[
+            StyleSheet.absoluteFill,
+            { borderRadius: 40, overflow: "hidden" },
+          ]}
+        />
+        {/* Specular glass highlight gradient overlay */}
+        <LinearGradient
+          colors={[
+            "rgba(255, 255, 255, 0.12)",
+            "rgba(255, 255, 255, 0.02)",
+            "rgba(0, 0, 0, 0.35)",
+          ]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={[StyleSheet.absoluteFill, { borderRadius: 40 }]}
+        />
 
-      const { pathname: tabPath, root } = NESTED_TABS[name];
-      // Only when we're *inside* this tab and deeper than its root — a press
-      // from another tab keeps the standard "resume where I was" behaviour.
-      if (pathnameRef.current.startsWith(`${tabPath}/`)) {
-        e.preventDefault();
-        // dismissTo targets the nested stack by href, so it can't accidentally
-        // pop the root stack the way an untargeted dismissAll could.
-        router.dismissTo(root);
-      }
-    },
-  });
+        <View style={styles.tabButtonsRow}>
+          {TAB_ITEMS.map((tab) => {
+            const route = state.routes.find(
+              (r) =>
+                r.name === tab.key ||
+                r.name === `${tab.key}/index` ||
+                r.name.startsWith(tab.key)
+            );
+            const routeKey = route?.key ?? tab.key;
+            const routeTargetName = route?.name ?? tab.key;
+
+            const isFocused =
+              currentRouteName === tab.key ||
+              currentRouteName === `${tab.key}/index` ||
+              currentRouteName.startsWith(tab.key);
+
+            const { label, Icon } = tab;
+            const isScan = tab.key === "scan";
+
+            const onPress = () => {
+              if (isGated(tab.key) && !isSignedIn) {
+                onGatedTabPress(tab.key);
+                return;
+              }
+
+              if (isNested(tab.key)) {
+                const { pathname: tabPath, root } = NESTED_TABS[tab.key];
+                if (pathnameRef.current.startsWith(`${tabPath}/`)) {
+                  router.dismissTo(root);
+                  return;
+                }
+              }
+
+              if (route) {
+                const event = navigation.emit({
+                  type: "tabPress",
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+
+                if (!isFocused && !event.defaultPrevented) {
+                  navigation.navigate(routeTargetName);
+                }
+              } else {
+                navigation.navigate(tab.key as any);
+              }
+            };
+
+            const onLongPress = () => {
+              if (route) {
+                navigation.emit({
+                  type: "tabLongPress",
+                  target: route.key,
+                });
+              }
+            };
+
+            if (isScan) {
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  accessibilityRole="button"
+                  accessibilityState={isFocused ? { selected: true } : {}}
+                  accessibilityLabel="Scan NFC Tag"
+                  activeOpacity={0.85}
+                  onPress={onPress}
+                  onLongPress={onLongPress}
+                  style={styles.scanTabButton}
+                >
+                  {/* Elevated glowing scan action button */}
+                  <View style={styles.scanGlowWrapper}>
+                    <LinearGradient
+                      colors={["#A855F7", "#7C3AED", "#6D28D9"]}
+                      start={{ x: 0.2, y: 0 }}
+                      end={{ x: 0.8, y: 1 }}
+                      style={styles.scanGradientCircle}
+                    >
+                      <ScanQrCode color="#FFFFFF" size={24} strokeWidth={2.2} />
+                    </LinearGradient>
+                  </View>
+                  <Text style={styles.scanLabel}>Scan</Text>
+                </TouchableOpacity>
+              );
+            }
+
+            const activeColor = "#A855F7";
+            const inactiveColor = "#9CA3AF";
+            const iconColor = isFocused ? activeColor : "#E4E4E7";
+
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                accessibilityRole="button"
+                accessibilityState={isFocused ? { selected: true } : {}}
+                accessibilityLabel={label}
+                activeOpacity={0.7}
+                onPress={onPress}
+                onLongPress={onLongPress}
+                style={styles.tabButton}
+              >
+                <View
+                  style={[
+                    styles.iconContainer,
+                    isFocused && styles.iconContainerActive,
+                  ]}
+                >
+                  <Icon
+                    color={iconColor}
+                    size={24}
+                    strokeWidth={isFocused ? 2.2 : 1.8}
+                  />
+                </View>
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.tabLabel,
+                    {
+                      color: isFocused ? activeColor : inactiveColor,
+                      fontWeight: isFocused ? "700" : "500",
+                    },
+                  ]}
+                >
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+export default function TabLayout() {
+  const [gatedTab, setGatedTab] = useState<GatedTab | null>(null);
+  const targetRef = useRef<GatedTab | null>(null);
+
+  const handleGatedTabPress = (name: GatedTab) => {
+    targetRef.current = name;
+    setGatedTab(name);
+  };
 
   return (
     <>
       <Tabs
-        // Pushed screens now live inside this navigator, so back from one has to
-        // return to the tab it was opened from. The default ("firstRoute") would
-        // send every back press to Discover instead.
         backBehavior="history"
+        tabBar={(props: any) => (
+          <LiquidGlassTabBar
+            {...props}
+            onGatedTabPress={handleGatedTabPress}
+          />
+        )}
         screenOptions={{
           headerShown: false,
-          tabBarStyle: {
-            height: TabBarBaseHeight + insets.bottom,
-            paddingBottom: 2,
-            paddingTop: 8,
-            backgroundColor: "#000000",
-            // The Scan button is lifted above the bar with a negative margin;
-            // without this Android clips it at the bar's top edge.
-            overflow: "visible",
-          },
-          tabBarActiveTintColor: "#6C5CE7",
-          tabBarInactiveTintColor: "#999",
         }}
       >
-          <Tabs.Screen
-            name="discover"
-            listeners={tabListeners("discover")}
-            options={{
-              title: "Discover",
-              // Same as Marketplace below: don't reopen on see-all or a product.
-              popToTopOnBlur: true,
-              tabBarIcon: ({ color, size }) => (
-                <Compass color={color} size={size} />
-              ),
-            }}
-          />
+        <Tabs.Screen
+          name="discover"
+          options={{
+            title: "Discover",
+            popToTopOnBlur: true,
+          }}
+        />
 
-          {/* Private, but still listed when signed out — see GATED_TABS */}
-          <Tabs.Screen
-            name="collections"
-            listeners={tabListeners("collections")}
-            options={{
-              title: "My Collections",
-              // Same as Marketplace below: don't reopen on view-collection.
-              popToTopOnBlur: true,
-              tabBarIcon: ({ color, size }) => (
-                <Box color={color} size={size} />
-              ),
-            }}
-          />
+        <Tabs.Screen
+          name="collections"
+          options={{
+            title: "My Collections",
+            popToTopOnBlur: true,
+          }}
+        />
 
-          {/* Centre of the five buttons — the app's primary action. Not gated:
-              verifying a tag is public, and the claim screen asks for sign-in
-              itself, at claim time. */}
-          <Tabs.Screen
-            name="scan"
-            options={{
-              title: "Scan",
-              // Scanning is the app's primary action, so it gets a raised,
-              // filled button rather than another flat icon. The negative
-              // marginTop lifts it clear of the bar (which needs
-              // `overflow: visible` above), leaving the label in its normal row
-              // so it lines up with the others. The active/inactive `color` is
-              // ignored on purpose — a fill that changed on focus would read as
-              // a bug rather than a state.
-              tabBarIcon: () => (
-                <View
-                  className="h-14 w-14 rounded-full bg-primary items-center justify-center border-4 border-background"
-                  style={{
-                    marginTop: -22,
-                    // Purple glow, same treatment as the category chips.
-                    shadowColor: "#7C3AED",
-                    shadowOpacity: 0.5,
-                    shadowRadius: 12,
-                    shadowOffset: { width: 0, height: 4 },
-                    elevation: 8,
-                  }}
-                >
-                  <ScanQrCode color="#FFFFFF" size={26} />
-                </View>
-              ),
-            }}
-          />
+        <Tabs.Screen
+          name="scan"
+          options={{
+            title: "Scan",
+          }}
+        />
 
-          <Tabs.Screen
-            name="marketplace"
-            listeners={tabListeners("marketplace")}
-            options={{
-              title: "Marketplace",
-              // Pop the nested stack when the tab loses focus, so returning to
-              // Marketplace opens the listings rather than the product detail
-              // the user left open. The tabPress handler above only covers a
-              // press made while already inside this tab.
-              popToTopOnBlur: true,
-              tabBarIcon: ({ color, size }) => (
-                <Handbag color={color} size={size} />
-              ),
-            }}
-          />
+        <Tabs.Screen
+          name="marketplace"
+          options={{
+            title: "Marketplace",
+            popToTopOnBlur: true,
+          }}
+        />
 
-          {/*
-            Pushed screens that keep the tab bar (scan, settings, edit-profile,
-            artists, notifications). `href: null` keeps the group out of the bar —
-            it's navigated to by URL, not by a tab button.
-          */}
-          <Tabs.Screen name="(details)" options={{ href: null }} />
+        {/* Pushed screens that keep the tab bar */}
+        <Tabs.Screen name="(details)" options={{ href: null }} />
 
-          <Tabs.Screen
-            name="profile"
-            listeners={tabListeners("profile")}
-            options={{
-              title: "Profile",
-              tabBarIcon: ({ color, size }) => (
-                <User color={color} size={size} />
-              ),
-            }}
-          />
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+          }}
+        />
       </Tabs>
+
       <SignInPopup
         open={!!gatedTab}
         onOpenChange={(open) => {
@@ -224,7 +328,6 @@ export default function TabLayout() {
         }}
         title={gatedTab ? GATED_TABS[gatedTab].title : undefined}
         description={gatedTab ? GATED_TABS[gatedTab].description : undefined}
-        // Signed in → open the tab the user pressed in the first place.
         onSignedIn={() => {
           const target = targetRef.current;
           targetRef.current = null;
@@ -232,7 +335,108 @@ export default function TabLayout() {
           if (target) router.push(GATED_TABS[target].href);
         }}
       />
-
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarWrapper: {
+    position: "absolute",
+    left: 12,
+    right: 12,
+    alignItems: "center",
+    // Ambient liquid glass drop shadow
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.65,
+    shadowRadius: 24,
+    elevation: 16,
+  },
+  glassContainer: {
+    width: "100%",
+    height: 74,
+    borderRadius: 40,
+    overflow: "visible",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.14)",
+    borderTopColor: "rgba(255, 255, 255, 0.26)",
+    // iOS gets a real gaussian blur from BlurView, so the fill can stay
+    // translucent and let the frosted effect show. Android's BlurView is far
+    // weaker — at 0.72 the content scrolling behind stayed fully legible
+    // through the bar — so the opacity has to come from the fill instead.
+    backgroundColor: Platform.select({
+      ios: "rgba(16, 12, 24, 0.72)",
+      default: "rgba(13, 11, 20, 0.96)",
+    }),
+  },
+  tabButtonsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    height: "100%",
+    paddingHorizontal: 6,
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 2,
+  },
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 32,
+    height: 32,
+  },
+  // Ringed badge on the selected tab. Width/height 32 with radius 16 makes the
+  // circle, so it stays aligned with the unfocused tabs rather than nudging the
+  // row — only the outline and tint appear.
+  iconContainerActive: {
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: "rgba(168, 85, 247, 0.55)",
+    backgroundColor: "rgba(168, 85, 247, 0.14)",
+  },
+  tabLabel: {
+    fontSize: 10.5,
+    marginTop: 2.5,
+    textAlign: "center",
+  },
+  scanTabButton: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: 4,
+    marginTop: -22,
+  },
+  scanGlowWrapper: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "rgba(147, 51, 234, 0.28)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(168, 85, 247, 0.45)",
+    shadowColor: "#8B5CF6",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.9,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  scanGradientCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scanLabel: {
+    fontSize: 10.5,
+    marginTop: 3,
+    color: "#9CA3AF",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+});
+

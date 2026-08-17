@@ -1,7 +1,8 @@
 import {
+  Crown,
   LucideIcon,
   Star,
-  TrendingUp
+  TrendingUp,
 } from "lucide-react-native";
 import React from "react";
 import { FlatList } from "react-native";
@@ -40,18 +41,8 @@ const categories: Category[] = [
   {
     id: "topCreators",
     title: "Top Creators",
-    icon: Star,
+    icon: Crown,
   },
-  // {
-  //   id: "experiences",
-  //   title: "Experiences",
-  //   icon: Ticket,
-  // },
-  // {
-  //   id: "onTour",
-  //   title: "On Tour",
-  //   icon: CalendarDays,
-  // },
 ];
 
 interface CategoriesSectionProps {
@@ -59,7 +50,10 @@ interface CategoriesSectionProps {
   onSelect: (id: DiscoverCategoryId) => void;
 }
 
-const CategoriesSection: React.FC<CategoriesSectionProps> = ({ activeId, onSelect }) => {
+const CategoriesSection: React.FC<CategoriesSectionProps> = ({
+  activeId,
+  onSelect,
+}) => {
   return (
     <FlatList
       horizontal
@@ -75,11 +69,12 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({ activeId, onSelec
       )}
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
-        paddingVertical: 6,
-        paddingHorizontal: 16,
+        paddingVertical: 4,
+        paddingHorizontal: 0,
       }}
     />
   );
 };
 
 export default CategoriesSection;
+

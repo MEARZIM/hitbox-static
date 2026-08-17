@@ -91,13 +91,13 @@ export default function DiscoverScreen() {
         <SafeAreaView
             // No bottom edge: the tab bar already reserves the safe area below.
             edges={["top", "left", "right"]}
-            className="flex-1 bg-black "
+            className="flex-1 bg-black"
         >
             <ScrollView
                 ref={scrollRef}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
-                    paddingBottom: 0,
+                    paddingBottom: 110,
                 }}
                 refreshControl={
                     <RefreshControl
@@ -110,7 +110,7 @@ export default function DiscoverScreen() {
                 <MainHeader
                     title="Discover"
                     subtitle="Explore collections, creators and exclusive experiences."
-                    className='px-4 py-2'
+                    className='px-4 pt-1 pb-1'
                 />
 
                 {/* Search Bar — backed by GET /api/v1/discover/products?search= */}
@@ -119,14 +119,14 @@ export default function DiscoverScreen() {
                     onChangeText={setSearch}
                     placeholder="Search artists, albums..."
                     onVoicePress={() => console.log("Voice")}
-                    classname="my-2"
+                    classname="my-1"
                 />
 
                 {isSearching ? (
                     <SearchResultsSection search={debouncedSearch} onItemPress={handleProductPress} />
                 ) : (
                     <>
-                        <View className="mt-5 mx-4 flex-row items-center justify-between">
+                        <View className="mt-2 mx-4 flex-row items-center justify-between">
                             <CategoriesSection
                                 activeId={activeCategory}
                                 onSelect={handleCategorySelect}
@@ -161,7 +161,7 @@ export default function DiscoverScreen() {
                                         title="Trending Now"
                                         onSeeAllPress={() => handleSeeAll('trending', 'Trending Now')}
                                     />
-                                    <View className="mt-4 mx-4">
+                                    <View className="mt-3 mx-4">
                                         {feed.trending.length > 0 ? (
                                             <FlatList
                                                 horizontal
@@ -177,7 +177,6 @@ export default function DiscoverScreen() {
                                                 showsHorizontalScrollIndicator={false}
                                             />
                                         ) : (
-                                            // <ComingSoonRow note="No trending items right now — pull to refresh." />
                                             <></>
                                         )}
                                     </View>
@@ -189,7 +188,7 @@ export default function DiscoverScreen() {
                                         title="Top Creators"
                                         onSeeAllPress={() => handleSeeAll('top_creators', 'Top Creators')}
                                     />
-                                    <View className="mt-4 mx-4">
+                                    <View className="mt-3 mx-4">
                                         {feed.topCreators.length > 0 ? (
                                             <FlatList
                                                 horizontal
@@ -217,7 +216,7 @@ export default function DiscoverScreen() {
                                         title="Latest Releases"
                                         onSeeAllPress={() => handleSeeAll('new_releases', 'Latest Releases')}
                                     />
-                                    <View className="mt-4 mx-4 mb-4">
+                                    <View className="mt-3 mx-4 mb-4">
                                         {feed.newReleases.length > 0 ? (
                                             <FlatList
                                                 horizontal
@@ -239,27 +238,6 @@ export default function DiscoverScreen() {
                                 </View>
                             </>
                         )}
-
-                        {/*
-                         Experience and Tour Section
-                        */}
-                        {/* {!isLoading && (
-                            <>
-                                <View onLayout={registerSection("experiences")}>
-                                    <SectionHeader title="Experiences" />
-                                    <View className="mt-4 mx-4">
-                                        <ComingSoonRow note="Exclusive experiences unlock here once your items are claimed." />
-                                    </View>
-                                </View>
-
-                                <View onLayout={registerSection("onTour")} className="mb-6">
-                                    <SectionHeader title="On Tour" />
-                                    <View className="mt-4 mx-4">
-                                        <ComingSoonRow note="Tour dates and venue drops are on the way." />
-                                    </View>
-                                </View>
-                            </>
-                        )} */}
                     </>
                 )}
 
@@ -271,19 +249,20 @@ export default function DiscoverScreen() {
 
 function SectionHeader({ title, onSeeAllPress }: { title: string; onSeeAllPress?: () => void }) {
     return (
-        <View className="mt-8 flex-row items-center justify-between mx-4">
-            <Text className="text-2xl font-bold text-white">
+        <View className="mt-6 flex-row items-center justify-between mx-4">
+            <Text className="text-xl font-extrabold text-white tracking-tight">
                 {title}
             </Text>
 
-            <TouchableOpacity className="flex-row items-center" onPress={onSeeAllPress}>
-                <Text className="mr-1 font-semibold text-violet-500">
+            <TouchableOpacity className="flex-row items-center" onPress={onSeeAllPress} activeOpacity={0.7}>
+                <Text className="mr-1 font-bold text-sm text-[#A855F7]">
                     See All
                 </Text>
 
                 <ArrowRight
-                    size={18}
-                    color="#8B5CF6"
+                    size={15}
+                    color="#A855F7"
+                    strokeWidth={2.5}
                 />
             </TouchableOpacity>
         </View>

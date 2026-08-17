@@ -33,6 +33,9 @@ export default function ProfileScreen() {
         >
             <ScrollView
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                    paddingBottom: 110,
+                }}
             >
                 {/* HEADER BAR */}
                 <MainHeader 

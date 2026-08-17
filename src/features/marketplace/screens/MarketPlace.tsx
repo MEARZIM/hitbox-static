@@ -83,7 +83,7 @@ const MarketPlaceScreen = () => {
                 ref={scrollRef}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
-                    paddingBottom: 24,
+                    paddingBottom: 110,
                 }}
                 refreshControl={
                     <RefreshControl
