@@ -36,14 +36,15 @@ export default function MainSearchBar({
       <BlurView
         intensity={Platform.OS === "ios" ? 40 : 80}
         tint="dark"
-        className="overflow-hidden rounded-2xl"
+        className="overflow-hidden"
         style={{
           borderWidth: 1,
           borderColor: isFocused ? "#8B5CF6" : "rgba(255, 255, 255, 0.08)",
           backgroundColor: "rgba(18, 16, 26, 0.65)",
+          borderRadius: 25
         }}
       >
-        <View className="h-12 flex-row items-center px-4">
+        <View className="h-12 flex-row items-center px-4 ">
           <Search size={19} color="#8B5CF6" strokeWidth={2.2} />
 
           <TextInput
@@ -99,4 +100,4 @@ export default function MainSearchBar({
       </BlurView>
     </View>
   );
-}
+}

@@ -35,7 +35,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               height: 44,
               flexDirection: "row",
               alignItems: "center",
-              borderRadius: 12,
+              borderRadius: 25,
               paddingHorizontal: 12,
               backgroundColor: active
                 ? "#7C3AED"
@@ -89,4 +89,4 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   );
 };
 
-export default CategoryCard;
+export default CategoryCard;

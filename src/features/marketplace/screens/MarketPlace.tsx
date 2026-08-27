@@ -77,7 +77,7 @@ const MarketPlaceScreen = () => {
         <SafeAreaView
             // No bottom edge: the tab bar already reserves the safe area below.
             edges={['top', 'left', 'right']}
-            className="flex-1 bg-background"
+            className="flex-1 bg-black"
         >
             <ScrollView
                 ref={scrollRef}

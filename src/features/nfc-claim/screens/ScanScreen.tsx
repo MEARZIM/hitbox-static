@@ -96,7 +96,10 @@ export default function ScanScreen() {
 
                 {/* Claim / Verify toggle — decides where a tap takes you */}
                 <View className="flex-row bg-[#0F0F13] border border-[#1F1F24] rounded-2xl p-1.5 mt-4 mb-6">
-                    {(['claim', 'verify'] as Action[]).map((a) => {
+                    {([
+                        'claim'
+                        // , 'verify'
+                    ] as Action[]).map((a) => {
                         const active = action === a;
                         return (
                             <TouchableOpacity

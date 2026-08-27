@@ -51,26 +51,6 @@ const TrendingCard: React.FC<TrendingCardProps> = ({
           resizeMode="cover"
         />
 
-        {/* Rank Badge Top Left */}
-        <View
-          style={{
-            position: "absolute",
-            top: 8,
-            left: 8,
-            width: 22,
-            height: 22,
-            borderRadius: 11,
-            backgroundColor: "rgba(0, 0, 0, 0.65)",
-            borderWidth: 1,
-            borderColor: "rgba(255, 255, 255, 0.15)",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text className="text-[10px] font-extrabold text-white">
-            {index}
-          </Text>
-        </View>
 
         {/* Heart Wishlist Button Top Right */}
         <TouchableOpacity
